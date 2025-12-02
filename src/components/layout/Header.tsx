@@ -13,50 +13,95 @@ const navLinks = [
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const maxScroll = documentHeight - windowHeight;
+      
+      // Calculate scroll progress (0 to 1)
+      const progress = Math.min(scrollY / maxScroll, 1);
+      setScrollProgress(progress);
+      
+      // Set scrolled state with threshold
+      setScrolled(scrollY > 20);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Throttle scroll events for better performance
+    let ticking = false;
+    const throttledScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener("scroll", throttledScroll, { passive: true });
+    // Initial check
+    handleScroll();
+    
+    return () => window.removeEventListener("scroll", throttledScroll);
   }, []);
 
   return (
     <header 
-      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${
+      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-300 ease-out rounded-xl sm:rounded-2xl ${
         scrolled 
-          ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50" 
-          : "bg-card/80 backdrop-blur-lg border border-border/30"
+          ? "bg-card/95 backdrop-blur-xl shadow-float-lg border border-border/50 py-1" 
+          : "bg-card/80 backdrop-blur-lg border border-border/30 py-0"
       }`}
+      style={{
+        transform: scrolled ? 'translateY(0)' : 'translateY(0)',
+        opacity: scrolled ? 1 : 0.95,
+      }}
     >
       <div className="container mx-auto px-3 sm:px-4 md:px-6">
-        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
+        <div className={`flex items-center justify-between transition-all duration-300 ${
+          scrolled ? 'h-12 sm:h-14 md:h-16' : 'h-14 sm:h-16 md:h-18'
+        }`}>
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
             <img 
               src="/logo.png" 
               alt="Inua Mama Initiative" 
-              className="h-9 sm:h-10 md:h-11 w-auto rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0"
+              className={`w-auto rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0 ${
+                scrolled ? 'h-8 sm:h-9 md:h-10' : 'h-9 sm:h-10 md:h-11'
+              }`}
               style={{ 
                 filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)',
                 mixBlendMode: 'multiply',
                 backgroundColor: 'transparent'
               }}
             />
-            <div className="hidden min-[375px]:block min-w-0">
-              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Inua Mama</h1>
-              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Initiative</p>
+            <div className={`hidden min-[375px]:block min-w-0 transition-all duration-300 ${
+              scrolled ? 'opacity-90' : 'opacity-100'
+            }`}>
+              <h1 className={`font-display font-semibold text-foreground leading-tight truncate transition-all duration-300 ${
+                scrolled ? 'text-xs sm:text-sm md:text-base' : 'text-sm sm:text-base md:text-lg'
+              }`}>Inua Mama</h1>
+              <p className={`text-muted-foreground truncate transition-all duration-300 ${
+                scrolled ? 'text-[8px] sm:text-[9px] md:text-[10px]' : 'text-[9px] sm:text-[10px] md:text-xs'
+              }`}>Initiative</p>
             </div>
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className={`hidden lg:flex items-center gap-1 transition-all duration-300 ${
+            scrolled ? 'opacity-90' : 'opacity-100'
+          }`}>
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-300"
+                className={`px-4 py-2 font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-300 ${
+                  scrolled ? 'text-xs py-1.5' : 'text-sm py-2'
+                }`}
               >
                 {link.label}
               </a>
