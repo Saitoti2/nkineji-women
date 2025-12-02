@@ -24,22 +24,24 @@ export function Header() {
 
   return (
     <header 
-      className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 rounded-2xl ${
+      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${
         scrolled 
           ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50" 
           : "bg-card/80 backdrop-blur-lg border border-border/30"
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16 sm:h-18">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6">
+        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 sm:gap-3 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-              <span className="text-primary-foreground font-display font-bold text-lg sm:text-xl">MM</span>
-            </div>
-            <div className="hidden xs:block">
-              <h1 className="font-display font-semibold text-base sm:text-lg text-foreground leading-tight">Maasai Mara</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Women Empowerment</p>
+          <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+            <img 
+              src="/logo.png" 
+              alt="Maasai Mara Women Empowerment Initiative" 
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
+            />
+            <div className="hidden min-[375px]:block min-w-0">
+              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Maasai Mara</h1>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Women Empowerment</p>
             </div>
           </a>
 
@@ -58,7 +60,7 @@ export function Header() {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="donate" size="sm" className="hidden sm:flex text-xs sm:text-sm px-3 sm:px-4">
+            <Button variant="donate" size="sm" className="hidden sm:flex text-xs sm:text-sm px-3 sm:px-4 min-h-[44px]">
               <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden md:inline">Donate Now</span>
               <span className="md:hidden">Donate</span>
@@ -68,10 +70,10 @@ export function Header() {
             <Sheet>
               <SheetTrigger asChild>
                 <button
-                  className="lg:hidden p-2.5 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                  className="lg:hidden p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Open menu"
                 >
-                  <Menu className="w-5 h-5 text-foreground" />
+                  <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
                 </button>
               </SheetTrigger>
               <SheetContent 
@@ -82,9 +84,11 @@ export function Header() {
                   {/* Mobile Menu Header */}
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                        <span className="text-primary-foreground font-display font-bold text-lg">MM</span>
-                      </div>
+                      <img 
+                        src="/logo.png" 
+                        alt="Maasai Mara Women Empowerment Initiative" 
+                        className="w-10 h-10 rounded-xl object-contain"
+                      />
                       <div>
                         <h2 className="font-display font-semibold text-foreground">Menu</h2>
                         <p className="text-xs text-muted-foreground">Navigation</p>
