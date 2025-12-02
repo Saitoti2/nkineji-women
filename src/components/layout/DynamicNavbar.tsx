@@ -214,8 +214,8 @@ export function DynamicNavbar() {
 
         <div
           className={cn(
-            "relative h-full flex items-center justify-between transition-all duration-700 overflow-hidden",
-            isScrolled && !isExpanded ? "justify-center px-4" : "px-4 sm:px-6 md:px-8"
+            "relative h-full flex items-center transition-all duration-700 overflow-hidden",
+            isScrolled && !isExpanded ? "justify-center px-4" : "justify-between px-4 sm:px-6 md:px-8"
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
@@ -250,17 +250,8 @@ export function DynamicNavbar() {
           
           {/* Center Name Display - Shows when navbar is full (not scrolled) */}
           {!isScrolled && (
-            <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
-              <h2 className="font-display font-semibold text-base text-foreground whitespace-nowrap">
-                Inua Mama Initiative - Kenya
-              </h2>
-            </div>
-          )}
-          
-          {/* Center Name Display - Shows when navbar is full (not scrolled) */}
-          {!isScrolled && (
-            <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
-              <h2 className="font-display font-semibold text-base text-foreground whitespace-nowrap">
+            <div className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+              <h2 className="font-display font-semibold text-sm sm:text-base text-foreground whitespace-nowrap drop-shadow-sm">
                 Inua Mama Initiative - Kenya
               </h2>
             </div>
