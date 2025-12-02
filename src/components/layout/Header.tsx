@@ -38,7 +38,11 @@ export function Header() {
               src="/logo.png" 
               alt="Inua Mama Initiative" 
               className="h-9 sm:h-10 md:h-11 w-auto rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0"
-              style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)' }}
+              style={{ 
+                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)',
+                mixBlendMode: 'multiply',
+                backgroundColor: 'transparent'
+              }}
             />
             <div className="hidden min-[375px]:block min-w-0">
               <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Inua Mama</h1>

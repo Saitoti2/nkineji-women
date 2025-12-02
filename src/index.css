@@ -13,20 +13,41 @@ img[src*="logo"] {
   opacity: 1;
   background-blend-mode: normal;
   transition: filter 0.3s ease;
+  /* Remove white/light backgrounds using mix-blend-mode and filters */
+  mix-blend-mode: multiply;
 }
 
-/* For light backgrounds (header, cards, main content) */
+/* For white/light backgrounds - remove background completely */
 header img[src*="logo"],
 .bg-card img[src*="logo"],
 .bg-background img[src*="logo"],
 .bg-white img[src*="logo"],
 [class*="bg-card"] img[src*="logo"],
-[class*="bg-background"] img[src*="logo"] {
-  /* Brown logo on light background - enhance contrast, add subtle shadow for depth */
+[class*="bg-background"] img[src*="logo"],
+[class*="bg-white"] img[src*="logo"] {
+  /* Remove white background on light sections */
+  mix-blend-mode: multiply;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) 
           drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05))
           contrast(1.15) brightness(0.95) saturate(1.1);
-  mix-blend-mode: normal;
+  /* Use CSS to make white transparent */
+  background: transparent;
+}
+
+/* For light backgrounds (header, cards, main content) - remove white background */
+header img[src*="logo"],
+.bg-card img[src*="logo"],
+.bg-background img[src*="logo"],
+.bg-white img[src*="logo"],
+[class*="bg-card"] img[src*="logo"],
+[class*="bg-background"] img[src*="logo"],
+[class*="bg-white"] img[src*="logo"] {
+  /* Remove white background using multiply blend mode - makes white transparent */
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) 
+          drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05))
+          contrast(1.15) brightness(0.95) saturate(1.1);
+  background: transparent;
 }
 
 /* For dark backgrounds (footer, dark sections) */
