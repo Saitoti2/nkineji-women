@@ -299,8 +299,6 @@ export function DynamicNavbar() {
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-          }}
-          style={{
             backdropFilter: "blur(40px) saturate(180%)",
             WebkitBackdropFilter: "blur(40px) saturate(180%)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 40px rgba(16,65,45,0.2)",
