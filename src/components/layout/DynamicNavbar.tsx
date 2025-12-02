@@ -256,6 +256,15 @@ export function DynamicNavbar() {
               </h2>
             </div>
           )}
+          
+          {/* Center Name Display - Shows when navbar is full (not scrolled) */}
+          {!isScrolled && (
+            <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
+              <h2 className="font-display font-semibold text-base text-foreground whitespace-nowrap">
+                Inua Mama Initiative - Kenya
+              </h2>
+            </div>
+          )}
 
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
