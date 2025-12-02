@@ -82,13 +82,16 @@ export function DynamicNavbar() {
       <div
         ref={navbarRef}
         className={cn(
-          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
           isScrolled
             ? isExpanded
               ? "w-[95vw] max-w-6xl h-16 rounded-2xl"
               : "w-[140px] h-12 rounded-full"
             : "w-[95vw] max-w-6xl h-16 rounded-2xl"
         )}
+        style={{
+          transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
         style={{
           backdropFilter: "blur(40px) saturate(180%)",
           WebkitBackdropFilter: "blur(40px) saturate(180%)",
@@ -161,10 +164,13 @@ export function DynamicNavbar() {
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
             <div
-              className={cn(
-                "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-                isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
-              )}
+          className={cn(
+            "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-500",
+            isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
+          )}
+          style={{
+            transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+          }}
               key={currentSection}
             >
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
@@ -284,10 +290,13 @@ export function DynamicNavbar() {
             "flex items-center justify-center",
             "backdrop-blur-xl bg-white/80 hover:bg-white/90",
             "border border-white/30 shadow-float-lg",
-            "transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+            "transition-all duration-500",
             "hover:scale-110 active:scale-95",
             "animate-float-button"
           )}
+          style={{
+            transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+          }}
           style={{
             backdropFilter: "blur(40px) saturate(180%)",
             WebkitBackdropFilter: "blur(40px) saturate(180%)",
