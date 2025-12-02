@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -257,5 +257,90 @@
       padding-left: 1rem;
       padding-right: 1rem;
     }
+  }
+
+  /* Liquid Glass Morphism Effects for Dynamic Island */
+  @keyframes liquid-morph {
+    0%, 100% {
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      transform: scale(1);
+    }
+    25% {
+      border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
+    }
+    50% {
+      border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
+      transform: scale(1.02);
+    }
+    75% {
+      border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
+    }
+  }
+
+  @keyframes glass-shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  @keyframes island-expand {
+    from {
+      width: 140px;
+      border-radius: 9999px;
+    }
+    to {
+      width: 95vw;
+      max-width: 1536px;
+      border-radius: 1rem;
+    }
+  }
+
+  @keyframes island-collapse {
+    from {
+      width: 95vw;
+      max-width: 1536px;
+      border-radius: 1rem;
+    }
+    to {
+      width: 140px;
+      border-radius: 9999px;
+    }
+  }
+
+  @keyframes float-button {
+    0%, 100% {
+      transform: translate(-50%, 0) translateY(0);
+    }
+    50% {
+      transform: translate(-50%, 0) translateY(-8px);
+    }
+  }
+
+  /* Glass morphism utility */
+  .glass-morphism {
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 0 60px rgba(16, 65, 45, 0.1);
+  }
+
+  .animate-float-button {
+    animation: float-button 3s ease-in-out infinite;
+  }
+
+  /* Smooth cubic bezier easing for liquid transitions */
+  .ease-liquid {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
