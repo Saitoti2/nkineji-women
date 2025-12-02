@@ -31,7 +31,7 @@ export function Footer() {
             <img 
               src="/logo.png" 
               alt="Inua Mama Initiative" 
-              className="w-10 h-10 rounded-xl object-contain"
+              className="h-10 w-auto rounded-xl object-contain"
               style={{ 
                 filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) brightness(1.4) contrast(1.2) saturate(1.15)' 
               }}

@@ -37,7 +37,7 @@ export function Header() {
             <img 
               src="/logo.png" 
               alt="Inua Mama Initiative" 
-              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0"
+              className="h-9 sm:h-10 md:h-11 w-auto rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0"
               style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)' }}
             />
             <div className="hidden min-[375px]:block min-w-0">
@@ -88,7 +88,7 @@ export function Header() {
                       <img 
                         src="/logo.png" 
                         alt="Inua Mama Initiative" 
-                        className="w-10 h-10 rounded-xl object-contain"
+                        className="h-10 w-auto rounded-xl object-contain"
                         style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)' }}
                       />
                       <div>
