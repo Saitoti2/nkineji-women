@@ -36,12 +36,13 @@ export function Header() {
           <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
             <img 
               src="/logo.png" 
-              alt="Maasai Mara Women Empowerment Initiative" 
-              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
+              alt="Inua Mama Initiative" 
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0"
+              style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)' }}
             />
             <div className="hidden min-[375px]:block min-w-0">
-              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Maasai Mara</h1>
-              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Women Empowerment</p>
+              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Inua Mama</h1>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Initiative</p>
             </div>
           </a>
 
@@ -86,12 +87,13 @@ export function Header() {
                     <div className="flex items-center gap-3">
                       <img 
                         src="/logo.png" 
-                        alt="Maasai Mara Women Empowerment Initiative" 
+                        alt="Inua Mama Initiative" 
                         className="w-10 h-10 rounded-xl object-contain"
+                        style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)' }}
                       />
                       <div>
-                        <h2 className="font-display font-semibold text-foreground">Menu</h2>
-                        <p className="text-xs text-muted-foreground">Navigation</p>
+                        <h2 className="font-display font-semibold text-foreground">Inua Mama</h2>
+                        <p className="text-xs text-muted-foreground">Initiative</p>
                       </div>
                     </div>
                     <SheetClose asChild>

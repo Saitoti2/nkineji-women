@@ -30,12 +30,15 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <img 
               src="/logo.png" 
-              alt="Maasai Mara Women Empowerment Initiative" 
+              alt="Inua Mama Initiative" 
               className="w-10 h-10 rounded-xl object-contain"
+              style={{ 
+                filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.2)) brightness(1.4) contrast(1.2) saturate(1.15)' 
+              }}
             />
             <div>
-              <h3 className="font-display font-semibold text-card text-sm sm:text-base">Maasai Mara Women</h3>
-              <p className="text-[10px] sm:text-xs text-card/60">Empowerment Initiative</p>
+              <h3 className="font-display font-semibold text-card text-sm sm:text-base">Inua Mama</h3>
+              <p className="text-[10px] sm:text-xs text-card/60">Initiative</p>
             </div>
           </div>
 
