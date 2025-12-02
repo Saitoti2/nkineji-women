@@ -13,6 +13,7 @@ const navLinks = [
 ];
 
 const sectionTitles: Record<string, string> = {
+  hero: "Home",
   mission: "Our Mission",
   programs: "Our Programs",
   campaigns: "Active Campaigns",
@@ -21,6 +22,9 @@ const sectionTitles: Record<string, string> = {
   donate: "Make a Donation",
 };
 
+// Section order for scroll detection
+const sectionOrder = ["hero", "mission", "programs", "campaigns", "impact", "stories", "donate"];
+
 export function DynamicNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>("");
@@ -28,43 +32,133 @@ export function DynamicNavbar() {
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const navbarRef = useRef<HTMLDivElement>(null);
 
-  // Detect scroll and sections
+  // Enhanced scroll and section detection
   useEffect(() => {
-    const handleScroll = () => {
+    const detectCurrentSection = () => {
       const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const viewportCenter = scrollY + windowHeight / 2;
+
       setIsScrolled(scrollY > 100);
       setShowFloatingButton(scrollY > 300);
+
+      // Get all sections with IDs
+      const sections = Array.from(document.querySelectorAll("section[id]")) as HTMLElement[];
+      
+      // Also check for hero section (might not have id)
+      const heroSection = document.querySelector("section:first-of-type");
+      if (heroSection && !heroSection.id) {
+        heroSection.id = "hero";
+      }
+
+      if (sections.length === 0) return;
+
+      // Find the section closest to the viewport center
+      let closestSection: HTMLElement | null = null;
+      let closestDistance = Infinity;
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        const sectionTop = scrollY + rect.top;
+        const sectionBottom = sectionTop + rect.height;
+        const sectionCenter = sectionTop + rect.height / 2;
+
+        // Calculate distance from viewport center to section center
+        const distance = Math.abs(viewportCenter - sectionCenter);
+
+        // Check if section is in viewport (at least partially visible)
+        const isInViewport = 
+          (sectionTop <= scrollY + windowHeight && sectionBottom >= scrollY) ||
+          (rect.top < windowHeight / 2 && rect.bottom > windowHeight / 2);
+
+        if (isInViewport && distance < closestDistance) {
+          closestDistance = distance;
+          closestSection = section;
+        }
+      });
+
+      // If no section is in viewport, find the closest one by scroll position
+      if (!closestSection && sections.length > 0) {
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          const sectionTop = scrollY + rect.top;
+          const distance = Math.abs(scrollY - sectionTop);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSection = section;
+          }
+        });
+      }
+
+      // Set current section
+      if (closestSection?.id) {
+        setCurrentSection(closestSection.id);
+      } else if (scrollY < 100) {
+        // At the top, show hero
+        setCurrentSection("hero");
+      }
     };
 
-    // Intersection Observer for section detection
+    // Throttled scroll handler for better performance
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          detectCurrentSection();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Initial detection
+    detectCurrentSection();
+
+    // Intersection Observer as backup for more accurate detection
     const observerOptions = {
       root: null,
-      rootMargin: "-20% 0px -70% 0px",
-      threshold: 0.3,
+      rootMargin: "-10% 0px -10% 0px", // More sensitive margins
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], // Multiple thresholds for better detection
     };
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      // Find the section with the highest intersection ratio
+      let maxRatio = 0;
+      let activeSection: string | null = null;
+
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
+        if (entry.intersectionRatio > maxRatio && entry.isIntersecting) {
+          maxRatio = entry.intersectionRatio;
           const sectionId = entry.target.id;
           if (sectionId) {
-            setCurrentSection(sectionId);
+            activeSection = sectionId;
           }
         }
       });
+
+      if (activeSection) {
+        setCurrentSection(activeSection);
+      }
     };
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    // Observe all sections
-    const sections = document.querySelectorAll("section[id]");
-    sections.forEach((section) => observer.observe(section));
+    // Observe all sections including hero
+    const allSections = document.querySelectorAll("section");
+    allSections.forEach((section) => {
+      if (!section.id && section === document.querySelector("section:first-of-type")) {
+        section.id = "hero";
+      }
+      observer.observe(section);
+    });
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener("resize", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
       observer.disconnect();
     };
   }, []);
@@ -167,17 +261,17 @@ export function DynamicNavbar() {
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
             <div
-          className={cn(
-            "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-500",
-            isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
-          )}
-          style={{
-            transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-          }}
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-300",
+                isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
+              )}
+              style={{
+                transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
               key={currentSection}
             >
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
-              <span className="font-display font-semibold text-sm text-foreground whitespace-nowrap drop-shadow-sm">
+              <span className="font-display font-semibold text-sm text-foreground whitespace-nowrap drop-shadow-sm animate-fade-in">
                 {currentTitle}
               </span>
             </div>
