@@ -1,19 +1,32 @@
 {
-  "name": "Maasai Mara Women Empowerment Initiative",
-  "short_name": "Maasai Mara Women",
+  "name": "Inua Mama Initiative",
+  "short_name": "Inua Mama",
   "description": "Transform lives through rescue, healthcare, education, and economic empowerment of Maasai women and girls.",
   "icons": [
     {
-      "src": "/logo.png",
-      "sizes": "873x714",
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "theme_color": "#C45525",
   "background_color": "#ffffff",
   "display": "standalone",
   "start_url": "/",
-  "scope": "/"
+  "scope": "/",
+  "orientation": "portrait-primary"
 }
 
