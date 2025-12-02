@@ -91,8 +91,6 @@ export function DynamicNavbar() {
         )}
         style={{
           transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-        }}
-        style={{
           backdropFilter: "blur(40px) saturate(180%)",
           WebkitBackdropFilter: "blur(40px) saturate(180%)",
           background: isScrolled
@@ -143,7 +141,7 @@ export function DynamicNavbar() {
           <div
             className={cn(
               "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-0",
-              isScrolled && !isExpanded ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
+              isScrolled && !isExpanded ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100 w-auto"
             )}
           >
             <img
@@ -151,15 +149,16 @@ export function DynamicNavbar() {
               alt="Maasai Mara Women Empowerment Initiative"
               className={cn(
                 "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
-                isScrolled ? "h-8 w-auto" : "h-10 w-auto"
+                isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
               )}
               style={{
                 filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)",
                 mixBlendMode: "multiply",
                 backgroundColor: "transparent",
+                display: isScrolled && !isExpanded ? "none" : "block",
               }}
             />
-            <div className="hidden sm:block min-w-0">
+            <div className={cn("hidden sm:block min-w-0", isScrolled && !isExpanded && "hidden")}>
               <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Maasai Mara</h1>
               <p className="text-[10px] text-muted-foreground leading-tight truncate">Women Empowerment</p>
             </div>
