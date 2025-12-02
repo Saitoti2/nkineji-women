@@ -23,14 +23,16 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="bg-foreground">
-      <div className="container mx-auto px-4 py-8 sm:py-10">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-10">
         {/* Main Footer Content */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 sm:gap-6 lg:gap-8">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-lg">MM</span>
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Maasai Mara Women Empowerment Initiative" 
+              className="w-10 h-10 rounded-xl object-contain"
+            />
             <div>
               <h3 className="font-display font-semibold text-card text-sm sm:text-base">Maasai Mara Women</h3>
               <p className="text-[10px] sm:text-xs text-card/60">Empowerment Initiative</p>
@@ -83,41 +85,37 @@ export function Footer() {
               <a
                 key={social.label}
                 href={social.href}
-                className="w-8 h-8 rounded-lg bg-card/10 flex items-center justify-center hover:bg-card/20 transition-all duration-300 hover:scale-110"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-card/10 flex items-center justify-center hover:bg-card/20 transition-all duration-300 hover:scale-110 min-w-[44px] min-h-[44px]"
                 aria-label={social.label}
               >
-                <social.icon className="w-4 h-4 text-card" />
+                <social.icon className="w-4 h-4 sm:w-5 sm:h-5 text-card" />
               </a>
             ))}
           </div>
         </div>
 
         {/* Contact Row */}
-        <div className="mt-6 pt-6 border-t border-card/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-card/60">
-            <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-1.5 hover:text-card/80 transition-colors">
-              <Mail className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">info@maasaimarawomen.org</span>
-              <span className="xs:hidden">Email</span>
+        <div className="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-card/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm text-card/60">
+            <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-1.5 hover:text-card/80 transition-colors min-h-[44px]">
+              <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden min-[375px]:inline break-all">info@maasaimarawomen.org</span>
+              <span className="min-[375px]:hidden">Email</span>
             </a>
-            <a href="tel:+254700000000" className="flex items-center gap-1.5 hover:text-card/80 transition-colors">
-              <Phone className="w-3.5 h-3.5" />
-              <span>+254 700 000 000</span>
+            <a href="tel:+254700000000" className="flex items-center gap-1.5 hover:text-card/80 transition-colors min-h-[44px]">
+              <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">+254 700 000 000</span>
             </a>
-            <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5" />
+            <span className="flex items-center gap-1.5 min-h-[44px]">
+              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               <span>Narok, Kenya</span>
             </span>
           </div>
           
           <div className="flex items-center gap-4">
             <p className="text-card/40 text-xs">
-              © {new Date().getFullYear()} MMWEI
+              © {new Date().getFullYear()} Maasai Mara Women Empowerment Initiative
             </p>
-            <div className="flex items-center gap-1 text-card/40 text-xs">
-              <span>Made with</span>
-              <Heart className="w-3 h-3 text-primary fill-primary" />
-            </div>
           </div>
         </div>
 
