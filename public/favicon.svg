@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C45525;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A7C59;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#grad1)"/>
+  <!-- Stylized "MM" for Maasai Mara -->
+  <text x="50" y="65" font-family="serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">MM</text>
+  <!-- Decorative elements representing Maasai culture -->
+  <circle cx="25" cy="25" r="3" fill="#F4A460" opacity="0.8"/>
+  <circle cx="75" cy="25" r="3" fill="#F4A460" opacity="0.8"/>
+  <circle cx="25" cy="75" r="3" fill="#F4A460" opacity="0.8"/>
+  <circle cx="75" cy="75" r="3" fill="#F4A460" opacity="0.8"/>
+</svg>
+

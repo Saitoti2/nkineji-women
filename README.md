@@ -1,73 +1,84 @@
-# Welcome to your Lovable project
+# Maasai Mara Women Empowerment Initiative
 
-## Project info
+A modern, responsive web application for the Maasai Mara Women Empowerment Initiative, dedicated to transforming lives and empowering women in Kenya's Maasai Mara region.
 
-**URL**: https://lovable.dev/projects/c97cddf6-c9cf-4f62-8287-ae6afc30663b
+## Project Overview
 
-## How can I edit this code?
+This website showcases the organization's mission to support Maasai women and girls through:
+- **Rescue & Safe House**: Emergency rescue, shelter, and rehabilitation
+- **Education & Sponsorship**: Full school sponsorships from primary through university
+- **Women's Health**: Maternal care, cancer screening, and mobile clinics
+- **Micro-Enterprise**: Business training and seed capital
+- **Savings & Loans**: Women's savings groups and micro-loans
+- **Community Empowerment**: Leadership training and advocacy
 
-There are several ways of editing your application.
+## Technologies
 
-**Use Lovable**
+This project is built with modern web technologies:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c97cddf6-c9cf-4f62-8287-ae6afc30663b) and start prompting.
+- **Vite** - Fast build tool and development server
+- **React 18** - UI library
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - High-quality React components
+- **React Router** - Client-side routing
+- **Supabase** - Backend services (configured)
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js 18+ and npm (or use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+The development server will start at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/        # React components
+│   ├── layout/        # Header, Footer
+│   ├── sections/      # Page sections (Hero, Mission, etc.)
+│   └── ui/            # shadcn/ui components
+├── pages/             # Page components
+├── assets/            # Images and static assets
+├── hooks/             # Custom React hooks
+├── lib/               # Utility functions
+└── integrations/      # Third-party integrations (Supabase)
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Features
 
-## What technologies are used for this project?
+- 🎨 Beautiful, modern UI with custom design system
+- 📱 Fully responsive design
+- ♿ Accessible components
+- 🚀 Optimized performance
+- 🌍 SEO-friendly structure
+- 💳 Donation integration ready
 
-This project is built with:
+## Customization
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The design system uses a warm earth palette inspired by the Maasai Mara:
+- **Primary**: Terracotta (warmth, African heritage)
+- **Secondary**: Forest Green (conservation, trust, growth)
+- **Accent**: Gold (hope, prosperity)
 
-## How can I deploy this project?
+## License
 
-Simply open [Lovable](https://lovable.dev/projects/c97cddf6-c9cf-4f62-8287-ae6afc30663b) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Copyright © 2024 Maasai Mara Women Empowerment Initiative. All rights reserved.
