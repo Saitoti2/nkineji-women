@@ -83,7 +83,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl"
+                className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl [&>button]:hidden"
               >
                 <div className="flex flex-col h-full p-6">
                   {/* Mobile Menu Header */}
