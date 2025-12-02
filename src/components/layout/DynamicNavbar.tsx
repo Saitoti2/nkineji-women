@@ -221,7 +221,7 @@ export function DynamicNavbar() {
             transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
-          {/* Logo - Always visible but scales */}
+          {/* Logo and Name - Always visible but scales */}
           <div
             className={cn(
               "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-0",
@@ -230,7 +230,7 @@ export function DynamicNavbar() {
           >
             <img
               src="/logo.png"
-              alt="Maasai Mara Women Empowerment Initiative"
+              alt="Inua Mama Initiative"
               className={cn(
                 "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
                 isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
@@ -243,10 +243,19 @@ export function DynamicNavbar() {
               }}
             />
             <div className={cn("hidden sm:block min-w-0", isScrolled && !isExpanded && "hidden")}>
-              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Maasai Mara</h1>
-              <p className="text-[10px] text-muted-foreground leading-tight truncate">Women Empowerment</p>
+              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Inua Mama Initiative</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight truncate">Kenya</p>
             </div>
           </div>
+          
+          {/* Center Name Display - Shows when navbar is full (not scrolled) */}
+          {!isScrolled && (
+            <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
+              <h2 className="font-display font-semibold text-base text-foreground whitespace-nowrap">
+                Inua Mama Initiative - Kenya
+              </h2>
+            </div>
+          )}
 
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
