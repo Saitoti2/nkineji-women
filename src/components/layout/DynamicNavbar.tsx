@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, Heart, X, ChevronUp } from "lucide-react";
+import { Menu, Heart, X, ChevronUp, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -30,7 +31,13 @@ export function DynamicNavbar() {
   const [currentSection, setCurrentSection] = useState<string>("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const navbarRef = useRef<HTMLDivElement>(null);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Enhanced scroll and section detection
   useEffect(() => {
@@ -251,7 +258,7 @@ export function DynamicNavbar() {
           {/* Center Name Display - Shows when navbar is full (not scrolled) */}
           {!isScrolled && (
             <div className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-              <h2 className="font-display font-semibold text-sm sm:text-base text-foreground whitespace-nowrap drop-shadow-sm">
+              <h2 className="font-display font-bold text-base sm:text-lg md:text-xl text-foreground whitespace-nowrap drop-shadow-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient-text">
                 Inua Mama Initiative - Kenya
               </h2>
             </div>
@@ -309,6 +316,26 @@ export function DynamicNavbar() {
               <Heart className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Donate</span>
             </Button>
+
+            {/* Theme Toggle - Before hamburger menu */}
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className={cn(
+                  "p-2 rounded-lg backdrop-blur-sm transition-all min-w-[36px] min-h-[36px] flex items-center justify-center",
+                  "bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20",
+                  "text-foreground hover:scale-110 active:scale-95",
+                  isScrolled && !isExpanded && "opacity-0 w-0 overflow-hidden"
+                )}
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5 text-foreground" />
+                ) : (
+                  <Moon className="w-5 h-5 text-foreground" />
+                )}
+              </button>
+            )}
 
             {/* Mobile Menu */}
             <Sheet>
