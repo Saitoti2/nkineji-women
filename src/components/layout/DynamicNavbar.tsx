@@ -176,12 +176,12 @@ export function DynamicNavbar() {
       <div
         ref={navbarRef}
         className={cn(
-          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
+          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 overflow-hidden",
           isScrolled
             ? isExpanded
-              ? "w-[95vw] max-w-6xl h-16 rounded-2xl"
+              ? "w-[95vw] max-w-6xl h-16 rounded-3xl"
               : "w-[140px] h-12 rounded-full"
-            : "w-[95vw] max-w-6xl h-16 rounded-2xl"
+            : "w-[95vw] max-w-6xl h-16 rounded-3xl"
         )}
         style={{
           transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
@@ -194,6 +194,7 @@ export function DynamicNavbar() {
           boxShadow: isScrolled
             ? "0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 60px rgba(16,65,45,0.1)"
             : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 80px rgba(16,65,45,0.15)",
+          borderRadius: isScrolled && !isExpanded ? "9999px" : "1.5rem",
         }}
         onMouseEnter={() => isScrolled && setIsExpanded(true)}
         onMouseLeave={() => isScrolled && setIsExpanded(false)}
@@ -201,26 +202,15 @@ export function DynamicNavbar() {
       >
         {/* Liquid glass morphism effect */}
         <div
-          className="absolute inset-0 rounded-inherit opacity-50"
+          className="absolute inset-0 opacity-50"
           style={{
             background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
             filter: "blur(1px)",
+            borderRadius: "inherit",
           }}
         />
 
-        {/* Animated border glow */}
-        <div
-          className="absolute inset-0 rounded-inherit opacity-0 transition-opacity duration-700"
-          style={{
-            background: "linear-gradient(135deg, rgba(196,85,37,0.3), rgba(74,124,89,0.3), rgba(196,85,37,0.3))",
-            backgroundSize: "200% 200%",
-            animation: "gradient-shift 3s ease infinite",
-            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-            padding: "1px",
-          }}
-        />
+        {/* Animated border glow - removed to eliminate sharp corners */}
 
         <div
           className={cn(
