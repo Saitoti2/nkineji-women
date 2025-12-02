@@ -1,0 +1,29 @@
+import { z } from 'zod';
+
+export const createCampaignSchema = z.object({
+  body: z.object({
+    title: z.string().min(1).max(200),
+    description: z.string().min(1),
+    goalAmount: z.number().positive(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+    earmark: z.string().optional(),
+    status: z.enum(['draft', 'active', 'paused', 'completed']).default('draft'),
+  }),
+});
+
+export const updateCampaignSchema = z.object({
+  body: z.object({
+    title: z.string().min(1).max(200).optional(),
+    description: z.string().min(1).optional(),
+    goalAmount: z.number().positive().optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+    earmark: z.string().optional(),
+    status: z.enum(['draft', 'active', 'paused', 'completed']).optional(),
+  }),
+  params: z.object({
+    id: z.string().uuid(),
+  }),
+});
+

@@ -20,11 +20,11 @@ const buttonVariants = cva(
         "hero-outline": "border-2 border-card/30 text-card hover:bg-card/10 backdrop-blur-sm",
       },
       size: {
-        default: "h-11 px-6 py-2",
-        sm: "h-9 rounded-lg px-4",
-        lg: "h-14 rounded-2xl px-10 text-base",
-        xl: "h-16 rounded-2xl px-12 text-lg",
-        icon: "h-10 w-10",
+        default: "h-11 min-h-[44px] px-6 py-2",
+        sm: "h-9 min-h-[44px] rounded-lg px-4",
+        lg: "h-14 min-h-[48px] sm:min-h-[56px] rounded-2xl px-8 sm:px-10 text-sm sm:text-base",
+        xl: "h-16 min-h-[52px] sm:min-h-[64px] rounded-2xl px-10 sm:px-12 text-base sm:text-lg",
+        icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {

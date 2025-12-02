@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+<<<<<<< HEAD
 import { Menu, Heart, X, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+=======
+import { Menu, Heart, X, ChevronUp, Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
+>>>>>>> main
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -13,6 +20,10 @@ const navLinks = [
 ];
 
 const sectionTitles: Record<string, string> = {
+<<<<<<< HEAD
+=======
+  hero: "Home",
+>>>>>>> main
   mission: "Our Mission",
   programs: "Our Programs",
   campaigns: "Active Campaigns",
@@ -21,11 +32,18 @@ const sectionTitles: Record<string, string> = {
   donate: "Make a Donation",
 };
 
+<<<<<<< HEAD
+=======
+// Section order for scroll detection
+const sectionOrder = ["hero", "mission", "programs", "campaigns", "impact", "stories", "donate"];
+
+>>>>>>> main
 export function DynamicNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
+<<<<<<< HEAD
   const navbarRef = useRef<HTMLDivElement>(null);
 
   // Detect scroll and sections
@@ -52,10 +70,129 @@ export function DynamicNavbar() {
           }
         }
       });
+=======
+  const [mounted, setMounted] = useState(false);
+  const navbarRef = useRef<HTMLDivElement>(null);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Enhanced scroll and section detection
+  useEffect(() => {
+    const detectCurrentSection = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const viewportCenter = scrollY + windowHeight / 2;
+
+      setIsScrolled(scrollY > 100);
+      setShowFloatingButton(scrollY > 300);
+
+      // Get all sections with IDs
+      const sections = Array.from(document.querySelectorAll("section[id]")) as HTMLElement[];
+      
+      // Also check for hero section (might not have id)
+      const heroSection = document.querySelector("section:first-of-type");
+      if (heroSection && !heroSection.id) {
+        heroSection.id = "hero";
+      }
+
+      if (sections.length === 0) return;
+
+      // Find the section closest to the viewport center
+      let closestSection: HTMLElement | null = null;
+      let closestDistance = Infinity;
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        const sectionTop = scrollY + rect.top;
+        const sectionBottom = sectionTop + rect.height;
+        const sectionCenter = sectionTop + rect.height / 2;
+
+        // Calculate distance from viewport center to section center
+        const distance = Math.abs(viewportCenter - sectionCenter);
+
+        // Check if section is in viewport (at least partially visible)
+        const isInViewport = 
+          (sectionTop <= scrollY + windowHeight && sectionBottom >= scrollY) ||
+          (rect.top < windowHeight / 2 && rect.bottom > windowHeight / 2);
+
+        if (isInViewport && distance < closestDistance) {
+          closestDistance = distance;
+          closestSection = section;
+        }
+      });
+
+      // If no section is in viewport, find the closest one by scroll position
+      if (!closestSection && sections.length > 0) {
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          const sectionTop = scrollY + rect.top;
+          const distance = Math.abs(scrollY - sectionTop);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSection = section;
+          }
+        });
+      }
+
+      // Set current section
+      if (closestSection?.id) {
+        setCurrentSection(closestSection.id);
+      } else if (scrollY < 100) {
+        // At the top, show hero
+        setCurrentSection("hero");
+      }
+    };
+
+    // Throttled scroll handler for better performance
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          detectCurrentSection();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Initial detection
+    detectCurrentSection();
+
+    // Intersection Observer as backup for more accurate detection
+    const observerOptions = {
+      root: null,
+      rootMargin: "-10% 0px -10% 0px", // More sensitive margins
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], // Multiple thresholds for better detection
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      // Find the section with the highest intersection ratio
+      let maxRatio = 0;
+      let activeSection: string | null = null;
+
+      entries.forEach((entry) => {
+        if (entry.intersectionRatio > maxRatio && entry.isIntersecting) {
+          maxRatio = entry.intersectionRatio;
+          const sectionId = entry.target.id;
+          if (sectionId) {
+            activeSection = sectionId;
+          }
+        }
+      });
+
+      if (activeSection) {
+        setCurrentSection(activeSection);
+      }
+>>>>>>> main
     };
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
+<<<<<<< HEAD
     // Observe all sections
     const sections = document.querySelectorAll("section[id]");
     sections.forEach((section) => observer.observe(section));
@@ -65,6 +202,23 @@ export function DynamicNavbar() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+=======
+    // Observe all sections including hero
+    const allSections = document.querySelectorAll("section");
+    allSections.forEach((section) => {
+      if (!section.id && section === document.querySelector("section:first-of-type")) {
+        section.id = "hero";
+      }
+      observer.observe(section);
+    });
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+>>>>>>> main
       observer.disconnect();
     };
   }, []);
@@ -82,12 +236,21 @@ export function DynamicNavbar() {
       <div
         ref={navbarRef}
         className={cn(
+<<<<<<< HEAD
           "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
           isScrolled
             ? isExpanded
               ? "w-[95vw] max-w-6xl h-16 rounded-2xl"
               : "w-[140px] h-12 rounded-full"
             : "w-[95vw] max-w-6xl h-16 rounded-2xl"
+=======
+          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 overflow-hidden",
+          isScrolled
+            ? isExpanded
+              ? "w-[95vw] max-w-6xl h-16 rounded-3xl"
+              : "w-[140px] h-12 rounded-full"
+            : "w-[95vw] max-w-6xl h-16 rounded-3xl"
+>>>>>>> main
         )}
         style={{
           transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
@@ -100,6 +263,10 @@ export function DynamicNavbar() {
           boxShadow: isScrolled
             ? "0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 60px rgba(16,65,45,0.1)"
             : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 80px rgba(16,65,45,0.15)",
+<<<<<<< HEAD
+=======
+          borderRadius: isScrolled && !isExpanded ? "9999px" : "1.5rem",
+>>>>>>> main
         }}
         onMouseEnter={() => isScrolled && setIsExpanded(true)}
         onMouseLeave={() => isScrolled && setIsExpanded(false)}
@@ -107,6 +274,7 @@ export function DynamicNavbar() {
       >
         {/* Liquid glass morphism effect */}
         <div
+<<<<<<< HEAD
           className="absolute inset-0 rounded-inherit opacity-50"
           style={{
             background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
@@ -132,12 +300,32 @@ export function DynamicNavbar() {
           className={cn(
             "relative h-full flex items-center justify-between transition-all duration-700 overflow-hidden",
             isScrolled && !isExpanded ? "justify-center px-4" : "px-4 sm:px-6 md:px-8"
+=======
+          className="absolute inset-0 opacity-50"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
+            filter: "blur(1px)",
+            borderRadius: "inherit",
+          }}
+        />
+
+        {/* Animated border glow - removed to eliminate sharp corners */}
+
+        <div
+          className={cn(
+            "relative h-full flex items-center transition-all duration-700 overflow-hidden",
+            isScrolled && !isExpanded ? "justify-center px-4" : "justify-between px-4 sm:px-6 md:px-8"
+>>>>>>> main
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
+<<<<<<< HEAD
           {/* Logo - Always visible but scales */}
+=======
+          {/* Logo and Name - Always visible but scales */}
+>>>>>>> main
           <div
             className={cn(
               "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-0",
@@ -146,7 +334,11 @@ export function DynamicNavbar() {
           >
             <img
               src="/logo.png"
+<<<<<<< HEAD
               alt="Maasai Mara Women Empowerment Initiative"
+=======
+              alt="Inua Mama Initiative"
+>>>>>>> main
               className={cn(
                 "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
                 isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
@@ -159,14 +351,31 @@ export function DynamicNavbar() {
               }}
             />
             <div className={cn("hidden sm:block min-w-0", isScrolled && !isExpanded && "hidden")}>
+<<<<<<< HEAD
               <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Maasai Mara</h1>
               <p className="text-[10px] text-muted-foreground leading-tight truncate">Women Empowerment</p>
             </div>
           </div>
+=======
+              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Inua Mama Initiative</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight truncate">Kenya</p>
+            </div>
+          </div>
+          
+          {/* Center Name Display - Shows when navbar is full (not scrolled) */}
+          {!isScrolled && (
+            <div className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+              <h2 className="font-display font-bold text-base sm:text-lg md:text-xl text-foreground whitespace-nowrap drop-shadow-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient-text">
+                Inua Mama Initiative - Kenya
+              </h2>
+            </div>
+          )}
+>>>>>>> main
 
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
             <div
+<<<<<<< HEAD
           className={cn(
             "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-500",
             isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
@@ -178,6 +387,19 @@ export function DynamicNavbar() {
             >
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
               <span className="font-display font-semibold text-sm text-foreground whitespace-nowrap drop-shadow-sm">
+=======
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-300",
+                isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
+              )}
+              style={{
+                transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+              key={currentSection}
+            >
+              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
+              <span className="font-display font-semibold text-sm text-foreground whitespace-nowrap drop-shadow-sm animate-fade-in">
+>>>>>>> main
                 {currentTitle}
               </span>
             </div>
@@ -217,6 +439,29 @@ export function DynamicNavbar() {
               <span className="hidden md:inline">Donate</span>
             </Button>
 
+<<<<<<< HEAD
+=======
+            {/* Theme Toggle - Before hamburger menu */}
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className={cn(
+                  "p-2 rounded-lg backdrop-blur-sm transition-all min-w-[36px] min-h-[36px] flex items-center justify-center",
+                  "bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20",
+                  "text-foreground hover:scale-110 active:scale-95",
+                  isScrolled && !isExpanded && "opacity-0 w-0 overflow-hidden"
+                )}
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5 text-foreground" />
+                ) : (
+                  <Moon className="w-5 h-5 text-foreground" />
+                )}
+              </button>
+            )}
+
+>>>>>>> main
             {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
@@ -299,8 +544,11 @@ export function DynamicNavbar() {
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+<<<<<<< HEAD
           }}
           style={{
+=======
+>>>>>>> main
             backdropFilter: "blur(40px) saturate(180%)",
             WebkitBackdropFilter: "blur(40px) saturate(180%)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 40px rgba(16,65,45,0.2)",

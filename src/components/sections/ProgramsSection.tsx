@@ -42,35 +42,35 @@ const programs = [
 
 export function ProgramsSection() {
   return (
-    <section id="programs" className="py-20 bg-muted/50">
-      <div className="container mx-auto px-4">
+    <section id="programs" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background via-muted/30 to-background">
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 float-card p-5 sm:p-6 md:p-8 lg:p-10">
+          <span className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
             Our Programs
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
             Holistic Support for <span className="text-primary">Women & Girls</span>
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg px-2">
             Our interconnected programs address every aspect of a woman's journey — from rescue and healing to education, economic independence, and community leadership.
           </p>
         </div>
 
         {/* Programs Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
           {programs.map((program, index) => (
             <div
               key={program.title}
-              className="float-card p-6 sm:p-8 group cursor-pointer"
+              className="float-card p-4 sm:p-5 md:p-6 lg:p-8 group cursor-pointer min-h-[200px] sm:min-h-[220px]"
             >
-              <div className={`w-14 h-14 rounded-2xl ${program.color} flex items-center justify-center mb-6 transition-transform group-hover:scale-110`}>
-                <program.icon className="w-7 h-7 text-card" />
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl ${program.color} flex items-center justify-center mb-4 sm:mb-5 md:mb-6 transition-transform group-hover:scale-110`}>
+                <program.icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-card" />
               </div>
-              <h3 className="font-display text-xl font-bold text-foreground mb-3">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3">
                 {program.title}
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                 {program.description}
               </p>
             </div>
@@ -78,8 +78,8 @@ export function ProgramsSection() {
         </div>
 
         {/* CTA */}
-        <div className="mt-12 text-center">
-          <Button variant="default" size="lg">
+        <div className="mt-8 sm:mt-10 md:mt-12 text-center">
+          <Button variant="default" size="lg" className="min-h-[48px] sm:min-h-[56px] text-sm sm:text-base">
             Learn More About Our Work
           </Button>
         </div>

@@ -1,0 +1,10 @@
+# Cache headers for images
+/og-image-1200x630.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/icon-512x512.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/logo.png
+  Cache-Control: public, max-age=31536000, immutable
+

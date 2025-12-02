@@ -22,8 +22,13 @@ export function DonateSection() {
   const currentImpact = impactExamples.find(ex => ex.amount <= activeAmount)?.impact || impactExamples[0].impact;
 
   return (
+<<<<<<< HEAD
     <section id="donate" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-secondary via-secondary/95 to-secondary">
       <div className="container mx-auto px-4 sm:px-6">
+=======
+    <section id="donate" className="py-20 bg-secondary">
+      <div className="container mx-auto px-4">
+>>>>>>> main
         <div className="max-w-4xl mx-auto">
           {/* Floating Card */}
           <div className="float-card p-5 sm:p-6 md:p-8 lg:p-10 xl:p-12 shadow-float-xl hover:shadow-float-xl hover:scale-[1.01] transition-all duration-500">
