@@ -13,107 +13,45 @@ const navLinks = [
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      
-      // Always show navbar at the top
-      if (scrollY < 50) {
-        setIsVisible(true);
-        setScrolled(false);
-        setLastScrollY(scrollY);
-        return;
-      }
-      
-      // Determine scroll direction
-      const scrollingDown = scrollY > lastScrollY;
-      const scrollingUp = scrollY < lastScrollY;
-      
-      // Hide when scrolling down, show when scrolling up
-      if (scrollingDown && scrollY > 100) {
-        setIsVisible(false);
-      } else if (scrollingUp) {
-        setIsVisible(true);
-      }
-      
-      // Update scrolled state for styling
-      setScrolled(scrollY > 20);
-      setLastScrollY(scrollY);
+      setScrolled(window.scrollY > 20);
     };
-    
-    // Throttle scroll events for better performance
-    let ticking = false;
-    const throttledScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    
-    window.addEventListener("scroll", throttledScroll, { passive: true });
-    // Initial check
-    handleScroll();
-    
-    return () => window.removeEventListener("scroll", throttledScroll);
-  }, [lastScrollY]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header 
-      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-300 ease-out rounded-xl sm:rounded-2xl ${
+      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${
         scrolled 
-          ? "bg-card/95 backdrop-blur-xl shadow-float-lg border border-border/50 py-1" 
-          : "bg-card/80 backdrop-blur-lg border border-border/30 py-0"
-      } ${
-        isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+          ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50" 
+          : "bg-card/80 backdrop-blur-lg border border-border/30"
       }`}
     >
       <div className="container mx-auto px-3 sm:px-4 md:px-6">
-        <div className={`flex items-center justify-between transition-all duration-300 ${
-          scrolled ? 'h-12 sm:h-14 md:h-16' : 'h-14 sm:h-16 md:h-18'
-        }`}>
+        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
             <img 
               src="/logo.png" 
-              alt="Inua Mama Initiative" 
-              className={`w-auto rounded-lg sm:rounded-xl object-contain transition-all duration-300 group-hover:scale-105 flex-shrink-0 ${
-                scrolled ? 'h-8 sm:h-9 md:h-10' : 'h-9 sm:h-10 md:h-11'
-              }`}
-              style={{ 
-                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)',
-                mixBlendMode: 'multiply',
-                backgroundColor: 'transparent'
-              }}
+              alt="Maasai Mara Women Empowerment Initiative" 
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
             />
-            <div className={`hidden min-[375px]:block min-w-0 transition-all duration-300 ${
-              scrolled ? 'opacity-90' : 'opacity-100'
-            }`}>
-              <h1 className={`font-display font-semibold text-foreground leading-tight truncate transition-all duration-300 ${
-                scrolled ? 'text-xs sm:text-sm md:text-base' : 'text-sm sm:text-base md:text-lg'
-              }`}>Inua Mama</h1>
-              <p className={`text-muted-foreground truncate transition-all duration-300 ${
-                scrolled ? 'text-[8px] sm:text-[9px] md:text-[10px]' : 'text-[9px] sm:text-[10px] md:text-xs'
-              }`}>Initiative</p>
+            <div className="hidden min-[375px]:block min-w-0">
+              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Maasai Mara</h1>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Women Empowerment</p>
             </div>
           </a>
 
           {/* Desktop Navigation */}
-          <nav className={`hidden lg:flex items-center gap-1 transition-all duration-300 ${
-            scrolled ? 'opacity-90' : 'opacity-100'
-          }`}>
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className={`px-4 py-2 font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-300 ${
-                  scrolled ? 'text-xs py-1.5' : 'text-sm py-2'
-                }`}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-all duration-300"
               >
                 {link.label}
               </a>
@@ -140,7 +78,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl [&>button]:hidden"
+                className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl"
               >
                 <div className="flex flex-col h-full p-6">
                   {/* Mobile Menu Header */}
@@ -148,17 +86,12 @@ export function Header() {
                     <div className="flex items-center gap-3">
                       <img 
                         src="/logo.png" 
-                        alt="Inua Mama Initiative" 
-                        className="h-10 w-auto rounded-xl object-contain"
-                        style={{ 
-                          filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)',
-                          mixBlendMode: 'multiply',
-                          backgroundColor: 'transparent'
-                        }}
+                        alt="Maasai Mara Women Empowerment Initiative" 
+                        className="w-10 h-10 rounded-xl object-contain"
                       />
                       <div>
-                        <h2 className="font-display font-semibold text-foreground">Inua Mama</h2>
-                        <p className="text-xs text-muted-foreground">Initiative</p>
+                        <h2 className="font-display font-semibold text-foreground">Menu</h2>
+                        <p className="text-xs text-muted-foreground">Navigation</p>
                       </div>
                     </div>
                     <SheetClose asChild>
