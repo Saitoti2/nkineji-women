@@ -9,12 +9,10 @@ img[src*="logo"] {
   /* Base styling - ensure good visibility and crisp rendering */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
-  background: transparent;
+  background: transparent !important;
   opacity: 1;
   background-blend-mode: normal;
   transition: filter 0.3s ease;
-  /* Remove white/light backgrounds using mix-blend-mode and filters */
-  mix-blend-mode: multiply;
 }
 
 /* For white/light backgrounds - remove background completely */

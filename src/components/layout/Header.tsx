@@ -93,7 +93,11 @@ export function Header() {
                         src="/logo.png" 
                         alt="Inua Mama Initiative" 
                         className="h-10 w-auto rounded-xl object-contain"
-                        style={{ filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)' }}
+                        style={{ 
+                          filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)',
+                          mixBlendMode: 'multiply',
+                          backgroundColor: 'transparent'
+                        }}
                       />
                       <div>
                         <h2 className="font-display font-semibold text-foreground">Inua Mama</h2>
