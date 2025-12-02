@@ -22,7 +22,7 @@ export function DonateSection() {
   const currentImpact = impactExamples.find(ex => ex.amount <= activeAmount)?.impact || impactExamples[0].impact;
 
   return (
-    <section className="py-20 bg-secondary">
+    <section id="donate" className="py-20 bg-secondary">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Floating Card */}
