@@ -132,32 +132,36 @@ export function DynamicNavbar() {
 
         <div
           className={cn(
-            "relative h-full flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden",
+            "relative h-full flex items-center justify-between transition-all duration-700 overflow-hidden",
             isScrolled && !isExpanded ? "justify-center px-4" : "px-4 sm:px-6 md:px-8"
           )}
+          style={{
+            transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
         >
           {/* Logo - Always visible but scales */}
           <div
             className={cn(
               "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-0",
-              isScrolled && !isExpanded ? "opacity-0 w-0" : "opacity-100 w-auto"
+              isScrolled && !isExpanded ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
             )}
           >
             <img
               src="/logo.png"
               alt="Maasai Mara Women Empowerment Initiative"
               className={cn(
-                "rounded-lg object-contain transition-all duration-700",
+                "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
                 isScrolled ? "h-8 w-auto" : "h-10 w-auto"
               )}
               style={{
                 filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)",
                 mixBlendMode: "multiply",
+                backgroundColor: "transparent",
               }}
             />
-            <div className="hidden sm:block">
-              <h1 className="font-display font-semibold text-sm text-foreground leading-tight">Maasai Mara</h1>
-              <p className="text-[10px] text-muted-foreground leading-tight">Women Empowerment</p>
+            <div className="hidden sm:block min-w-0">
+              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Maasai Mara</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight truncate">Women Empowerment</p>
             </div>
           </div>
 
