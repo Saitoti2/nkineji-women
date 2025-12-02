@@ -13,21 +13,35 @@ const navLinks = [
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const maxScroll = documentHeight - windowHeight;
       
-      // Calculate scroll progress (0 to 1)
-      const progress = Math.min(scrollY / maxScroll, 1);
-      setScrollProgress(progress);
+      // Always show navbar at the top
+      if (scrollY < 50) {
+        setIsVisible(true);
+        setScrolled(false);
+        setLastScrollY(scrollY);
+        return;
+      }
       
-      // Set scrolled state with threshold
+      // Determine scroll direction
+      const scrollingDown = scrollY > lastScrollY;
+      const scrollingUp = scrollY < lastScrollY;
+      
+      // Hide when scrolling down, show when scrolling up
+      if (scrollingDown && scrollY > 100) {
+        setIsVisible(false);
+      } else if (scrollingUp) {
+        setIsVisible(true);
+      }
+      
+      // Update scrolled state for styling
       setScrolled(scrollY > 20);
+      setLastScrollY(scrollY);
     };
     
     // Throttle scroll events for better performance
@@ -47,7 +61,7 @@ export function Header() {
     handleScroll();
     
     return () => window.removeEventListener("scroll", throttledScroll);
-  }, []);
+  }, [lastScrollY]);
 
   return (
     <header 
@@ -55,11 +69,9 @@ export function Header() {
         scrolled 
           ? "bg-card/95 backdrop-blur-xl shadow-float-lg border border-border/50 py-1" 
           : "bg-card/80 backdrop-blur-lg border border-border/30 py-0"
+      } ${
+        isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
       }`}
-      style={{
-        transform: scrolled ? 'translateY(0)' : 'translateY(0)',
-        opacity: scrolled ? 1 : 0.95,
-      }}
     >
       <div className="container mx-auto px-3 sm:px-4 md:px-6">
         <div className={`flex items-center justify-between transition-all duration-300 ${
