@@ -1,20 +1,20 @@
 import { ApiError } from '../middleware/errorHandler.js';
 import { logger } from '../utils/logger.js';
-
-// TODO: Replace with actual database queries
+import { query } from '../db/connection.js';
 
 export interface Campaign {
   id: string;
   title: string;
   description: string;
-  goalAmount: number;
-  raisedAmount: number;
-  startDate?: string;
-  endDate?: string;
+  goal_amount: number;
+  raised_amount: number;
+  start_date?: string;
+  end_date?: string;
   earmark?: string;
   status: 'draft' | 'active' | 'paused' | 'completed';
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
 }
 
 export interface CampaignFilters {
@@ -24,41 +24,204 @@ export interface CampaignFilters {
 }
 
 export const getCampaigns = async (filters: CampaignFilters): Promise<Campaign[]> => {
-  // TODO: Implement database query with filters
-  logger.info('Fetching campaigns', filters);
-  return [];
+  try {
+    let sql = 'SELECT * FROM campaigns WHERE is_deleted = FALSE';
+    const params: any[] = [];
+    let paramCount = 1;
+
+    if (filters.status) {
+      sql += ` AND status = $${paramCount}`;
+      params.push(filters.status);
+      paramCount++;
+    }
+
+    sql += ` ORDER BY created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    params.push(filters.limit, filters.offset);
+
+    const result = await query<Campaign>(sql, params);
+    return result.rows;
+  } catch (error) {
+    logger.error('Error fetching campaigns', error);
+    throw new ApiError('Failed to fetch campaigns', 500);
+  }
 };
 
 export const getCampaign = async (id: string): Promise<Campaign> => {
-  // TODO: Implement database query
-  logger.info(`Fetching campaign: ${id}`);
-  throw new ApiError('Campaign not found', 404);
+  try {
+    const result = await query<Campaign>(
+      'SELECT * FROM campaigns WHERE id = $1 AND is_deleted = FALSE',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new ApiError('Campaign not found', 404);
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    logger.error('Error fetching campaign', error);
+    throw new ApiError('Failed to fetch campaign', 500);
+  }
 };
 
 export const getCampaignImpact = async (id: string) => {
-  // TODO: Calculate impact metrics
-  return {
-    fundsRaised: 0,
-    beneficiariesServed: 0,
-    disbursements: [],
-  };
+  try {
+    // Get total funds raised
+    const fundsResult = await query<{ total: number }>(
+      `SELECT COALESCE(SUM(amount), 0) as total 
+       FROM donations 
+       WHERE campaign_id = $1 AND status = 'succeeded' AND is_deleted = FALSE`,
+      [id]
+    );
+
+    // Get number of beneficiaries served through disbursements
+    const beneficiariesResult = await query<{ count: number }>(
+      `SELECT COUNT(DISTINCT beneficiary_id) as count
+       FROM disbursements d
+       JOIN wallets w ON d.wallet_id = w.id
+       WHERE w.owner_type = 'campaign' AND w.owner_id = $1 
+       AND d.status = 'executed' AND d.is_deleted = FALSE`,
+      [id]
+    );
+
+    // Get recent disbursements
+    const disbursementsResult = await query(
+      `SELECT d.*, b.pseudo_id as beneficiary_pseudo_id
+       FROM disbursements d
+       JOIN wallets w ON d.wallet_id = w.id
+       LEFT JOIN beneficiaries b ON d.beneficiary_id = b.id
+       WHERE w.owner_type = 'campaign' AND w.owner_id = $1
+       AND d.is_deleted = FALSE
+       ORDER BY d.created_at DESC
+       LIMIT 10`,
+      [id]
+    );
+
+    return {
+      fundsRaised: parseFloat(fundsResult.rows[0]?.total || '0'),
+      beneficiariesServed: parseInt(beneficiariesResult.rows[0]?.count || '0'),
+      disbursements: disbursementsResult.rows,
+    };
+  } catch (error) {
+    logger.error('Error calculating campaign impact', error);
+    throw new ApiError('Failed to calculate impact', 500);
+  }
 };
 
-export const createCampaign = async (data: Partial<Campaign>, userId: string): Promise<Campaign> => {
-  // TODO: Implement database insert
-  logger.info(`Creating campaign by user: ${userId}`, data);
-  throw new ApiError('Not implemented', 501);
+export const createCampaign = async (data: any, userId: string): Promise<Campaign> => {
+  try {
+    const result = await query<Campaign>(
+      `INSERT INTO campaigns (
+        title, description, goal_amount, start_date, end_date, 
+        earmark, status, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *`,
+      [
+        data.title,
+        data.description,
+        data.goalAmount,
+        data.startDate || null,
+        data.endDate || null,
+        data.earmark || null,
+        data.status || 'draft',
+        userId,
+      ]
+    );
+
+    // Create wallet for campaign
+    await query(
+      `INSERT INTO wallets (owner_type, owner_id, balance, currency)
+       VALUES ('campaign', $1, 0, 'USD')`,
+      [result.rows[0].id]
+    );
+
+    return result.rows[0];
+  } catch (error) {
+    logger.error('Error creating campaign', error);
+    throw new ApiError('Failed to create campaign', 500);
+  }
 };
 
-export const updateCampaign = async (id: string, data: Partial<Campaign>, userId: string): Promise<Campaign> => {
-  // TODO: Implement database update
-  logger.info(`Updating campaign ${id} by user: ${userId}`, data);
-  throw new ApiError('Not implemented', 501);
+export const updateCampaign = async (id: string, data: any, userId: string): Promise<Campaign> => {
+  try {
+    const updates: string[] = [];
+    const params: any[] = [];
+    let paramCount = 1;
+
+    if (data.title !== undefined) {
+      updates.push(`title = $${paramCount++}`);
+      params.push(data.title);
+    }
+    if (data.description !== undefined) {
+      updates.push(`description = $${paramCount++}`);
+      params.push(data.description);
+    }
+    if (data.goalAmount !== undefined) {
+      updates.push(`goal_amount = $${paramCount++}`);
+      params.push(data.goalAmount);
+    }
+    if (data.startDate !== undefined) {
+      updates.push(`start_date = $${paramCount++}`);
+      params.push(data.startDate || null);
+    }
+    if (data.endDate !== undefined) {
+      updates.push(`end_date = $${paramCount++}`);
+      params.push(data.endDate || null);
+    }
+    if (data.earmark !== undefined) {
+      updates.push(`earmark = $${paramCount++}`);
+      params.push(data.earmark || null);
+    }
+    if (data.status !== undefined) {
+      updates.push(`status = $${paramCount++}`);
+      params.push(data.status);
+    }
+
+    if (updates.length === 0) {
+      return await getCampaign(id);
+    }
+
+    updates.push(`updated_at = NOW()`);
+    params.push(id);
+
+    const result = await query<Campaign>(
+      `UPDATE campaigns 
+       SET ${updates.join(', ')}
+       WHERE id = $${paramCount} AND is_deleted = FALSE
+       RETURNING *`,
+      params
+    );
+
+    if (result.rows.length === 0) {
+      throw new ApiError('Campaign not found', 404);
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    logger.error('Error updating campaign', error);
+    throw new ApiError('Failed to update campaign', 500);
+  }
 };
 
 export const deleteCampaign = async (id: string, userId: string): Promise<void> => {
-  // TODO: Implement soft delete
-  logger.info(`Deleting campaign ${id} by user: ${userId}`);
-  throw new ApiError('Not implemented', 501);
+  try {
+    const result = await query(
+      `UPDATE campaigns 
+       SET is_deleted = TRUE, updated_at = NOW()
+       WHERE id = $1 AND is_deleted = FALSE
+       RETURNING id`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new ApiError('Campaign not found', 404);
+    }
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    logger.error('Error deleting campaign', error);
+    throw new ApiError('Failed to delete campaign', 500);
+  }
 };
 

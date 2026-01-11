@@ -25,3 +25,5 @@ rm -f public/logo_cropped.png
 
 echo "✓ Logo processed: Text removed, graphic centered in ${WIDTH}x${WIDTH} square"
 
+
+

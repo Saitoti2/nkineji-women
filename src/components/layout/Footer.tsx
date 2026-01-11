@@ -32,6 +32,10 @@ export function Footer() {
               src="/logo.png" 
               alt="Maasai Mara Women Empowerment Initiative" 
               className="w-10 h-10 rounded-xl object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
             <div>
               <h3 className="font-display font-semibold text-card text-sm sm:text-base">Maasai Mara Women</h3>

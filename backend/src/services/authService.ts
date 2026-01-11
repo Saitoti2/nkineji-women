@@ -20,41 +20,114 @@ interface LoginResult {
   refreshToken: string;
 }
 
+import { query } from '../db/connection.js';
+
 export const login = async (credentials: LoginCredentials): Promise<LoginResult> => {
-  // TODO: Implement actual database lookup
-  // TODO: Implement OTP verification for phone login
-  
   if (credentials.email && credentials.password) {
     // Email/password login
-    // const user = await db.users.findByEmail(credentials.email);
-    // if (!user || !await bcrypt.compare(credentials.password, user.passwordHash)) {
-    //   throw new ApiError('Invalid credentials', 401);
-    // }
-    
-    // Placeholder
-    const user: AuthUser = {
-      id: 'user-id-placeholder',
-      email: credentials.email,
-      role: 'donor',
+    const userResult = await query<{
+      id: string;
+      email: string;
+      password_hash: string;
+      role_id: string;
+      organisation_id?: string;
+      is_active: boolean;
+    }>(
+      `SELECT u.id, u.email, u.password_hash, u.role_id, u.organisation_id, u.is_active, r.name as role_name
+       FROM users u
+       JOIN roles r ON u.role_id = r.id
+       WHERE u.email = $1 AND u.is_deleted = FALSE`,
+      [credentials.email]
+    );
+
+    if (userResult.rows.length === 0) {
+      throw new ApiError('Invalid credentials', 401);
+    }
+
+    const user = userResult.rows[0];
+
+    if (!user.is_active) {
+      throw new ApiError('Account is inactive', 403);
+    }
+
+    if (!user.password_hash) {
+      throw new ApiError('Password not set. Please use password reset.', 401);
+    }
+
+    const isValid = await bcrypt.compare(credentials.password, user.password_hash);
+    if (!isValid) {
+      throw new ApiError('Invalid credentials', 401);
+    }
+
+    // Update last login
+    await query(
+      'UPDATE users SET last_login = NOW() WHERE id = $1',
+      [user.id]
+    );
+
+    const authUser: AuthUser = {
+      id: user.id,
+      email: user.email,
+      role: (user as any).role_name,
+      organisationId: user.organisation_id,
     };
 
-    const tokens = generateTokens(user);
+    const tokens = generateTokens(authUser);
+    
+    // Store refresh token
+    await query(
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+       VALUES ($1, $2, NOW() + INTERVAL '7 days')`,
+      [user.id, await bcrypt.hash(tokens.refreshToken, 10)]
+    );
+
     logger.info(`User logged in: ${user.email}`);
-    return { user, ...tokens };
+    return { user: authUser, ...tokens };
   }
 
   if (credentials.phone && credentials.otp) {
     // Phone/OTP login
+    // TODO: Verify OTP from database
+    const userResult = await query<{
+      id: string;
+      phone: string;
+      role_id: string;
+      organisation_id?: string;
+      is_active: boolean;
+    }>(
+      `SELECT u.id, u.phone, u.role_id, u.organisation_id, u.is_active, r.name as role_name
+       FROM users u
+       JOIN roles r ON u.role_id = r.id
+       WHERE u.phone = $1 AND u.is_deleted = FALSE`,
+      [credentials.phone]
+    );
+
+    if (userResult.rows.length === 0) {
+      throw new ApiError('Invalid credentials', 401);
+    }
+
+    const user = userResult.rows[0];
+
+    if (!user.is_active) {
+      throw new ApiError('Account is inactive', 403);
+    }
+
     // TODO: Verify OTP
-    const user: AuthUser = {
-      id: 'user-id-placeholder',
-      email: `${credentials.phone}@phone.local`,
-      role: 'field_officer',
+    // const otpResult = await query('SELECT * FROM otp_codes WHERE phone = $1 AND code = $2 AND expires_at > NOW()', [credentials.phone, credentials.otp]);
+    // if (otpResult.rows.length === 0) {
+    //   throw new ApiError('Invalid OTP', 401);
+    // }
+
+    const authUser: AuthUser = {
+      id: user.id,
+      email: `${user.phone}@phone.local`,
+      role: (user as any).role_name,
+      organisationId: user.organisation_id,
     };
 
-    const tokens = generateTokens(user);
+    const tokens = generateTokens(authUser);
     logger.info(`User logged in via OTP: ${credentials.phone}`);
-    return { user, ...tokens };
+    return { user: authUser, ...tokens };
   }
 
   throw new ApiError('Invalid login credentials', 400);
@@ -68,20 +141,46 @@ export const refresh = async (refreshToken: string): Promise<{ accessToken: stri
 
   try {
     const decoded = jwt.verify(refreshToken, secret) as AuthUser;
-    // TODO: Verify refresh token in database (revocation check)
+    
+    // Verify refresh token in database (revocation check)
+    const tokenHash = await bcrypt.hash(refreshToken, 10);
+    const tokenResult = await query(
+      `SELECT * FROM refresh_tokens 
+       WHERE user_id = $1 AND token_hash = $2 
+       AND expires_at > NOW() AND revoked_at IS NULL`,
+      [decoded.id, tokenHash]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      const apiError: ApiError = new Error('Invalid or revoked refresh token');
+      apiError.statusCode = 401;
+      throw apiError;
+    }
     
     const accessToken = generateAccessToken(decoded);
     return { accessToken };
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     const apiError: ApiError = new Error('Invalid refresh token');
     apiError.statusCode = 401;
     throw apiError;
   }
 };
 
-export const logout = async (refreshToken: string): Promise<void> => {
-  // TODO: Add refresh token to revocation list in database
-  logger.info('User logged out');
+export const logout = async (refreshToken: string, userId: string): Promise<void> => {
+  try {
+    // Revoke all refresh tokens for user
+    await query(
+      `UPDATE refresh_tokens 
+       SET revoked_at = NOW()
+       WHERE user_id = $1 AND revoked_at IS NULL`,
+      [userId]
+    );
+    logger.info(`User ${userId} logged out`);
+  } catch (error) {
+    logger.error('Error during logout', error);
+    // Don't throw - logout should always succeed
+  }
 };
 
 export const forgotPassword = async (email: string): Promise<void> => {

@@ -43,3 +43,5 @@ export const updateBeneficiarySchema = z.object({
   }),
 });
 
+
+

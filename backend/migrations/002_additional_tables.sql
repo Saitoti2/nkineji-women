@@ -171,3 +171,5 @@ CREATE INDEX idx_sync_batches_device ON sync_batches(device_id);
 CREATE INDEX idx_sync_items_batch ON sync_items(batch_id);
 CREATE INDEX idx_sync_items_local_id ON sync_items(local_id);
 
+
+

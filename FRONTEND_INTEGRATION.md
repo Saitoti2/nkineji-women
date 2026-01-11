@@ -147,3 +147,5 @@ VITE_API_URL=http://localhost:3000/api/v1
 5. Update frontend to use API client
 6. Test integration
 
+
+

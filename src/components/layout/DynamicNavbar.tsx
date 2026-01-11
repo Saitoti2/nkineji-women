@@ -1,14 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-<<<<<<< HEAD
-import { Menu, Heart, X, ChevronUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-=======
 import { Menu, Heart, X, ChevronUp, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
->>>>>>> main
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -20,10 +14,7 @@ const navLinks = [
 ];
 
 const sectionTitles: Record<string, string> = {
-<<<<<<< HEAD
-=======
   hero: "Home",
->>>>>>> main
   mission: "Our Mission",
   programs: "Our Programs",
   campaigns: "Active Campaigns",
@@ -32,45 +23,14 @@ const sectionTitles: Record<string, string> = {
   donate: "Make a Donation",
 };
 
-<<<<<<< HEAD
-=======
 // Section order for scroll detection
 const sectionOrder = ["hero", "mission", "programs", "campaigns", "impact", "stories", "donate"];
 
->>>>>>> main
 export function DynamicNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
-<<<<<<< HEAD
-  const navbarRef = useRef<HTMLDivElement>(null);
-
-  // Detect scroll and sections
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 100);
-      setShowFloatingButton(scrollY > 300);
-    };
-
-    // Intersection Observer for section detection
-    const observerOptions = {
-      root: null,
-      rootMargin: "-20% 0px -70% 0px",
-      threshold: 0.3,
-    };
-
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const sectionId = entry.target.id;
-          if (sectionId) {
-            setCurrentSection(sectionId);
-          }
-        }
-      });
-=======
   const [mounted, setMounted] = useState(false);
   const navbarRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
@@ -187,22 +147,10 @@ export function DynamicNavbar() {
       if (activeSection) {
         setCurrentSection(activeSection);
       }
->>>>>>> main
     };
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-<<<<<<< HEAD
-    // Observe all sections
-    const sections = document.querySelectorAll("section[id]");
-    sections.forEach((section) => observer.observe(section));
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-=======
     // Observe all sections including hero
     const allSections = document.querySelectorAll("section");
     allSections.forEach((section) => {
@@ -218,7 +166,6 @@ export function DynamicNavbar() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
->>>>>>> main
       observer.disconnect();
     };
   }, []);
@@ -236,21 +183,12 @@ export function DynamicNavbar() {
       <div
         ref={navbarRef}
         className={cn(
-<<<<<<< HEAD
-          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700",
-          isScrolled
-            ? isExpanded
-              ? "w-[95vw] max-w-6xl h-16 rounded-2xl"
-              : "w-[140px] h-12 rounded-full"
-            : "w-[95vw] max-w-6xl h-16 rounded-2xl"
-=======
           "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 overflow-hidden",
           isScrolled
             ? isExpanded
               ? "w-[95vw] max-w-6xl h-16 rounded-3xl"
               : "w-[140px] h-12 rounded-full"
             : "w-[95vw] max-w-6xl h-16 rounded-3xl"
->>>>>>> main
         )}
         style={{
           transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
@@ -260,13 +198,14 @@ export function DynamicNavbar() {
             ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%), rgba(255,255,255,0.8)"
             : "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%), rgba(255,255,255,0.85)",
           border: "1px solid rgba(255,255,255,0.3)",
-          boxShadow: isScrolled
+          boxShadow: theme === "dark"
+            ? isScrolled
+              ? "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 60px rgba(16,70,60,0.2)"
+              : "0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 80px rgba(16,70,60,0.25)"
+            : isScrolled
             ? "0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 60px rgba(16,65,45,0.1)"
             : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 80px rgba(16,65,45,0.15)",
-<<<<<<< HEAD
-=======
           borderRadius: isScrolled && !isExpanded ? "9999px" : "1.5rem",
->>>>>>> main
         }}
         onMouseEnter={() => isScrolled && setIsExpanded(true)}
         onMouseLeave={() => isScrolled && setIsExpanded(false)}
@@ -274,36 +213,11 @@ export function DynamicNavbar() {
       >
         {/* Liquid glass morphism effect */}
         <div
-<<<<<<< HEAD
-          className="absolute inset-0 rounded-inherit opacity-50"
-          style={{
-            background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
-            filter: "blur(1px)",
-          }}
-        />
-
-        {/* Animated border glow */}
-        <div
-          className="absolute inset-0 rounded-inherit opacity-0 transition-opacity duration-700"
-          style={{
-            background: "linear-gradient(135deg, rgba(196,85,37,0.3), rgba(74,124,89,0.3), rgba(196,85,37,0.3))",
-            backgroundSize: "200% 200%",
-            animation: "gradient-shift 3s ease infinite",
-            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-            padding: "1px",
-          }}
-        />
-
-        <div
-          className={cn(
-            "relative h-full flex items-center justify-between transition-all duration-700 overflow-hidden",
-            isScrolled && !isExpanded ? "justify-center px-4" : "px-4 sm:px-6 md:px-8"
-=======
           className="absolute inset-0 opacity-50"
           style={{
-            background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
+            background: theme === "dark"
+              ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)"
+              : "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
             filter: "blur(1px)",
             borderRadius: "inherit",
           }}
@@ -314,18 +228,13 @@ export function DynamicNavbar() {
         <div
           className={cn(
             "relative h-full flex items-center transition-all duration-700 overflow-hidden",
-            isScrolled && !isExpanded ? "justify-center px-4" : "justify-between px-4 sm:px-6 md:px-8"
->>>>>>> main
+            isScrolled && !isExpanded ? "justify-center px-3 sm:px-4" : "justify-between px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10"
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
           }}
-        >
-<<<<<<< HEAD
-          {/* Logo - Always visible but scales */}
-=======
+          >
           {/* Logo and Name - Always visible but scales */}
->>>>>>> main
           <div
             className={cn(
               "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-0",
@@ -334,11 +243,7 @@ export function DynamicNavbar() {
           >
             <img
               src="/logo.png"
-<<<<<<< HEAD
-              alt="Maasai Mara Women Empowerment Initiative"
-=======
               alt="Inua Mama Initiative"
->>>>>>> main
               className={cn(
                 "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
                 isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
@@ -349,45 +254,29 @@ export function DynamicNavbar() {
                 backgroundColor: "transparent",
                 display: isScrolled && !isExpanded ? "none" : "block",
               }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
             <div className={cn("hidden sm:block min-w-0", isScrolled && !isExpanded && "hidden")}>
-<<<<<<< HEAD
-              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Maasai Mara</h1>
-              <p className="text-[10px] text-muted-foreground leading-tight truncate">Women Empowerment</p>
-            </div>
-          </div>
-=======
-              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Inua Mama Initiative</h1>
-              <p className="text-[10px] text-muted-foreground leading-tight truncate">Kenya</p>
+              <h1 className="font-display font-semibold text-sm lg:text-base xl:text-lg text-foreground leading-tight truncate">Inua Mama Initiative</h1>
+              <p className="text-[10px] lg:text-xs xl:text-sm text-muted-foreground leading-tight truncate">Kenya</p>
             </div>
           </div>
           
           {/* Center Name Display - Shows when navbar is full (not scrolled) */}
           {!isScrolled && (
             <div className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-              <h2 className="font-display font-bold text-base sm:text-lg md:text-xl text-foreground whitespace-nowrap drop-shadow-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient-text">
+              <h2 className="font-display font-bold text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl text-foreground whitespace-nowrap drop-shadow-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient-text">
                 Inua Mama Initiative - Kenya
               </h2>
             </div>
           )}
->>>>>>> main
 
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
             <div
-<<<<<<< HEAD
-          className={cn(
-            "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-500",
-            isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
-          )}
-          style={{
-            transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-          }}
-              key={currentSection}
-            >
-              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
-              <span className="font-display font-semibold text-sm text-foreground whitespace-nowrap drop-shadow-sm">
-=======
               className={cn(
                 "absolute left-1/2 -translate-x-1/2 flex items-center gap-2 transition-all duration-300",
                 isExpanded ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
@@ -399,7 +288,6 @@ export function DynamicNavbar() {
             >
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
               <span className="font-display font-semibold text-sm text-foreground whitespace-nowrap drop-shadow-sm animate-fade-in">
->>>>>>> main
                 {currentTitle}
               </span>
             </div>
@@ -439,16 +327,14 @@ export function DynamicNavbar() {
               <span className="hidden md:inline">Donate</span>
             </Button>
 
-<<<<<<< HEAD
-=======
             {/* Theme Toggle - Before hamburger menu */}
             {mounted && (
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className={cn(
-                  "p-2 rounded-lg backdrop-blur-sm transition-all min-w-[36px] min-h-[36px] flex items-center justify-center",
-                  "bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20",
-                  "text-foreground hover:scale-110 active:scale-95",
+                  "p-2 rounded-lg backdrop-blur-sm transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation",
+                  "bg-card/20 hover:bg-card/30 dark:bg-card/30 dark:hover:bg-card/40",
+                  "text-foreground hover:scale-110 active:scale-95 border border-border/20",
                   isScrolled && !isExpanded && "opacity-0 w-0 overflow-hidden"
                 )}
                 aria-label="Toggle theme"
@@ -461,7 +347,6 @@ export function DynamicNavbar() {
               </button>
             )}
 
->>>>>>> main
             {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
@@ -482,6 +367,10 @@ export function DynamicNavbar() {
                       <img
                         src="/logo.png"
                         alt="Maasai Mara Women Empowerment Initiative"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
                         className="h-10 w-auto rounded-xl object-contain"
                         style={{
                           filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)",
@@ -544,11 +433,6 @@ export function DynamicNavbar() {
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-<<<<<<< HEAD
-          }}
-          style={{
-=======
->>>>>>> main
             backdropFilter: "blur(40px) saturate(180%)",
             WebkitBackdropFilter: "blur(40px) saturate(180%)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 40px rgba(16,65,45,0.2)",

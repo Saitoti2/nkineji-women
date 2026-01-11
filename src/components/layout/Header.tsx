@@ -38,6 +38,10 @@ export function Header() {
               src="/logo.png" 
               alt="Maasai Mara Women Empowerment Initiative" 
               className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
             <div className="hidden min-[375px]:block min-w-0">
               <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Maasai Mara</h1>
@@ -88,6 +92,10 @@ export function Header() {
                         src="/logo.png" 
                         alt="Maasai Mara Women Empowerment Initiative" 
                         className="w-10 h-10 rounded-xl object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
                       />
                       <div>
                         <h2 className="font-display font-semibold text-foreground">Menu</h2>

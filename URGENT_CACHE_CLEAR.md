@@ -43,3 +43,5 @@ Your link previews will show:
 - ✅ Correct title and description
 - ❌ NO Lovable branding
 
+
+

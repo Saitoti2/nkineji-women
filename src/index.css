@@ -4,8 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
-=======
 /* Logo visibility and blending for brown logo on different backgrounds */
 img[src*="logo"] {
   /* Base styling - ensure good visibility and crisp rendering */
@@ -642,8 +640,6 @@ button:hover img[src*="logo"],
     }
   }
 
-<<<<<<< HEAD
-=======
   /* Smooth scrolling for anchor links */
   html {
     scroll-behavior: smooth;
@@ -658,7 +654,6 @@ button:hover img[src*="logo"],
     }
   }
 
->>>>>>> main
   /* Liquid Glass Morphism Effects for Dynamic Island */
   @keyframes liquid-morph {
     0%, 100% {
@@ -686,7 +681,6 @@ button:hover img[src*="logo"],
     }
   }
 
-<<<<<<< HEAD
   @keyframes island-expand {
     from {
       width: 140px;
@@ -711,8 +705,6 @@ button:hover img[src*="logo"],
     }
   }
 
-=======
->>>>>>> main
   @keyframes float-button {
     0%, 100% {
       transform: translate(-50%, 0) translateY(0);
@@ -722,7 +714,6 @@ button:hover img[src*="logo"],
     }
   }
 
-<<<<<<< HEAD
   /* Glass morphism utility */
   .glass-morphism {
     backdrop-filter: blur(40px) saturate(180%);
@@ -739,18 +730,11 @@ button:hover img[src*="logo"],
       0 0 60px rgba(16, 65, 45, 0.1);
   }
 
-=======
->>>>>>> main
   .animate-float-button {
     animation: float-button 3s ease-in-out infinite;
   }
 
-<<<<<<< HEAD
   /* Smooth cubic bezier easing for liquid transitions */
-  .ease-liquid {
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-=======
   .ease-liquid {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -769,5 +753,4 @@ button:hover img[src*="logo"],
   .animate-fade-in {
     animation: fade-in 0.3s ease-out forwards;
   }
->>>>>>> main
 }

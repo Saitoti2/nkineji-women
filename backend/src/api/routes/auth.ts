@@ -31,7 +31,10 @@ authRouter.post('/refresh', validateRequest(refreshTokenSchema), async (req, res
 authRouter.post('/logout', async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
-    await logout(refreshToken);
+    const userId = req.user?.id || req.body.userId;
+    if (userId) {
+      await logout(refreshToken || '', userId);
+    }
     res.json({ success: true, message: 'Logged out successfully' });
   } catch (error) {
     next(error);

@@ -40,3 +40,5 @@ After clearing cache, the preview should show:
 - ✅ Description about the initiative
 - ❌ NO Lovable branding
 
+
+
