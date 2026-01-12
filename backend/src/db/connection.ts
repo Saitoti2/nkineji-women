@@ -8,7 +8,7 @@ let pool: pg.Pool | null = null;
 export const getPool = (): pg.Pool => {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
-    
+
     if (!connectionString) {
       throw new Error('DATABASE_URL environment variable is not set');
     }
@@ -46,13 +46,13 @@ export const closePool = async (): Promise<void> => {
 };
 
 // Helper function for queries
-export const query = async <T = any>(
+export const query = async <T extends pg.QueryResultRow = any>(
   text: string,
   params?: any[]
 ): Promise<pg.QueryResult<T>> => {
   const db = getPool();
   const start = Date.now();
-  
+
   try {
     const result = await db.query<T>(text, params);
     const duration = Date.now() - start;

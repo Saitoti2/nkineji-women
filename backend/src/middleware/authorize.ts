@@ -4,20 +4,15 @@ import { ApiError } from './errorHandler.js';
 export const authorize = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      const error: ApiError = new Error('Authentication required');
-      error.statusCode = 401;
-      return next(error);
+      throw new ApiError('Authentication required', 401);
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      const error: ApiError = new Error('Insufficient permissions');
-      error.statusCode = 403;
-      return next(error);
+      throw new ApiError('Insufficient permissions', 403);
     }
 
     next();
   };
 };
-
 
 

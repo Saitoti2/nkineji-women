@@ -36,7 +36,7 @@ donationsRouter.get('/', authenticate, async (req, res, next) => {
 // GET /api/v1/donations/:id
 donationsRouter.get('/:id', authenticate, async (req, res, next) => {
   try {
-    const donation = await getDonation(req.params.id, req.user!.id, req.user!.role);
+    const donation = await getDonation(req.params.id as string, req.user!.id, req.user!.role);
     res.json({ success: true, data: donation });
   } catch (error) {
     next(error);

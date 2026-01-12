@@ -19,7 +19,7 @@ beneficiariesRouter.get('/', async (req, res, next) => {
       role: req.user!.role,
       limit: parseInt(limit as string),
       offset: parseInt(offset as string),
-    });
+    }, req.user!.role);
     res.json({ success: true, data: beneficiaries });
   } catch (error) {
     next(error);
@@ -29,7 +29,7 @@ beneficiariesRouter.get('/', async (req, res, next) => {
 // GET /api/v1/beneficiaries/:id - Field-level access control
 beneficiariesRouter.get('/:id', async (req, res, next) => {
   try {
-    const beneficiary = await getBeneficiary(req.params.id, req.user!.id, req.user!.role);
+    const beneficiary = await getBeneficiary(req.params.id as string, req.user!.id, req.user!.role);
     res.json({ success: true, data: beneficiary });
   } catch (error) {
     next(error);
@@ -58,7 +58,7 @@ beneficiariesRouter.put(
   validateRequest(updateBeneficiarySchema),
   async (req, res, next) => {
     try {
-      const beneficiary = await updateBeneficiary(req.params.id, req.body, req.user!.id, req.user!.role);
+      const beneficiary = await updateBeneficiary(req.params.id as string, req.body, req.user!.id, req.user!.role);
       res.json({ success: true, data: beneficiary });
     } catch (error) {
       next(error);
@@ -72,7 +72,7 @@ beneficiariesRouter.delete(
   authorize(['admin', 'super_admin']),
   async (req, res, next) => {
     try {
-      await deleteBeneficiary(req.params.id, req.user!.id);
+      await deleteBeneficiary(req.params.id as string, req.user!.id);
       res.json({ success: true, message: 'Beneficiary deleted successfully' });
     } catch (error) {
       next(error);

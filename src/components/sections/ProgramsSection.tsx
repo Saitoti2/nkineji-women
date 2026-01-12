@@ -1,5 +1,6 @@
 import { Shield, GraduationCap, Stethoscope, Briefcase, Landmark, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const programs = [
   {
@@ -41,6 +42,7 @@ const programs = [
 ];
 
 export function ProgramsSection() {
+  const navigate = useNavigate();
   return (
     <section id="programs" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background via-muted/30 to-background">
       <div className="container mx-auto px-4 sm:px-6">
@@ -79,8 +81,8 @@ export function ProgramsSection() {
 
         {/* CTA */}
         <div className="mt-8 sm:mt-10 md:mt-12 text-center">
-          <Button variant="default" size="lg" className="min-h-[48px] sm:min-h-[56px] text-sm sm:text-base">
-            Learn More About Our Work
+          <Button variant="default" size="lg" className="min-h-[48px] sm:min-h-[56px] text-sm sm:text-base" onClick={() => navigate('/essentials')}>
+            Donate Essentials
           </Button>
         </div>
       </div>

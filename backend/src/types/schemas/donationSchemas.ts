@@ -12,6 +12,10 @@ export const createDonationSchema = z.object({
     donorPhone: z.string().optional(),
     isRecurring: z.boolean().default(false),
     recurringInterval: z.enum(['monthly', 'quarterly', 'yearly']).optional(),
+    items: z.array(z.object({
+      itemId: z.string().uuid(),
+      quantity: z.number().int().positive(),
+    })).optional(),
     metadata: z.record(z.any()).optional(),
   }),
 });

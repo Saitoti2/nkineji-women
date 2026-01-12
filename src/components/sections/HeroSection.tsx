@@ -28,7 +28,7 @@ export function HeroSection() {
         <div className="w-full max-w-5xl h-auto max-h-full bg-card/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-float-xl border border-border/30 p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 animate-hero-entrance relative overflow-hidden overflow-y-auto">
           {/* Animated border glow */}
           <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-0 animate-border-glow pointer-events-none" />
-          
+
           {/* Content Container - Flex layout adapts to screen size */}
           <div className="flex flex-col justify-center">
             {/* Badge with enhanced animation */}
@@ -48,7 +48,7 @@ export function HeroSection() {
 
             {/* Subheadline with fade and slide - Responsive sizing */}
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-center mb-6 sm:mb-7 md:mb-8 lg:mb-10 animate-fade-slide-up px-2 leading-relaxed">
-              Your donation creates lasting change — from rescue and healthcare to education and 
+              Your donation creates lasting change — from rescue and healthcare to education and
               economic empowerment. Join us in building a brighter future.
             </p>
 
@@ -67,33 +67,28 @@ export function HeroSection() {
 
             {/* Quick Stats with staggered animations - Responsive grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-            {[
-              { value: "2,500+", label: "Women Empowered" },
-              { value: "$1.2M", label: "Funds Raised" },
-              { value: "150+", label: "Businesses Started" },
-              { value: "98%", label: "Funds to Programs" },
-            ].map((stat, index) => (
-              <div
-                key={stat.label}
-                className="rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 bg-muted/50 border border-border/50 text-center hover:bg-muted/70 hover:border-border transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-float-lg animate-stat-card relative overflow-hidden group"
-                style={{ animationDelay: `${0.5 + index * 0.15}s` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary relative z-10 animate-count-up">{stat.value}</div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-1 relative z-10 leading-tight">{stat.label}</div>
-              </div>
-            ))}
+              {[
+                { value: "2,500+", label: "Women Empowered" },
+                { value: "$1.2M", label: "Funds Raised" },
+                { value: "150+", label: "Businesses Started" },
+                { value: "98%", label: "Funds to Programs" },
+              ].map((stat, index) => (
+                <div
+                  key={stat.label}
+                  className="rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 bg-muted/50 border border-border/50 text-center hover:bg-muted/70 hover:border-border transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-float-lg animate-stat-card relative overflow-hidden group"
+                  style={{ animationDelay: `${0.5 + index * 0.15}s` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary relative z-10 animate-count-up">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-1 relative z-10 leading-tight">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 rounded-full border-2 border-card/50 flex items-start justify-center p-2 bg-card/20 backdrop-blur-sm">
-          <div className="w-1.5 h-3 rounded-full bg-card/70" />
-        </div>
-      </div>
+
     </section>
   );
 }

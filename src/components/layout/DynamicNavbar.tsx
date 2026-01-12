@@ -3,14 +3,15 @@ import { Menu, Heart, X, ChevronUp, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
+import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
+  { label: "Home", href: "/", sectionId: "hero" },
   { label: "Our Mission", href: "#mission", sectionId: "mission" },
   { label: "Programs", href: "#programs", sectionId: "programs" },
-  { label: "Campaigns", href: "#campaigns", sectionId: "campaigns" },
-  { label: "Impact", href: "#impact", sectionId: "impact" },
-  { label: "Stories", href: "#stories", sectionId: "stories" },
+  { label: "Campaigns", href: "/campaigns", sectionId: "campaigns" },
+  { label: "Impact", href: "/impact", sectionId: "impact" },
 ];
 
 const sectionTitles: Record<string, string> = {
@@ -34,10 +35,51 @@ export function DynamicNavbar() {
   const [mounted, setMounted] = useState(false);
   const navbarRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle navigation clicks
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+
+    // If it's a direct page route (starts with /)
+    if (href.startsWith('/') && !href.startsWith('/#')) {
+      if (href === '/' && location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate(href);
+      }
+      return;
+    }
+
+    const hashMatch = href.match(/#(.+)/);
+    const targetId = hashMatch ? hashMatch[1] : null;
+
+    // If we're not on the homepage, navigate there first for hash links
+    if (location.pathname !== '/') {
+      navigate('/' + (href.startsWith('#') ? href : ''));
+      if (targetId) {
+        setTimeout(() => {
+          const element = document.getElementById(targetId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 300);
+      }
+    } else {
+      // Already on homepage, just scroll
+      const targetElement = targetId ? document.getElementById(targetId) : null;
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+      } else if (href === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
 
   // Enhanced scroll and section detection
   useEffect(() => {
@@ -51,7 +93,7 @@ export function DynamicNavbar() {
 
       // Get all sections with IDs
       const sections = Array.from(document.querySelectorAll("section[id]")) as HTMLElement[];
-      
+
       // Also check for hero section (might not have id)
       const heroSection = document.querySelector("section:first-of-type");
       if (heroSection && !heroSection.id) {
@@ -74,7 +116,7 @@ export function DynamicNavbar() {
         const distance = Math.abs(viewportCenter - sectionCenter);
 
         // Check if section is in viewport (at least partially visible)
-        const isInViewport = 
+        const isInViewport =
           (sectionTop <= scrollY + windowHeight && sectionBottom >= scrollY) ||
           (rect.top < windowHeight / 2 && rect.bottom > windowHeight / 2);
 
@@ -198,11 +240,7 @@ export function DynamicNavbar() {
             ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%), rgba(255,255,255,0.8)"
             : "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%), rgba(255,255,255,0.85)",
           border: "1px solid rgba(255,255,255,0.3)",
-          boxShadow: theme === "dark"
-            ? isScrolled
-              ? "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 60px rgba(16,70,60,0.2)"
-              : "0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 80px rgba(16,70,60,0.25)"
-            : isScrolled
+          boxShadow: isScrolled
             ? "0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 60px rgba(16,65,45,0.1)"
             : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 80px rgba(16,65,45,0.15)",
           borderRadius: isScrolled && !isExpanded ? "9999px" : "1.5rem",
@@ -215,9 +253,7 @@ export function DynamicNavbar() {
         <div
           className="absolute inset-0 opacity-50"
           style={{
-            background: theme === "dark"
-              ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)"
-              : "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
+            background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
             filter: "blur(1px)",
             borderRadius: "inherit",
           }}
@@ -228,12 +264,12 @@ export function DynamicNavbar() {
         <div
           className={cn(
             "relative h-full flex items-center transition-all duration-700 overflow-hidden",
-            isScrolled && !isExpanded ? "justify-center px-3 sm:px-4" : "justify-between px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10"
+            isScrolled && !isExpanded ? "justify-center px-4" : "justify-between px-4 sm:px-6 md:px-8"
           )}
           style={{
             transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
           }}
-          >
+        >
           {/* Logo and Name - Always visible but scales */}
           <div
             className={cn(
@@ -254,25 +290,14 @@ export function DynamicNavbar() {
                 backgroundColor: "transparent",
                 display: isScrolled && !isExpanded ? "none" : "block",
               }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
             />
             <div className={cn("hidden sm:block min-w-0", isScrolled && !isExpanded && "hidden")}>
-              <h1 className="font-display font-semibold text-sm lg:text-base xl:text-lg text-foreground leading-tight truncate">Inua Mama Initiative</h1>
-              <p className="text-[10px] lg:text-xs xl:text-sm text-muted-foreground leading-tight truncate">Kenya</p>
+              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Inua Mama Initiative</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight truncate">Kenya</p>
             </div>
           </div>
-          
-          {/* Center Name Display - Shows when navbar is full (not scrolled) */}
-          {!isScrolled && (
-            <div className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-              <h2 className="font-display font-bold text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl text-foreground whitespace-nowrap drop-shadow-lg bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient-text">
-                Inua Mama Initiative - Kenya
-              </h2>
-            </div>
-          )}
+
+
 
           {/* Section Title - Shows in island mode with smooth animation */}
           {isScrolled && currentTitle && (
@@ -304,7 +329,8 @@ export function DynamicNavbar() {
               <a
                 key={link.label}
                 href={link.href}
-                className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-white/30 rounded-lg transition-all duration-300"
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-white/30 rounded-lg transition-all duration-300 cursor-pointer"
               >
                 {link.label}
               </a>
@@ -319,9 +345,17 @@ export function DynamicNavbar() {
             )}
           >
             <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="hidden sm:flex"
+            >
+              <a href="/login">Login</a>
+            </Button>
+            <Button
               variant="donate"
               size="sm"
-              className="hidden sm:flex text-xs px-3 min-h-[36px] backdrop-blur-sm bg-primary/90 hover:bg-primary"
+              className="hidden sm:flex text-xs px-3 min-h-[36px] bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Heart className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Donate</span>
@@ -332,9 +366,9 @@ export function DynamicNavbar() {
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className={cn(
-                  "p-2 rounded-lg backdrop-blur-sm transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation",
-                  "bg-card/20 hover:bg-card/30 dark:bg-card/30 dark:hover:bg-card/40",
-                  "text-foreground hover:scale-110 active:scale-95 border border-border/20",
+                  "p-2 rounded-lg backdrop-blur-sm transition-all min-w-[36px] min-h-[36px] flex items-center justify-center",
+                  "bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20",
+                  "text-foreground hover:scale-110 active:scale-95",
                   isScrolled && !isExpanded && "opacity-0 w-0 overflow-hidden"
                 )}
                 aria-label="Toggle theme"
@@ -367,10 +401,6 @@ export function DynamicNavbar() {
                       <img
                         src="/logo.png"
                         alt="Maasai Mara Women Empowerment Initiative"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
                         className="h-10 w-auto rounded-xl object-contain"
                         style={{
                           filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)",
@@ -394,7 +424,8 @@ export function DynamicNavbar() {
                       <SheetClose asChild key={link.label}>
                         <a
                           href={link.href}
-                          className="px-4 py-3.5 rounded-xl text-base font-medium text-foreground hover:bg-muted/70 transition-all duration-300"
+                          onClick={(e) => handleNavClick(e, link.href)}
+                          className="px-4 py-3.5 rounded-xl text-base font-medium text-foreground hover:bg-muted/70 transition-all duration-300 cursor-pointer"
                           style={{ animationDelay: `${index * 0.05}s` }}
                         >
                           {link.label}

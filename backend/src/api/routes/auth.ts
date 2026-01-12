@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { login, refresh, logout, forgotPassword, resetPassword, sendOTP, verifyOTP } from '../../services/authService.js';
+import { login, refresh, logout, forgotPassword, resetPassword, sendOTP, verifyOTP, register } from '../../services/authService.js';
 import { validateRequest } from '../../middleware/validateRequest.js';
-import { loginSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema, otpSchema } from '../../types/schemas/authSchemas.js';
+import { loginSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema, otpSchema, registerSchema } from '../../types/schemas/authSchemas.js';
 
 export const authRouter = Router();
 
@@ -11,6 +11,21 @@ authRouter.post('/login', validateRequest(loginSchema), async (req, res, next) =
     const { email, password, phone, otp } = req.body;
     const result = await login({ email, password, phone, otp });
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/auth/register
+authRouter.post('/register', validateRequest(registerSchema), async (req, res, next) => {
+  try {
+    const result = await register(req.body);
+    res.status(201).json(result);
+    // Note: The service returns { user, accessToken, refreshToken } but frontend login expects it.
+    // However, Signup page just navigates to login. Ideally it should auto-login.
+    // The Signup.tsx I wrote DOES NOT auto login, it says "Please login".
+    // So returning the tokens here is fine, but unused by my current frontend code.
+    // That's acceptable.
   } catch (error) {
     next(error);
   }

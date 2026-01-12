@@ -99,8 +99,8 @@ export const getCampaignImpact = async (id: string) => {
     );
 
     return {
-      fundsRaised: parseFloat(fundsResult.rows[0]?.total || '0'),
-      beneficiariesServed: parseInt(beneficiariesResult.rows[0]?.count || '0'),
+      fundsRaised: parseFloat(`${fundsResult.rows[0]?.total || 0}`),
+      beneficiariesServed: parseInt(`${beneficiariesResult.rows[0]?.count || 0}`),
       disbursements: disbursementsResult.rows,
     };
   } catch (error) {
@@ -114,8 +114,8 @@ export const createCampaign = async (data: any, userId: string): Promise<Campaig
     const result = await query<Campaign>(
       `INSERT INTO campaigns (
         title, description, goal_amount, start_date, end_date, 
-        earmark, status, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        earmark, status, image_url, category, created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *`,
       [
         data.title,
@@ -125,6 +125,8 @@ export const createCampaign = async (data: any, userId: string): Promise<Campaig
         data.endDate || null,
         data.earmark || null,
         data.status || 'draft',
+        data.image_url || null,
+        data.category || null,
         userId,
       ]
     );

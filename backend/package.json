@@ -31,7 +31,6 @@
     "nodemailer": "^6.9.16",
     "twilio": "^5.3.5",
     "pg": "^8.13.1",
-    "postgis": "^0.0.1",
     "winston": "^3.17.0",
     "compression": "^1.7.5",
     "express-rate-limit": "^7.4.1"
@@ -44,6 +43,7 @@
     "@types/multer": "^1.4.12",
     "@types/cors": "^2.8.17",
     "@types/compression": "^1.7.5",
+    "@types/pg": "^8.11.10",
     "@types/nodemailer": "^6.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.8.3",

@@ -6,6 +6,8 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
+  name?: string;
+  avatar?: string;
   organisationId?: string;
 }
 
@@ -24,11 +26,9 @@ export const authenticate = async (
 ) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      const error: ApiError = new Error('No token provided');
-      error.statusCode = 401;
-      throw error;
+      throw new ApiError('No token provided', 401);
     }
 
     const token = authHeader.substring(7);
@@ -43,13 +43,9 @@ export const authenticate = async (
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      const apiError: ApiError = new Error('Invalid token');
-      apiError.statusCode = 401;
-      return next(apiError);
+      throw new ApiError('Invalid token', 401);
     }
     next(error);
   }
 };
-
-
 

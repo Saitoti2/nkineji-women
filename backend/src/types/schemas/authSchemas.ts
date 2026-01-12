@@ -40,5 +40,14 @@ export const otpSchema = z.object({
   }),
 });
 
+export const registerSchema = z.object({
+  body: z.object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    phone: z.string().min(10).optional(),
+    password: z.string().min(8),
+  }),
+});
+
 
 

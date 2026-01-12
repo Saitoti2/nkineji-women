@@ -25,7 +25,7 @@ campaignsRouter.get('/', async (req, res, next) => {
 // GET /api/v1/campaigns/:id
 campaignsRouter.get('/:id', async (req, res, next) => {
   try {
-    const campaign = await getCampaign(req.params.id);
+    const campaign = await getCampaign(req.params.id as string);
     res.json({ success: true, data: campaign });
   } catch (error) {
     next(error);
@@ -35,7 +35,7 @@ campaignsRouter.get('/:id', async (req, res, next) => {
 // GET /api/v1/campaigns/:id/impact
 campaignsRouter.get('/:id/impact', async (req, res, next) => {
   try {
-    const impact = await getCampaignImpact(req.params.id);
+    const impact = await getCampaignImpact(req.params.id as string);
     res.json({ success: true, data: impact });
   } catch (error) {
     next(error);
@@ -66,7 +66,7 @@ campaignsRouter.put(
   validateRequest(updateCampaignSchema),
   async (req, res, next) => {
     try {
-      const campaign = await updateCampaign(req.params.id, req.body, req.user!.id);
+      const campaign = await updateCampaign(req.params.id as string, req.body, req.user!.id);
       res.json({ success: true, data: campaign });
     } catch (error) {
       next(error);
@@ -81,7 +81,7 @@ campaignsRouter.delete(
   authorize(['admin', 'super_admin']),
   async (req, res, next) => {
     try {
-      await deleteCampaign(req.params.id, req.user!.id);
+      await deleteCampaign(req.params.id as string, req.user!.id);
       res.json({ success: true, message: 'Campaign deleted successfully' });
     } catch (error) {
       next(error);
