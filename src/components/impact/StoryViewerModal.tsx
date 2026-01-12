@@ -52,13 +52,12 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                     </div>
                 </div>
 
-                <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-                    {/* Main Content Area (Media) - Scrollable on mobile with content, or fixed? 
-                        On mobile: Media at top, content below. Entire thing scrolls? Or split view?
-                        Better UX for mobile story: Media fixed at top (or 40%), bottom scrolls. 
-                        OR: Integrated scroll. Let's try responsive layout.
+                <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden relative scrollbar-hide">
+                    {/* Main Content Area (Media) 
+                        Mobile: Sticky at top so content scrolls OVER it.
+                        Desktop: Fixed on left side.
                     */}
-                    <div className="w-full md:flex-1 h-[35vh] md:h-full bg-black relative flex items-center justify-center group/media flex-none md:flex-auto">
+                    <div className="w-full md:flex-1 h-[45vh] md:h-full bg-black sticky top-0 md:relative z-0 flex items-center justify-center group/media flex-none md:flex-auto">
                         {currentMedia?.media_type === "video" ? (
                             <div className="relative w-full h-full flex items-center justify-center bg-black">
                                 <video
@@ -108,25 +107,30 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                         )}
                     </div>
 
-                    {/* Sidebar Area (Story & Comments) */}
-                    <div className="flex-1 md:w-[400px] md:flex-none flex flex-col bg-card md:border-l border-border/40 min-h-0 relative z-10 w-full">
-                        <div className="flex-1 overflow-y-auto scroll-smooth pb-0">
+                    {/* Sidebar Area (Story & Comments) 
+                        Mobile: Relative with nearly opaque blurry background for readability.
+                        Desktop: Standard flex column.
+                    */}
+                    <div className="flex-1 md:w-[400px] md:flex-none flex flex-col bg-background/95 md:bg-card backdrop-blur-3xl md:backdrop-filter-none md:border-l border-border/40 min-h-[60vh] md:min-h-0 relative z-10 w-full rounded-t-[2.5rem] md:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-none -mt-6 md:mt-0">
+                        <div className="flex-1 overflow-y-visible md:overflow-y-auto scroll-smooth pb-0">
                             {/* Story Details */}
-                            <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                            <div className="p-6 md:p-6 space-y-4 md:space-y-6 pt-8 md:pt-6">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-accent/20 flex-shrink-0">
+                                    <div className="w-12 h-12 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-accent/20 flex-shrink-0">
                                         <img src={getImageUrl(story.profile_image_url)} className="w-full h-full object-cover" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-base md:text-lg">{story.beneficiary_name}</h3>
+                                        <h3 className="font-bold text-lg md:text-lg">{story.beneficiary_name}</h3>
                                         <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-2">
                                             <MapPin className="w-3 h-3" /> {story.location}
                                         </p>
                                     </div>
+                                    {/* Handle bar indicator for mobile swipe feel */}
+                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/20 rounded-full md:hidden" />
                                 </div>
 
                                 <div className="space-y-3 md:space-y-4">
-                                    <h2 className="text-lg md:text-xl font-bold font-display leading-tight">{story.title}</h2>
+                                    <h2 className="text-xl md:text-xl font-bold font-display leading-tight">{story.title}</h2>
                                     <div className="prose prose-sm dark:prose-invert text-muted-foreground whitespace-pre-wrap">
                                         {story.content}
                                     </div>
@@ -145,23 +149,23 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                             </div>
 
                             {/* Interaction Stats */}
-                            <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between border-y border-border/40 bg-muted/20 sticky top-0 md:static z-10 backdrop-blur-md md:backdrop-filter-none">
+                            <div className="px-6 md:px-6 py-4 md:py-4 flex items-center justify-between border-y border-border/40 bg-muted/20 sticky top-0 md:relative z-10 backdrop-blur-md md:backdrop-filter-none">
                                 <div className="flex gap-6">
                                     <div className="flex flex-col items-center gap-1 group/stat cursor-pointer">
-                                        <Heart className="w-4 h-4 md:w-5 md:h-5 text-accent hover:fill-current" />
-                                        <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground">42</span>
+                                        <Heart className="w-5 h-5 md:w-5 md:h-5 text-accent hover:fill-current" />
+                                        <span className="text-[11px] md:text-[11px] font-bold text-muted-foreground">42</span>
                                     </div>
                                     <div
                                         className="flex flex-col items-center gap-1 group/stat cursor-pointer"
                                         onClick={() => document.getElementById('comment-section')?.scrollIntoView({ behavior: 'smooth' })}
                                     >
-                                        <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500 hover:fill-current transition-transform group-hover/stat:scale-110" />
-                                        <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground">
+                                        <MessageCircle className="w-5 h-5 md:w-5 md:h-5 text-blue-500 hover:fill-current transition-transform group-hover/stat:scale-110" />
+                                        <span className="text-[11px] md:text-[11px] font-bold text-muted-foreground">
                                             {story.comments_count || 12}
                                         </span>
                                     </div>
                                 </div>
-                                <Share2 className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+                                <Share2 className="w-5 h-5 md:w-5 md:h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
                             </div>
 
                             {/* Comment Section */}

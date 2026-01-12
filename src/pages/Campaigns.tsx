@@ -76,31 +76,37 @@ export default function Campaigns() {
                 </div>
 
                 {/* Filters */}
-                <div className="mb-12 flex flex-col lg:flex-row gap-6 items-center justify-between p-6 bg-card rounded-[2rem] border border-border/50 shadow-xl shadow-black/5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="relative w-full lg:max-w-md group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        <Input
-                            placeholder="Search by title or description..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-12 h-14 bg-background border-none rounded-2xl shadow-inner focus-visible:ring-2 focus-visible:ring-primary/20"
-                        />
-                    </div>
-                    <div className="flex gap-3 w-full lg:w-auto overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
-                        {['all', 'rescue', 'education', 'health', 'economic', 'community'].map((cat) => (
-                            <button
-                                key={cat}
-                                onClick={() => setCategoryFilter(cat)}
-                                className={cn(
-                                    "px-6 py-3 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all duration-300",
-                                    categoryFilter === cat
-                                        ? "bg-primary text-white shadow-lg shadow-primary/25 translate-y-[-2px]"
-                                        : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                            </button>
-                        ))}
+                <div className="mb-12 flex flex-col gap-6 p-6 bg-card rounded-[2rem] border border-border/50 shadow-xl shadow-black/5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+                        <div className="relative w-full lg:max-w-md group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input
+                                placeholder="Search by title or description..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-12 h-14 bg-background border-none rounded-2xl shadow-inner focus-visible:ring-2 focus-visible:ring-primary/20"
+                            />
+                        </div>
+
+                        {/* Mobile Scrollable Categories */}
+                        <div className="w-full lg:w-auto overflow-hidden">
+                            <div className="flex gap-3 overflow-x-auto pb-4 -mb-4 sm:pb-0 sm:mb-0 px-1 scrollbar-hide mask-fade-right">
+                                {['all', 'rescue', 'education', 'health', 'economic', 'community'].map((cat) => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setCategoryFilter(cat)}
+                                        className={cn(
+                                            "flex-none px-6 py-3 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all duration-300",
+                                            categoryFilter === cat
+                                                ? "bg-primary text-white shadow-lg shadow-primary/25 scale-105"
+                                                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground hover:scale-105"
+                                        )}
+                                    >
+                                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
