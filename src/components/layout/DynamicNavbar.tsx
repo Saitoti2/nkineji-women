@@ -236,26 +236,35 @@ export function DynamicNavbar() {
           transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
           backdropFilter: "blur(40px) saturate(180%)",
           WebkitBackdropFilter: "blur(40px) saturate(180%)",
-          background: isScrolled
-            ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%), rgba(255,255,255,0.8)"
-            : "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%), rgba(255,255,255,0.85)",
-          border: "1px solid rgba(255,255,255,0.3)",
-          boxShadow: isScrolled
-            ? "0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 60px rgba(16,65,45,0.1)"
-            : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 80px rgba(16,65,45,0.15)",
+          background: theme === 'dark'
+            ? isScrolled
+              ? "rgba(10, 10, 12, 0.95)"
+              : "rgba(10, 10, 12, 0.85)"
+            : isScrolled
+              ? "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%), rgba(255,255,255,0.8)"
+              : "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%), rgba(255,255,255,0.85)",
+          border: theme === 'dark'
+            ? "1px solid rgba(255,255,255,0.05)"
+            : "1px solid rgba(255,255,255,0.3)",
+          boxShadow: theme === 'dark'
+            ? "0 4px 20px rgba(0,0,0,0.5)"
+            : isScrolled
+              ? "0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 60px rgba(16,65,45,0.1)"
+              : "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 80px rgba(16,65,45,0.15)",
           borderRadius: isScrolled && !isExpanded ? "9999px" : "1.5rem",
         }}
         onMouseEnter={() => isScrolled && setIsExpanded(true)}
         onMouseLeave={() => isScrolled && setIsExpanded(false)}
         onClick={() => isScrolled && !isExpanded && setIsExpanded(true)}
       >
-        {/* Liquid glass morphism effect */}
+        {/* Liquid glass morphism effect - Hidden in dark mode */}
         <div
           className="absolute inset-0 opacity-50"
           style={{
             background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
             filter: "blur(1px)",
             borderRadius: "inherit",
+            display: theme === 'dark' ? 'none' : 'block'
           }}
         />
 
@@ -273,7 +282,7 @@ export function DynamicNavbar() {
           {/* Logo and Name - Always visible but scales */}
           <div
             className={cn(
-              "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-0",
+              "flex items-center gap-2 sm:gap-3 transition-all duration-700 flex-shrink-1 min-w-0 mr-2",
               isScrolled && !isExpanded ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100 w-auto"
             )}
           >
@@ -291,7 +300,7 @@ export function DynamicNavbar() {
                 display: isScrolled && !isExpanded ? "none" : "block",
               }}
             />
-            <div className={cn("hidden sm:block min-w-0", isScrolled && !isExpanded && "hidden")}>
+            <div className={cn("min-w-0 flex-1", isScrolled && !isExpanded && "hidden")}>
               <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Inua Mama Initiative</h1>
               <p className="text-[10px] text-muted-foreground leading-tight truncate">Kenya</p>
             </div>
@@ -340,7 +349,7 @@ export function DynamicNavbar() {
           {/* CTA Buttons */}
           <div
             className={cn(
-              "flex items-center gap-2 transition-all duration-700",
+              "flex items-center gap-2 transition-all duration-700 flex-shrink-0 ml-auto",
               isScrolled && !isExpanded ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
             )}
           >
@@ -393,9 +402,16 @@ export function DynamicNavbar() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl [&>button]:hidden"
+                className="w-[85vw] max-w-[320px] p-0 border-none bg-transparent shadow-none [&>button]:hidden inset-y-0 right-0 h-full"
               >
-                <div className="flex flex-col h-full p-6">
+                <div
+                  className={cn(
+                    "flex flex-col h-full p-6 border-l rounded-l-[2rem] shadow-2xl overflow-hidden",
+                    theme === 'dark'
+                      ? "bg-[#09090b] border-white/10 shadow-black/80"
+                      : "bg-white/90 backdrop-blur-xl border-white/20 shadow-lg"
+                  )}
+                >
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
                       <img
@@ -413,8 +429,11 @@ export function DynamicNavbar() {
                       </div>
                     </div>
                     <SheetClose asChild>
-                      <button className="p-2 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
-                        <X className="w-5 h-5 text-foreground" />
+                      <button className={cn(
+                        "p-2 rounded-xl transition-colors",
+                        theme === 'dark' ? "bg-white/5 hover:bg-white/10 text-white" : "bg-muted/50 hover:bg-muted text-foreground"
+                      )}>
+                        <X className="w-5 h-5" />
                       </button>
                     </SheetClose>
                   </div>
@@ -456,9 +475,11 @@ export function DynamicNavbar() {
           className={cn(
             "fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-14 h-14 rounded-full",
             "flex items-center justify-center",
-            "backdrop-blur-xl bg-white/80 hover:bg-white/90",
-            "border border-white/30 shadow-float-lg",
-            "transition-all duration-500",
+            "backdrop-blur-xl transition-all duration-500",
+            theme === 'dark'
+              ? "bg-black/80 hover:bg-black/90 border border-white/10"
+              : "bg-white/80 hover:bg-white/90 border border-white/30",
+            "shadow-float-lg",
             "hover:scale-110 active:scale-95",
             "animate-float-button"
           )}
@@ -466,7 +487,9 @@ export function DynamicNavbar() {
             transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
             backdropFilter: "blur(40px) saturate(180%)",
             WebkitBackdropFilter: "blur(40px) saturate(180%)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 40px rgba(16,65,45,0.2)",
+            boxShadow: theme === 'dark'
+              ? "0 4px 20px rgba(0,0,0,0.6)"
+              : "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 40px rgba(16,65,45,0.2)",
           }}
           aria-label="Scroll to top and show navbar"
         >

@@ -24,13 +24,11 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-[1000px] w-full h-[100dvh] sm:h-[90vh] p-0 overflow-hidden bg-card border-none shadow-2xl sm:rounded-[2rem] flex flex-col">
-                <div className="sr-only">
-                    <DialogTitle>{story?.title || "Story Details"}</DialogTitle>
-                    <DialogDescription>
-                        Read the impact story about {story?.beneficiary_name} and join the discussion.
-                    </DialogDescription>
-                </div>
+            <DialogContent className="max-w-[1000px] w-[95vw] sm:w-full h-[85dvh] sm:h-[90vh] p-0 overflow-hidden bg-card border-none shadow-2xl rounded-2xl sm:rounded-[2rem] flex flex-col">
+                <DialogTitle className="sr-only">{story?.title || "Story Details"}</DialogTitle>
+                <DialogDescription className="sr-only">
+                    Read the impact story about {story?.beneficiary_name} and join the discussion.
+                </DialogDescription>
                 {/* macOS Style Bar (Hidden on mobile for more space, or kept small) */}
                 <div className="flex-none h-12 sm:h-10 bg-muted/50 backdrop-blur-sm flex items-center px-4 z-50 border-b border-border/40 relative">
                     {/* Mobile: Simple X button */}
@@ -66,6 +64,7 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                                 <video
                                     ref={videoRef}
                                     src={getImageUrl(currentMedia.media_url)}
+                                    // Keep videos contained so we don't cut off content
                                     className="w-full h-full object-contain"
                                     onClick={handleTogglePlay}
                                     onEnded={() => setIsPlaying(false)}
@@ -85,7 +84,7 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                         ) : (
                             <img
                                 src={getImageUrl(currentMedia?.media_url || story.profile_image_url)}
-                                className="w-full h-full object-contain md:object-cover bg-black"
+                                className="w-full h-full object-cover bg-black/20"
                                 alt="Story media"
                             />
                         )}

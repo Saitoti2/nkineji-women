@@ -31,7 +31,7 @@ export function Footer() {
         {/* Thin One-Line Footer - Always Visible */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-4 py-3 flex items-center justify-between border-t border-card/10"
+          className="w-full px-4 py-3 flex items-center justify-between border-t border-white/10"
         >
           <div className="flex items-center gap-3">
             <img
@@ -40,15 +40,15 @@ export function Footer() {
               className="w-8 h-8 rounded-lg object-contain"
             />
             <div className="text-left">
-              <p className="text-xs font-semibold text-card">Maasai Mara Women</p>
-              <p className="text-[10px] text-card/60">© {new Date().getFullYear()}</p>
+              <p className="text-xs font-semibold text-white">Maasai Mara Women</p>
+              <p className="text-[10px] text-gray-400">© {new Date().getFullYear()}</p>
             </div>
           </div>
           <div
             className="transition-transform duration-300"
             style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
           >
-            <ChevronUp size={20} className="text-card/70" />
+            <ChevronUp size={20} className="text-gray-400" />
           </div>
         </button>
 
@@ -60,13 +60,13 @@ export function Footer() {
           <div className="px-4 py-6 space-y-6">
             {/* Quick Links */}
             <div>
-              <h4 className="text-card font-semibold text-sm mb-3">Quick Links</h4>
+              <h4 className="text-white font-semibold text-sm mb-3">Quick Links</h4>
               <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {quickLinks.map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
-                    className="text-card/70 hover:text-card transition-colors text-sm"
+                    className="text-gray-300 hover:text-white transition-colors text-sm"
                   >
                     {link.label}
                   </a>
@@ -75,12 +75,12 @@ export function Footer() {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-2 text-xs text-card/60">
-              <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-2 hover:text-card/80 transition-colors">
+            <div className="space-y-2 text-xs text-gray-400">
+              <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>info@maasaimarawomen.org</span>
               </a>
-              <a href="tel:+254700000000" className="flex items-center gap-2 hover:text-card/80 transition-colors">
+              <a href="tel:+254700000000" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>+254 700 000 000</span>
               </a>
@@ -96,21 +96,21 @@ export function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-9 h-9 rounded-lg bg-card/10 flex items-center justify-center hover:bg-card/20 transition-all duration-300"
+                  className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-300"
                   aria-label={social.label}
                 >
-                  <social.icon className="w-4 h-4 text-card" />
+                  <social.icon className="w-4 h-4 text-white" />
                 </a>
               ))}
             </div>
 
             {/* Legal Links */}
-            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-4 border-t border-card/10">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-4 border-t border-white/10">
               {legalLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-card/40 hover:text-card/60 transition-colors text-xs"
+                  className="text-gray-500 hover:text-gray-300 transition-colors text-xs"
                 >
                   {link.label}
                 </a>
@@ -133,8 +133,8 @@ export function Footer() {
                 className="w-10 h-10 rounded-xl object-contain"
               />
               <div>
-                <h3 className="font-display font-semibold text-card text-sm sm:text-base">Maasai Mara Women</h3>
-                <p className="text-[10px] sm:text-xs text-card/60">Empowerment Initiative</p>
+                <h3 className="font-display font-semibold text-white text-sm sm:text-base">Maasai Mara Women</h3>
+                <p className="text-[10px] sm:text-xs text-gray-400">Empowerment Initiative</p>
               </div>
             </div>
 
@@ -145,19 +145,19 @@ export function Footer() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="text-card/70 hover:text-card transition-colors text-sm"
+                    className="text-gray-300 hover:text-white transition-colors text-sm"
                   >
                     {link.label}
                   </a>
                 ))}
               </nav>
-              <div className="w-px h-4 bg-card/20" />
+              <div className="w-px h-4 bg-white/20" />
               <nav className="flex items-center gap-4 lg:gap-6">
                 {legalLinks.map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
-                    className="text-card/50 hover:text-card/70 transition-colors text-xs"
+                    className="text-gray-400 hover:text-gray-200 transition-colors text-xs"
                   >
                     {link.label}
                   </a>
@@ -171,23 +171,23 @@ export function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 rounded-lg bg-card/10 flex items-center justify-center hover:bg-card/20 transition-all duration-300 hover:scale-110"
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-300 hover:scale-110"
                   aria-label={social.label}
                 >
-                  <social.icon className="w-5 h-5 text-card" />
+                  <social.icon className="w-5 h-5 text-white" />
                 </a>
               ))}
             </div>
           </div>
 
           {/* Contact Row */}
-          <div className="mt-8 pt-6 border-t border-card/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs sm:text-sm text-card/60">
-              <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-1.5 hover:text-card/80 transition-colors">
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs sm:text-sm text-gray-400">
+              <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Mail className="w-4 h-4 flex-shrink-0" />
                 <span className="break-all">info@maasaimarawomen.org</span>
               </a>
-              <a href="tel:+254700000000" className="flex items-center gap-1.5 hover:text-card/80 transition-colors">
+              <a href="tel:+254700000000" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span className="whitespace-nowrap">+254 700 000 000</span>
               </a>
@@ -197,7 +197,7 @@ export function Footer() {
               </span>
             </div>
 
-            <p className="text-card/40 text-xs">
+            <p className="text-gray-500 text-xs">
               © {new Date().getFullYear()} Maasai Mara Women Empowerment Initiative
             </p>
           </div>

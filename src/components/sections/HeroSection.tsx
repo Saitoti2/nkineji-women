@@ -12,23 +12,23 @@ export function HeroSection() {
           alt="Maasai Mara savanna landscape"
           className="w-full h-full object-cover animate-parallax-slow"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/70" />
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10 animate-gradient-shift" />
+        {/* Dark mode friendly gradient overlay - significantly darker */}
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/80 via-foreground/60 to-foreground/80 dark:from-black/90 dark:via-black/70 dark:to-black/80" />
+        {/* Animated gradient overlay - reduced opacity and removed color burn for dark mode */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:to-secondary/10 dark:opacity-20 animate-gradient-shift" />
       </div>
 
-      {/* Floating particles/glow effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-float-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float-glow-delayed" />
+      {/* Floating particles/glow effects - REMOVED for dark mode comfort */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0 dark:opacity-0">
+        {/* Particles hidden to reduce visual noise */}
       </div>
 
       {/* Floating Hero Card - Responsive container that adapts to screen size */}
       <div className="relative z-10 w-full min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 pt-32 sm:pt-36 pb-20 sm:pb-24">
         {/* Added backdrop-blur-3xl for glass effect and removed h-full constraint for better centering */}
-        <div className="w-full max-w-5xl bg-card/80 backdrop-blur-2xl rounded-[2.5rem] shadow-float-lg border border-white/20 p-6 sm:p-10 md:p-16 animate-hero-entrance relative overflow-hidden">
-          {/* Animated border glow */}
-          <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-0 animate-border-glow pointer-events-none" />
+        <div className="w-full max-w-5xl bg-card/80 backdrop-blur-2xl rounded-[2.5rem] shadow-float-lg border border-white/20 dark:border-white/5 dark:bg-card/90 p-6 sm:p-10 md:p-16 animate-hero-entrance relative overflow-hidden">
+          {/* Animated border glow - REMOVED for dark mode */}
+          <div className="hidden" />
 
           {/* Content Container - Flex layout adapts to screen size */}
           <div className="flex flex-col justify-center">
