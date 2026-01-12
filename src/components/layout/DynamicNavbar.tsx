@@ -225,7 +225,7 @@ export function DynamicNavbar() {
       <div
         ref={navbarRef}
         className={cn(
-          "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 overflow-hidden",
+          "fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 transition-all duration-700 overflow-hidden",
           isScrolled
             ? isExpanded
               ? "w-[95vw] max-w-6xl h-16 rounded-3xl"
