@@ -409,7 +409,8 @@ export function DynamicNavbar() {
                     "flex flex-col h-full p-6 border-l rounded-l-[2rem] shadow-2xl overflow-hidden",
                     theme === 'dark'
                       ? "bg-[#09090b] border-white/10 shadow-black/80"
-                      : "bg-white/90 backdrop-blur-xl border-white/20 shadow-lg"
+                      : "bg-white/90 backdrop-blur-xl border-white/20 shadow-lg",
+                    "pt-[env(safe-area-inset-top)]" // Added this class
                   )}
                 >
                   <div className="flex items-center justify-between mb-8">
