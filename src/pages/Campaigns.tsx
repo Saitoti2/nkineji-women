@@ -5,11 +5,10 @@ import { DynamicNavbar } from "@/components/layout/DynamicNavbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Heart, Clock, Users, Target, X, ChevronLeft, ChevronRight, Search, Filter } from "lucide-react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
+import { Heart, Target, Search, Filter, ArrowRight } from "lucide-react";
+import { CampaignDetailModal } from "@/components/campaigns/CampaignDetailModal";
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
@@ -31,14 +30,6 @@ function formatCurrency(amount: number) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
 }
 
-function calculateDaysLeft(endDate?: string): number | null {
-    if (!endDate) return null;
-    const end = new Date(endDate);
-    const now = new Date();
-    const diff = end.getTime() - now.getTime();
-    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
-
 const fetchCampaigns = async (): Promise<Campaign[]> => {
     const res = await fetch(`${API_BASE}/campaigns?status=active`);
     if (!res.ok) throw new Error('Failed to fetch campaigns');
@@ -49,7 +40,6 @@ const fetchCampaigns = async (): Promise<Campaign[]> => {
 export default function Campaigns() {
     const navigate = useNavigate();
     const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-    const [donationAmount, setDonationAmount] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
@@ -67,21 +57,10 @@ export default function Campaigns() {
     });
 
     return (
-        <div className="min-h-screen bg-background flex flex-col pt-32">
+        <div className="min-h-screen bg-background flex flex-col pt-20">
             <DynamicNavbar />
 
             <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-                {/* Back Link */}
-                <div className="mb-8">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate("/")}
-                        className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300"
-                    >
-                        <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-                        Back to Home
-                    </Button>
-                </div>
 
                 {/* Hero Section */}
                 <div className="max-w-4xl mx-auto text-center space-y-6 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -167,7 +146,6 @@ export default function Campaigns() {
 
             <Footer />
 
-            {/* Campaign Modal (Simplified reuse) */}
             <CampaignDetailModal
                 isOpen={!!selectedCampaign}
                 onClose={() => setSelectedCampaign(null)}
@@ -183,24 +161,30 @@ function CampaignCard({ campaign, index, onClick }: { campaign: Campaign; index:
     return (
         <div
             onClick={onClick}
-            className="group cursor-pointer bg-card rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-8 fill-mode-both"
-            style={{ animationDelay: `${index * 50}ms` }}
+            className="group cursor-pointer bg-card rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-700 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-3 animate-in fade-in slide-in-from-bottom-8 fill-mode-both"
+            style={{ animationDelay: `${index * 80}ms`, animationDuration: '800ms' }}
         >
-            <div className="aspect-[16/10] relative overflow-hidden">
+            <div className="aspect-[16/10] relative overflow-hidden bg-muted rounded-t-[2.5rem]">
                 <img
-                    src={campaign.image_url || "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800"}
+                    src={getImageUrl(campaign.image_url, "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800")}
                     alt={campaign.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    style={{ objectPosition: 'center' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <Badge className="absolute top-6 left-6 bg-white/20 backdrop-blur-md border-white/20 text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent transition-opacity duration-500 group-hover:from-black/70" />
+                <Badge className="absolute top-6 left-6 bg-white/20 backdrop-blur-md border-white/20 text-white transition-all duration-500 group-hover:bg-primary group-hover:scale-110">
                     {campaign.category}
                 </Badge>
+                {/* Hover overlay effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-accent/0 to-primary/0 opacity-0 group-hover:opacity-30 transition-opacity duration-700" />
             </div>
 
-            <div className="p-8 space-y-6">
-                <div>
-                    <h3 className="text-2xl font-bold font-display leading-tight mb-2 group-hover:text-primary transition-colors">
+            <div className="p-8 space-y-6 relative rounded-b-[2.5rem]">
+                {/* Animated background glow on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-b-[2.5rem]" />
+
+                <div className="relative z-10">
+                    <h3 className="text-2xl font-bold font-display leading-tight mb-2 group-hover:text-primary transition-colors duration-500">
                         {campaign.title}
                     </h3>
                     <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">
@@ -208,11 +192,11 @@ function CampaignCard({ campaign, index, onClick }: { campaign: Campaign; index:
                     </p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 relative z-10">
                     <div className="flex justify-between items-end text-sm">
                         <div className="space-y-1">
                             <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Raised</span>
-                            <p className="font-bold text-foreground text-lg">{formatCurrency(campaign.raised_amount)}</p>
+                            <p className="font-bold text-foreground text-lg transition-all duration-500 group-hover:text-primary group-hover:scale-110 origin-left">{formatCurrency(campaign.raised_amount)}</p>
                         </div>
                         <div className="text-right space-y-1">
                             <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Goal</span>
@@ -220,124 +204,29 @@ function CampaignCard({ campaign, index, onClick }: { campaign: Campaign; index:
                         </div>
                     </div>
 
-                    <div className="h-3 bg-muted rounded-full overflow-hidden p-[2px]">
+                    <div className="h-3 bg-muted rounded-full overflow-hidden p-[2px] relative">
                         <div
-                            className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_12px_rgba(var(--primary),0.4)]"
-                            style={{ width: `${Math.min(100, progress)}%` }}
+                            className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full transition-all duration-1000 ease-out shadow-lg shadow-primary/40 group-hover:shadow-primary/60"
+                            style={{
+                                width: `${Math.min(100, progress)}%`,
+                                backgroundSize: '200% 100%',
+                                animation: 'shimmerBg 3s linear infinite'
+                            }}
                         />
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-                        <Target className="w-4 h-4" />
+                <div className="flex items-center justify-between pt-2 relative z-10">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-500 group-hover:gap-2">
+                        <Target className="w-4 h-4 transition-transform duration-500 group-hover:rotate-12" />
                         <span>{Math.round(progress)}% Goal</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="rounded-xl group/btn hover:bg-primary/10 hover:text-primary transition-all">
+                    <Button variant="ghost" size="sm" className="rounded-xl group/btn hover:bg-primary/10 hover:text-primary transition-all duration-500 hover:scale-110">
                         View Details
-                        <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                        <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-500 group-hover/btn:translate-x-2 group-hover/btn:scale-125" />
                     </Button>
                 </div>
             </div>
         </div>
-    );
-}
-
-function ArrowRight(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-        </svg>
-    );
-}
-
-// Minimal Campaign Detail Modal for the page (can be expanded later)
-function CampaignDetailModal({ isOpen, onClose, campaign }: { isOpen: boolean, onClose: () => void, campaign: Campaign | null }) {
-    if (!campaign) return null;
-
-    return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl p-0 overflow-hidden bg-card border-none rounded-[2rem] shadow-2xl">
-                <div className="relative">
-                    <div className="h-64 sm:h-80 relative overflow-hidden">
-                        <img src={campaign.image_url} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={onClose}
-                            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 border border-white/10"
-                        >
-                            <X className="w-5 h-5" />
-                        </Button>
-                    </div>
-
-                    <div className="p-8 sm:p-10 space-y-8">
-                        <div className="space-y-3">
-                            <Badge className="bg-primary/90 text-white border-none">{campaign.category}</Badge>
-                            <h2 className="text-3xl sm:text-4xl font-bold font-display">{campaign.title}</h2>
-                            <p className="text-lg text-muted-foreground leading-relaxed">{campaign.description}</p>
-                        </div>
-
-                        <div className="bg-muted/30 p-8 rounded-[2rem] border border-border/50 space-y-6">
-                            <div className="flex flex-col sm:flex-row gap-6 sm:items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">Raised so far</p>
-                                    <p className="text-3xl font-bold text-primary">{formatCurrency(campaign.raised_amount)}</p>
-                                </div>
-                                <div className="h-10 w-[1px] bg-border hidden sm:block" />
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">Goal target</p>
-                                    <p className="text-3xl font-bold text-foreground">{formatCurrency(campaign.goal_amount)}</p>
-                                </div>
-                                <div className="h-10 w-[1px] bg-border hidden sm:block" />
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                                        <Users className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">Donors</p>
-                                        <p className="text-xl font-bold">1,240+</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm font-bold">
-                                    <span>Progress</span>
-                                    <span>{Math.round((campaign.raised_amount / campaign.goal_amount) * 100)}%</span>
-                                </div>
-                                <div className="h-4 bg-background/50 rounded-full overflow-hidden p-1 border border-border/50">
-                                    <div
-                                        className="h-full bg-primary rounded-full transition-all duration-1000 shadow-lg shadow-primary/20"
-                                        style={{ width: `${Math.min(100, (campaign.raised_amount / campaign.goal_amount) * 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <Button size="lg" className="flex-1 h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
-                                Donate to this Campaign
-                            </Button>
-                            <Button size="lg" variant="outline" className="h-16 w-16 rounded-2xl p-0">
-                                <Heart className="w-6 h-6 text-primary" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </DialogContent>
-        </Dialog>
     );
 }

@@ -25,9 +25,7 @@ header img[src*="logo"],
 [class*="bg-white"] img[src*="logo"] {
   /* Remove white background on light sections */
   mix-blend-mode: multiply;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) 
-          drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05))
-          contrast(1.15) brightness(0.95) saturate(1.1);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05)) contrast(1.15) brightness(0.95) saturate(1.1);
   /* Use CSS to make white transparent */
   background: transparent;
 }
@@ -42,9 +40,7 @@ header img[src*="logo"],
 [class*="bg-white"] img[src*="logo"] {
   /* Remove white background using multiply blend mode - makes white transparent */
   mix-blend-mode: multiply;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) 
-          drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05))
-          contrast(1.15) brightness(0.95) saturate(1.1);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05)) contrast(1.15) brightness(0.95) saturate(1.1);
   background: transparent;
 }
 
@@ -54,10 +50,7 @@ footer img[src*="logo"],
 [class*="bg-foreground"] img[src*="logo"],
 .bg-dark img[src*="logo"] {
   /* Brown logo on dark background - brighten significantly and add white glow for visibility */
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4)) 
-          drop-shadow(0 0 8px rgba(255, 255, 255, 0.25))
-          drop-shadow(0 0 12px rgba(255, 255, 255, 0.15))
-          brightness(1.5) contrast(1.25) saturate(1.2);
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.25)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.15)) brightness(1.5) contrast(1.25) saturate(1.2);
   mix-blend-mode: screen;
 }
 
@@ -66,9 +59,7 @@ footer img[src*="logo"],
 .bg-primary img[src*="logo"],
 .bg-secondary img[src*="logo"] {
   /* Balanced approach for colored backgrounds - stronger shadow for separation */
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25)) 
-          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15))
-          contrast(1.2) brightness(1.1) saturate(1.2);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15)) contrast(1.2) brightness(1.1) saturate(1.2);
   mix-blend-mode: normal;
 }
 
@@ -117,17 +108,17 @@ button:hover img[src*="logo"],
     --radius: 1rem;
 
     /* Custom Design Tokens */
-    --shadow-float: 0 8px 32px -8px hsl(20 20% 15% / 0.12), 0 4px 16px -4px hsl(20 20% 15% / 0.08);
-    --shadow-float-lg: 0 16px 48px -12px hsl(20 20% 15% / 0.18), 0 8px 24px -8px hsl(20 20% 15% / 0.1);
-    --shadow-glow: 0 0 40px hsl(16 65% 45% / 0.2);
-    --shadow-card-hover: 0 12px 40px -8px hsl(20 20% 15% / 0.15), 0 6px 20px -6px hsl(20 20% 15% / 0.1);
-    
+    --shadow-float: 0 12px 40px -8px hsl(20 20% 15% / 0.15), 0 6px 20px -4px hsl(20 20% 15% / 0.1);
+    --shadow-float-lg: 0 24px 60px -12px hsl(20 20% 15% / 0.2), 0 12px 32px -8px hsl(20 20% 15% / 0.15);
+    --shadow-glow: 0 0 60px hsl(16 65% 45% / 0.25);
+    --shadow-card-hover: 0 20px 50px -12px hsl(20 20% 15% / 0.2), 0 10px 30px -6px hsl(20 20% 15% / 0.15);
+
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(16 65% 45%) 0%, hsl(150 35% 30%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(38 80% 55%) 0%, hsl(28 75% 50%) 100%);
     --gradient-earth: linear-gradient(180deg, hsl(30 25% 97%) 0%, hsl(35 30% 92%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(35 25% 98%) 100%);
-    
+
     /* Typography */
     --font-display: 'Playfair Display', serif;
     --font-body: 'Source Sans 3', sans-serif;
@@ -195,7 +186,12 @@ button:hover img[src*="logo"],
     @apply bg-background text-foreground font-body antialiased;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display;
   }
 }
@@ -276,8 +272,15 @@ button:hover img[src*="logo"],
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   @keyframes fadeUp {
@@ -285,6 +288,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -296,6 +300,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -307,6 +312,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -318,6 +324,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateX(20px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -325,19 +332,25 @@ button:hover img[src*="logo"],
   }
 
   @keyframes parallaxSlow {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1) translateY(0);
     }
+
     50% {
       transform: scale(1.05) translateY(-10px);
     }
   }
 
   @keyframes gradientShift {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.3;
       transform: translateX(-50%) translateY(-50%);
     }
+
     50% {
       opacity: 0.5;
       transform: translateX(50%) translateY(50%);
@@ -345,14 +358,18 @@ button:hover img[src*="logo"],
   }
 
   @keyframes floatGlow {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translate(0, 0) scale(1);
       opacity: 0.3;
     }
+
     33% {
       transform: translate(30px, -30px) scale(1.1);
       opacity: 0.5;
     }
+
     66% {
       transform: translate(-20px, 20px) scale(0.9);
       opacity: 0.4;
@@ -360,14 +377,18 @@ button:hover img[src*="logo"],
   }
 
   @keyframes floatGlowDelayed {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translate(0, 0) scale(1);
       opacity: 0.2;
     }
+
     33% {
       transform: translate(-30px, 30px) scale(1.15);
       opacity: 0.4;
     }
+
     66% {
       transform: translate(20px, -20px) scale(0.85);
       opacity: 0.3;
@@ -379,6 +400,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(30px) scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -386,18 +408,24 @@ button:hover img[src*="logo"],
   }
 
   @keyframes borderGlow {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0;
     }
+
     50% {
       opacity: 0.6;
     }
   }
 
   @keyframes badgeGlow {
-    0%, 100% {
+
+    0%,
+    100% {
       box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
     }
+
     50% {
       box-shadow: 0 0 20px hsl(var(--primary) / 0.6), 0 0 30px hsl(var(--accent) / 0.4);
     }
@@ -407,6 +435,7 @@ button:hover img[src*="logo"],
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
@@ -416,6 +445,7 @@ button:hover img[src*="logo"],
     0% {
       background-position: -200% 0;
     }
+
     100% {
       background-position: 200% 0;
     }
@@ -427,6 +457,7 @@ button:hover img[src*="logo"],
       transform: translateY(20px);
       clip-path: inset(0 0 100% 0);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -435,9 +466,12 @@ button:hover img[src*="logo"],
   }
 
   @keyframes gradientText {
-    0%, 100% {
+
+    0%,
+    100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
@@ -448,6 +482,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(15px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -459,6 +494,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -470,6 +506,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: scale(0.9);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -477,15 +514,20 @@ button:hover img[src*="logo"],
   }
 
   @keyframes heartbeat {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1);
     }
+
     25% {
       transform: scale(1.1);
     }
+
     50% {
       transform: scale(1);
     }
+
     75% {
       transform: scale(1.05);
     }
@@ -496,6 +538,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(20px) scale(0.9);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -507,102 +550,84 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
 
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
-  .stagger-5 { animation-delay: 0.5s; }
-  .stagger-6 { animation-delay: 0.6s; }
-
-  .animate-parallax-slow {
-    animation: parallaxSlow 20s ease-in-out infinite;
+  .stagger-1 {
+    animation-delay: 0.1s;
   }
 
-  .animate-gradient-shift {
-    animation: gradientShift 15s ease-in-out infinite;
-  }
-
-  .animate-float-glow {
-    animation: floatGlow 8s ease-in-out infinite;
-  }
-
-  .animate-float-glow-delayed {
-    animation: floatGlowDelayed 10s ease-in-out infinite;
-    animation-delay: 2s;
-  }
-
-  .animate-hero-entrance {
-    animation: heroEntrance 0.8s ease-out forwards;
-  }
-
-  .animate-border-glow {
-    animation: borderGlow 3s ease-in-out infinite;
-  }
-
-  .animate-badge-glow {
-    animation: badgeGlow 2s ease-in-out infinite;
-  }
-
-  .animate-shimmer {
-    animation: shimmer 3s ease-in-out infinite;
-  }
-
-  .animate-shimmer-bg {
-    animation: shimmerBg 3s linear infinite;
-  }
-
-  .animate-text-reveal {
-    animation: textReveal 1s ease-out forwards;
+  .stagger-2 {
     animation-delay: 0.2s;
-    opacity: 0;
   }
 
-  .animate-gradient-text {
-    background-size: 200% 200%;
-    animation: gradientText 3s ease infinite;
-  }
-
-  .animate-fade-slide-up {
-    animation: fadeSlideUp 0.8s ease-out forwards;
-    animation-delay: 0.4s;
-    opacity: 0;
-  }
-
-  .animate-slide-down {
-    animation: slideDown 0.6s ease-out forwards;
-  }
-
-  .animate-scale-in-delayed {
-    animation: scaleInDelayed 0.6s ease-out forwards;
-    animation-delay: 0.6s;
-    opacity: 0;
-  }
-
-  .animate-heartbeat {
-    animation: heartbeat 2s ease-in-out infinite;
-  }
-
-  .animate-stat-card {
-    animation: statCard 0.6s ease-out forwards;
-    opacity: 0;
-  }
-
-  .animate-count-up {
-    animation: countUp 0.8s ease-out forwards;
+  .stagger-3 {
     animation-delay: 0.3s;
-    opacity: 0;
+  }
+
+  .stagger-4 {
+    animation-delay: 0.4s;
+  }
+
+  .stagger-5 {
+    animation-delay: 0.5s;
+  }
+
+  .stagger-6 {
+    animation-delay: 0.6s;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+
+  @keyframes parallaxSlow {
+
+    0%,
+    100% {
+      transform: scale(1.05) translateY(0);
+    }
+
+    50% {
+      transform: scale(1.1) translateY(-15px);
+    }
+  }
+
+  /* ... other animations ... */
+
+  @keyframes heroEntrance {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   /* Mobile-specific improvements */
   @media (max-width: 640px) {
+
     /* Ensure touch targets are at least 44x44px */
-    button, a, input, select, textarea {
+    button,
+    a,
+    input,
+    select,
+    textarea {
       min-height: 44px;
       min-width: 44px;
     }
@@ -614,7 +639,8 @@ button:hover img[src*="logo"],
     }
 
     /* Prevent horizontal scroll */
-    html, body {
+    html,
+    body {
       overflow-x: hidden;
       max-width: 100vw;
     }
@@ -626,8 +652,11 @@ button:hover img[src*="logo"],
     }
 
     /* Improve form inputs on mobile */
-    input, textarea, select {
-      font-size: 16px; /* Prevents zoom on iOS */
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+      /* Prevents zoom on iOS */
     }
   }
 
@@ -655,17 +684,22 @@ button:hover img[src*="logo"],
 
   /* Liquid Glass Morphism Effects for Dynamic Island */
   @keyframes liquid-morph {
-    0%, 100% {
+
+    0%,
+    100% {
       border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
       transform: scale(1);
     }
+
     25% {
       border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
     }
+
     50% {
       border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
       transform: scale(1.02);
     }
+
     75% {
       border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
     }
@@ -675,15 +709,19 @@ button:hover img[src*="logo"],
     0% {
       background-position: -200% center;
     }
+
     100% {
       background-position: 200% center;
     }
   }
 
   @keyframes float-button {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translate(-50%, 0) translateY(0);
     }
+
     50% {
       transform: translate(-50%, 0) translateY(-8px);
     }
@@ -702,6 +740,7 @@ button:hover img[src*="logo"],
       opacity: 0;
       transform: translateY(-4px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);

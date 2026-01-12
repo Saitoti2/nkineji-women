@@ -1,4 +1,5 @@
 
+console.log('Backend index.ts loading...');
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -21,12 +22,21 @@ import { itemsRouter } from './api/routes/items.js';
 import { healthRouter } from './api/routes/health.js';
 import { impactStoryRouter } from './api/routes/impactStories.js';
 import { impactCommentRouter } from './api/routes/impactComments.js';
+import { uploadRouter } from './api/routes/upload.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security & Middleware
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false
+}));
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
@@ -34,6 +44,9 @@ app.use(cors({
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -66,6 +79,9 @@ app.use(`${API_PREFIX}/items`, itemsRouter);
 app.use(`${API_PREFIX}/health`, healthRouter);
 app.use(`${API_PREFIX}/impact-stories`, impactStoryRouter);
 app.use(`${API_PREFIX}/impact-comments`, impactCommentRouter);
+app.get(`${API_PREFIX}/debug-test`, (req, res) => res.status(200).json({ status: 'alive' }));
+console.log('Registering upload router at', `${API_PREFIX}/upload`);
+app.use(`${API_PREFIX}/upload`, uploadRouter);
 // Assuming generic health check or module
 
 // 404 Handler

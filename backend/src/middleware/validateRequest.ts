@@ -11,7 +11,10 @@ export const validateRequest = (schema: ZodSchema) => {
         params: req.params,
       });
       next();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.errors) {
+        console.error('Validation Error for', schema, ':', JSON.stringify(error.errors, null, 2));
+      }
       next(error);
     }
   };

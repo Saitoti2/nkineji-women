@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingBag, Plus, Minus, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "@/lib/utils";
 
 interface Item {
     id: string;
@@ -73,7 +74,7 @@ export default function EssentialsDonation() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('user_token') || ''}`
+                    'Authorization': `Bearer ${localStorage.getItem('mara_bloom_auth_token') || ''}`
                 },
                 body: JSON.stringify({
                     amount: totalAmount,
@@ -100,14 +101,11 @@ export default function EssentialsDonation() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col pt-20">
             <DynamicNavbar />
 
-            <main className="flex-grow container mx-auto px-4 py-8 sm:py-12">
+            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
                 <div className="mb-8">
-                    <Button variant="ghost" className="mb-4 pl-0" onClick={() => navigate(-1)}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                    </Button>
                     <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4">
                         Donate Essentials
                     </h1>
@@ -131,7 +129,7 @@ export default function EssentialsDonation() {
                             <Card key={item.id} className="overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow">
                                 <div className="aspect-video bg-muted relative overflow-hidden">
                                     {item.image_url ? (
-                                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                                        <img src={getImageUrl(item.image_url)} alt={item.name} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-secondary/10 text-secondary">
                                             <ShoppingBag className="h-12 w-12 opacity-50" />

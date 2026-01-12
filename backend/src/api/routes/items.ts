@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { authorize } from '../../middleware/authorize.js';
-import { getItems, createItem, updateItem } from '../../services/itemService.js';
+import { getItems, createItem, updateItem, deleteItem } from '../../services/itemService.js';
 import { validateRequest } from '../../middleware/validateRequest.js';
 import { createItemSchema, updateItemSchema } from '../../types/schemas/itemSchemas.js';
 
@@ -47,6 +47,21 @@ itemsRouter.put(
         try {
             const item = await updateItem(req.params.id as string, req.body);
             res.json({ success: true, data: item });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+// DELETE /api/v1/items/:id - Admin only
+itemsRouter.delete(
+    '/:id',
+    authenticate,
+    authorize(['admin', 'super_admin']),
+    async (req, res, next) => {
+        try {
+            await deleteItem(req.params.id as string);
+            res.json({ success: true, message: 'Item deleted successfully' });
         } catch (error) {
             next(error);
         }

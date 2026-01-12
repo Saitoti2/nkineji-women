@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { authorize } from '../../middleware/authorize.js';
-import { getAllStories, getStoryById, createStory } from '../../services/impactStoryService.js';
+import { getAllStories, getStoryById, createStory, updateStory, deleteStory } from '../../services/impactStoryService.js';
 
 export const impactStoryRouter = Router();
 
@@ -24,7 +24,7 @@ impactStoryRouter.get('/', async (req, res, next) => {
 // GET /api/v1/impact-stories/:id
 impactStoryRouter.get('/:id', async (req, res, next) => {
     try {
-        const story = await getStoryById(req.params.id);
+        const story = await getStoryById(req.params.id as string);
         res.json({ success: true, data: story });
     } catch (error) {
         next(error);
@@ -40,6 +40,36 @@ impactStoryRouter.post(
         try {
             const story = await createStory(req.body);
             res.status(201).json({ success: true, data: story });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+// PUT /api/v1/impact-stories/:id - Admin only
+impactStoryRouter.put(
+    '/:id',
+    authenticate,
+    authorize(['admin', 'super_admin']),
+    async (req, res, next) => {
+        try {
+            const story = await updateStory(req.params.id as string, req.body);
+            res.json({ success: true, data: story });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+// DELETE /api/v1/impact-stories/:id - Admin only
+impactStoryRouter.delete(
+    '/:id',
+    authenticate,
+    authorize(['admin', 'super_admin']),
+    async (req, res, next) => {
+        try {
+            await deleteStory(req.params.id as string);
+            res.json({ success: true, message: 'Impact story deleted successfully' });
         } catch (error) {
             next(error);
         }

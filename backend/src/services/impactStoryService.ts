@@ -50,10 +50,10 @@ export const getAllStories = async (filters: {
         const params: any[] = [];
         let pIdx = 1;
 
-        if (filters.status) {
+        if (filters.status && filters.status !== 'all') {
             sql += ` AND s.status = $${pIdx++}`;
             params.push(filters.status);
-        } else {
+        } else if (!filters.status) {
             sql += ` AND s.status = 'published'`;
         }
 
@@ -159,5 +159,70 @@ export const createStory = async (data: any) => {
     } catch (error) {
         logger.error('Error in createStory', error);
         throw new ApiError('Failed to create impact story', 500);
+    }
+};
+
+export const updateStory = async (id: string, data: any) => {
+    try {
+        const { media, ...storyData } = data;
+
+        // Verify existence
+        await getStoryById(id);
+
+        await query(
+            `UPDATE impact_stories 
+       SET beneficiary_name = $1, beneficiary_age = $2, location = $3, 
+           profile_image_url = $4, short_bio = $5, title = $6, 
+           content = $7, impact_summary = $8, campaign_id = $9, 
+           status = $10, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $11`,
+            [
+                storyData.beneficiary_name,
+                storyData.beneficiary_age,
+                storyData.location,
+                storyData.profile_image_url,
+                storyData.short_bio,
+                storyData.title,
+                storyData.content,
+                storyData.impact_summary,
+                storyData.campaign_id,
+                storyData.status,
+                id
+            ]
+        );
+
+        // Update media if provided
+        if (media && Array.isArray(media)) {
+            // Transactional-like cleanup and re-insert for simplicity
+            await query('DELETE FROM story_media WHERE story_id = $1', [id]);
+            for (const item of media) {
+                await query(
+                    `INSERT INTO story_media (story_id, media_type, media_url, thumbnail_url, caption, display_order)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [id, item.media_type, item.media_url, item.thumbnail_url, item.caption, item.display_order || 0]
+                );
+            }
+        }
+
+        return await getStoryById(id);
+    } catch (error) {
+        if (error instanceof ApiError) throw error;
+        logger.error('Error in updateStory', error);
+        throw new ApiError('Failed to update impact story', 500);
+    }
+};
+
+export const deleteStory = async (id: string) => {
+    try {
+        // story_media has ON DELETE CASCADE in schema
+        const result = await query('DELETE FROM impact_stories WHERE id = $1', [id]);
+        if (result.rowCount === 0) {
+            throw new ApiError('Story not found', 404);
+        }
+        return true;
+    } catch (error) {
+        if (error instanceof ApiError) throw error;
+        logger.error('Error in deleteStory', error);
+        throw new ApiError('Failed to delete impact story', 500);
     }
 };

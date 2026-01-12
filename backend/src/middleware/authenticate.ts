@@ -43,9 +43,38 @@ export const authenticate = async (
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      throw new ApiError('Invalid token', 401);
+      return next(new ApiError('Invalid token', 401));
     }
     next(error);
+  }
+};
+
+export const authenticateOptional = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.substring(7);
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) return next();
+
+    try {
+      const decoded = jwt.verify(token, secret) as AuthUser;
+      req.user = decoded;
+    } catch (err) {
+      // Ignore invalid tokens for optional auth
+    }
+    next();
+  } catch (error) {
+    next();
   }
 };
 

@@ -109,3 +109,19 @@ export const updateItem = async (id: string, data: Partial<CampaignItem>): Promi
         throw new ApiError('Failed to update item', 500);
     }
 };
+
+export const deleteItem = async (id: string): Promise<boolean> => {
+    try {
+        const result = await query(
+            'UPDATE campaign_items SET is_deleted = TRUE, is_active = FALSE WHERE id = $1',
+            [id]
+        );
+        if (result.rowCount === 0) {
+            throw new ApiError('Item not found', 404);
+        }
+        return true;
+    } catch (error) {
+        logger.error('Error deleting item', error);
+        throw new ApiError('Failed to delete item', 500);
+    }
+};

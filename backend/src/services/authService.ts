@@ -424,7 +424,7 @@ function generateTokens(user: AuthUser): { accessToken: string; refreshToken: st
 
 function generateAccessToken(user: AuthUser): string {
   const secret = process.env.JWT_SECRET;
-  const expiresIn = process.env.JWT_EXPIRES_IN || '15m';
+  const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
 
   if (!secret) {
     throw new Error('JWT_SECRET not configured');

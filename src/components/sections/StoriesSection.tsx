@@ -1,93 +1,90 @@
 import { Quote, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
-const stories = [
-  {
-    id: 1,
-    name: "Nashipai M.",
-    age: 24,
-    program: "Education → Micro-Enterprise",
-    image: "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=800&fit=crop&crop=face&q=80&auto=format",
-    quote: "I was rescued at 12, sponsored through school, and now I run my own beadwork business employing 8 other women. My daughters will never face what I did.",
-    impact: "Business owner, 8 employees, supporting 3 siblings through school",
-  },
-  {
-    id: 2,
-    name: "Grace K.",
-    age: 35,
-    program: "Savings Group → Healthcare",
-    image: "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=800&fit=crop&crop=face&q=80&auto=format",
-    quote: "The savings group changed everything. When I needed cancer treatment, my sisters contributed. Now I help other women access healthcare they couldn't afford alone.",
-    impact: "Cancer survivor, savings group leader, 45 women in her network",
-  },
-  {
-    id: 3,
-    name: "Faith N.",
-    age: 19,
-    program: "Rescue → University",
-    image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=800&fit=crop&crop=face&q=80&auto=format",
-    quote: "I'm the first girl in my village to attend university. I'm studying nursing so I can return and help other women in my community.",
-    impact: "First-generation university student, future healthcare worker",
-  },
-];
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 export function StoriesSection() {
+  const navigate = useNavigate();
+
+  const { data: stories = [] } = useQuery({
+    queryKey: ['landing-stories'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/impact-stories?limit=3&status=published`);
+      const data = await res.json();
+      return data.data;
+    }
+  });
+
   return (
-    <section id="stories" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background via-muted/20 to-background">
+    <section id="stories" className="py-24 bg-gradient-to-b from-background via-muted/20 to-background">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 md:mb-16 float-card p-5 sm:p-6 md:p-8 lg:p-10">
-          <span className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-secondary/10 text-secondary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             Impact Stories
           </span>
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
-            Voices of <span className="text-secondary">Transformation</span>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
+            Voices of <span className="text-primary italic">Transformation</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base md:text-lg px-2">
+          <p className="text-muted-foreground text-lg leading-relaxed">
             Real stories from women whose lives have been transformed through your generosity. Names changed for privacy; shared with consent.
           </p>
         </div>
 
         {/* Stories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-          {stories.map((story) => (
-            <div key={story.id} className="float-card p-4 sm:p-5 md:p-6 lg:p-8 flex flex-col min-h-[300px] sm:min-h-[320px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {stories.map((story: any, idx: number) => (
+            <div
+              key={story.id}
+              className="group relative bg-card p-10 rounded-[3rem] border border-border/50 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-8 fill-mode-both cursor-pointer"
+              style={{ animationDelay: `${idx * 100}ms` }}
+              onClick={() => navigate(`/impact?storyId=${story.id}`)}
+            >
               {/* Quote Icon */}
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-accent/10 flex items-center justify-center mb-4 sm:mb-5 md:mb-6">
-                <Quote className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                <Quote className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
               </div>
 
               {/* Quote */}
-              <blockquote className="text-foreground font-medium leading-relaxed mb-4 sm:mb-5 md:mb-6 flex-grow text-sm sm:text-base">
-                "{story.quote}"
+              <blockquote className="text-foreground font-medium leading-relaxed mb-10 text-lg sm:text-xl italic line-clamp-4">
+                "{story.content}"
               </blockquote>
 
               {/* Author */}
-              <div className="flex items-center gap-3 sm:gap-4 pt-4 sm:pt-5 md:pt-6 border-t border-border">
+              <div className="flex items-center gap-5 pt-8 border-t border-border/50">
                 <img
-                  src={story.image}
-                  alt={story.name}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl object-cover flex-shrink-0"
+                  src={getImageUrl(story.profile_image_url)}
+                  alt={story.beneficiary_name}
+                  className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500"
                 />
                 <div className="min-w-0">
-                  <div className="font-semibold text-foreground text-sm sm:text-base">{story.name}, {story.age}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground truncate">{story.program}</div>
+                  <div className="font-bold text-foreground text-lg">{story.beneficiary_name}, {story.beneficiary_age}</div>
+                  <div className="text-sm text-muted-foreground truncate font-medium">{story.title}</div>
                 </div>
               </div>
 
               {/* Impact Badge */}
-              <div className="mt-3 sm:mt-4 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-muted text-muted-foreground text-[10px] sm:text-xs leading-relaxed">
-                <span className="font-semibold text-foreground">Impact:</span> {story.impact}
+              <div className="mt-8 px-6 py-4 rounded-2xl bg-muted/50 text-muted-foreground text-sm leading-relaxed border border-border/30 group-hover:bg-primary/5 group-hover:border-primary/20 transition-all duration-500">
+                <span className="font-bold text-primary uppercase tracking-wider text-[10px] block mb-1">Impact</span>
+                {story.impact_summary}
               </div>
             </div>
           ))}
         </div>
 
         {/* CTA */}
-        <div className="mt-8 sm:mt-10 md:mt-12 text-center">
-          <Button variant="secondary" size="lg" className="min-h-[48px] sm:min-h-[56px] text-sm sm:text-base">
-            Read More Stories
-            <ArrowRight className="w-4 h-4" />
+        <div className="mt-16 text-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="h-16 px-10 rounded-2xl text-lg font-bold group"
+            onClick={() => navigate('/impact')}
+          >
+            Read More Impact Stories
+            <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>
       </div>

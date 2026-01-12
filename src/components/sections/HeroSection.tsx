@@ -24,8 +24,9 @@ export function HeroSection() {
       </div>
 
       {/* Floating Hero Card - Responsive container that adapts to screen size */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
-        <div className="w-full max-w-5xl h-auto max-h-full bg-card/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-float-xl border border-border/30 p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 animate-hero-entrance relative overflow-hidden overflow-y-auto">
+      <div className="relative z-10 w-full min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 pt-32 sm:pt-36 pb-20 sm:pb-24">
+        {/* Added backdrop-blur-3xl for glass effect and removed h-full constraint for better centering */}
+        <div className="w-full max-w-5xl bg-card/80 backdrop-blur-2xl rounded-[2.5rem] shadow-float-lg border border-white/20 p-6 sm:p-10 md:p-16 animate-hero-entrance relative overflow-hidden">
           {/* Animated border glow */}
           <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-0 animate-border-glow pointer-events-none" />
 
@@ -54,12 +55,22 @@ export function HeroSection() {
 
             {/* CTA Buttons with enhanced hover effects - Responsive layout */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center mb-6 sm:mb-8 md:mb-10 lg:mb-12 animate-scale-in-delayed px-2">
-              <Button variant="donate" size="lg" className="w-full sm:w-auto group relative overflow-hidden min-h-[44px] sm:min-h-[48px] md:min-h-[56px] text-sm sm:text-base">
+              <Button
+                variant="donate"
+                size="lg"
+                className="w-full sm:w-auto group relative overflow-hidden min-h-[44px] sm:min-h-[48px] md:min-h-[56px] text-sm sm:text-base"
+                onClick={() => window.location.href = '/campaigns'}
+              >
                 <span className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-accent bg-[length:200%_100%] animate-shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity" />
                 <Heart className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 animate-heartbeat" />
                 <span className="relative z-10 whitespace-nowrap">Support a Woman Today</span>
               </Button>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto group relative min-h-[44px] sm:min-h-[48px] md:min-h-[56px] text-sm sm:text-base">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto group relative min-h-[44px] sm:min-h-[48px] md:min-h-[56px] text-sm sm:text-base"
+                onClick={() => window.location.href = '/impact'}
+              >
                 <span className="relative z-10 whitespace-nowrap">Explore Our Impact</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-2 group-hover:scale-110 relative z-10" />
               </Button>

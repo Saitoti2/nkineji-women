@@ -179,6 +179,14 @@ export const updateCampaign = async (id: string, data: any, userId: string): Pro
       updates.push(`status = $${paramCount++}`);
       params.push(data.status);
     }
+    if (data.image_url !== undefined) {
+      updates.push(`image_url = $${paramCount++}`);
+      params.push(data.image_url || null);
+    }
+    if (data.category !== undefined) {
+      updates.push(`category = $${paramCount++}`);
+      params.push(data.category || null);
+    }
 
     if (updates.length === 0) {
       return await getCampaign(id);

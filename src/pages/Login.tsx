@@ -6,12 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
+import { BackButton } from "@/components/ui/back-button";
+
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 export default function Login() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -31,8 +35,8 @@ export default function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('user_token', data.accessToken);
-                localStorage.setItem('user_refresh_token', data.refreshToken);
+                localStorage.setItem('mara_bloom_auth_token', data.accessToken);
+                localStorage.setItem('mara_bloom_refresh_token', data.refreshToken);
                 localStorage.setItem('user_data', JSON.stringify(data.user));
 
                 toast({
@@ -40,7 +44,12 @@ export default function Login() {
                     description: 'Logged in successfully',
                 });
 
-                navigate('/dashboard'); // Assuming we'll create a user dashboard or redirect to home
+                // Role-based redirection
+                if (data.user.role === 'admin' || data.user.role === 'super_admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/dashboard');
+                }
             } else {
                 toast({
                     title: 'Login failed',
@@ -60,7 +69,10 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 relative">
+            <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+                <BackButton label="Home" />
+            </div>
             <Card className="w-full max-w-md shadow-lg border-border/50">
                 <CardHeader className="space-y-1">
                     <div className="flex justify-center mb-4">
@@ -93,13 +105,23 @@ export default function Login() {
                                     Forgot password?
                                 </Link>
                             </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                required
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    required
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">

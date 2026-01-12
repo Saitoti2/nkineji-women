@@ -1,6 +1,9 @@
 import { query } from './connection.js';
 import { logger } from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function seedDatabase() {
   try {
