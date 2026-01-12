@@ -14,7 +14,6 @@ import EssentialsDonation from "./pages/EssentialsDonation";
 import Campaigns from "./pages/Campaigns";
 import Impact from "./pages/Impact";
 import Dashboard from "./pages/Dashboard";
-import { BackToTop } from "@/components/ui/BackToTop";
 
 const queryClient = new QueryClient();
 
@@ -44,11 +43,10 @@ const App = () => (
             {/* Admin sub-routes removed as they are now handled in Admin.tsx */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <BackToTop />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </ThemeProvider>
+  </ThemeProvider >
 );
 
 export default App;

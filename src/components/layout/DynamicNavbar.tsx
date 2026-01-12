@@ -31,6 +31,7 @@ export function DynamicNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentSection, setCurrentSection] = useState<string>("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [mounted, setMounted] = useState(false);
   const navbarRef = useRef<HTMLDivElement>(null);
@@ -391,7 +392,7 @@ export function DynamicNavbar() {
             )}
 
             {/* Mobile Menu */}
-            <Sheet>
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <button
                   className="lg:hidden p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all min-w-[36px] min-h-[36px] flex items-center justify-center"
@@ -441,26 +442,31 @@ export function DynamicNavbar() {
 
                   <nav className="flex flex-col gap-2 flex-1">
                     {navLinks.map((link, index) => (
-                      <SheetClose asChild key={link.label}>
-                        <a
-                          href={link.href}
-                          onClick={(e) => handleNavClick(e, link.href)}
-                          className="px-4 py-3.5 rounded-xl text-base font-medium text-foreground hover:bg-muted/70 transition-all duration-300 cursor-pointer"
-                          style={{ animationDelay: `${index * 0.05}s` }}
-                        >
-                          {link.label}
-                        </a>
-                      </SheetClose>
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        onClick={(e) => {
+                          handleNavClick(e, link.href);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="px-4 py-3.5 rounded-xl text-base font-medium text-foreground hover:bg-muted/70 transition-all duration-300 cursor-pointer"
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                      >
+                        {link.label}
+                      </a>
                     ))}
                   </nav>
 
                   <div className="pt-6 border-t border-border/50">
-                    <SheetClose asChild>
-                      <Button variant="donate" className="w-full" size="lg">
-                        <Heart className="w-4 h-4" />
-                        Donate Now
-                      </Button>
-                    </SheetClose>
+                    <Button
+                      variant="donate"
+                      className="w-full"
+                      size="lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Heart className="w-4 h-4" />
+                      Donate Now
+                    </Button>
                   </div>
                 </div>
               </SheetContent>
