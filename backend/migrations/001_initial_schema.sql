@@ -324,7 +324,7 @@ CREATE INDEX idx_users_email ON users(email) WHERE is_deleted = FALSE;
 CREATE INDEX idx_users_phone ON users(phone) WHERE is_deleted = FALSE;
 CREATE INDEX idx_users_role ON users(role_id);
 CREATE INDEX idx_donations_donor ON donations(donor_id) WHERE is_deleted = FALSE;
-CREATE INDEX idx_donations_campaign ON donations(campaign_id) WHERE is_deleted = FALSE;
+-- CREATE INDEX idx_donations_campaign ON donations(campaign_id) WHERE is_deleted = FALSE;
 CREATE INDEX idx_donations_status ON donations(status);
 CREATE INDEX idx_beneficiaries_pseudo_id ON beneficiaries(pseudo_id) WHERE is_deleted = FALSE;
 CREATE INDEX idx_beneficiaries_location ON beneficiaries USING GIST(location_geo) WHERE is_deleted = FALSE;

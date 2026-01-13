@@ -15,6 +15,20 @@ CREATE TABLE IF NOT EXISTS beneficiaries (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Ensure columns exist if table was created by 001
+DO $$
+BEGIN
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS name VARCHAR(255);
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS age INTEGER;
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS location VARCHAR(255);
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL;
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS profile_image_url TEXT;
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS short_bio TEXT;
+    ALTER TABLE beneficiaries ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived'));
+EXCEPTION
+    WHEN duplicate_column THEN RAISE NOTICE 'Column already exists in beneficiaries.';
+END $$;
+
 -- Stories table
 CREATE TABLE IF NOT EXISTS stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -23,6 +23,7 @@ async function runMigrations() {
 
     for (const file of files) {
       logger.info(`Running migration: ${file}`);
+      console.log(`[DEBUG] Executing migration: ${file}`);
       const sql = readFileSync(join(migrationsDir, file), 'utf-8');
       await query(sql);
       logger.info(`Migration ${file} completed`);
