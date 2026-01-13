@@ -6,18 +6,24 @@ export const healthRouter = Router();
 
 healthRouter.get('/', async (req: Request, res: Response) => {
   let dbStatus = 'unknown';
+  let dbError = null;
+  const hasUrl = !!process.env.DATABASE_URL;
+
   try {
     const pool = getPool();
     await pool.query('SELECT 1');
     dbStatus = 'connected';
-  } catch (error) {
+  } catch (error: any) {
     dbStatus = 'disconnected';
+    dbError = error.message;
     logger.error('Health check database error', error);
   }
 
   res.json({
     status: 'ok',
     database: dbStatus,
+    dbError: dbError,
+    hasDatabaseUrl: hasUrl,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
