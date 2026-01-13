@@ -7,7 +7,10 @@ export const healthRouter = Router();
 healthRouter.get('/', async (req: Request, res: Response) => {
   let dbStatus = 'unknown';
   let dbError = null;
-  const hasUrl = !!process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL || '';
+  const hasUrl = url.length > 0;
+  const urlPrefix = url.substring(0, 15);
+  const urlLength = url.length;
 
   try {
     const pool = getPool();
@@ -23,7 +26,11 @@ healthRouter.get('/', async (req: Request, res: Response) => {
     status: 'ok',
     database: dbStatus,
     dbError: dbError,
-    hasDatabaseUrl: hasUrl,
+    dbUrlInfo: {
+      hasUrl,
+      prefix: urlPrefix,
+      length: urlLength
+    },
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
