@@ -62,6 +62,21 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     logger.info('Running seeding...');
     await seedDatabase();
 
+    // Seed Impact Stories if none exist
+    const storyCount = await getPool().query('SELECT count(*) FROM impact_stories');
+    if (parseInt(storyCount.rows[0].count) === 0) {
+      logger.info('Seeding impact stories...');
+      const campaignResult = await getPool().query('SELECT id FROM campaigns LIMIT 1');
+      if (campaignResult.rows.length > 0) {
+        const campaignId = campaignResult.rows[0].id;
+        await getPool().query(
+          `INSERT INTO impact_stories (beneficiary_name, beneficiary_age, location, profile_image_url, short_bio, title, content, impact_summary, campaign_id, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          ['Zahara Kamau', 32, 'Kajiado County', 'https://images.unsplash.com/photo-1531123897727-8f129e16fd47?auto=format&fit=crop&q=80&w=800', 'A mother of four who transformed her family’s future.', 'From Struggle to Success: Zahara’s New Dawn', 'Zahara used to walk 10 kilometers daily to fetch water...', 'Established a sustainable business.', campaignId, 'published']
+        );
+      }
+    }
+
     res.json({
       success: true,
       message: 'Migrations and seeding completed',
