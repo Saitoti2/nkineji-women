@@ -38,11 +38,12 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
   const pool = getPool();
   const client = await pool.connect();
 
+  let currentStep = 'initializing';
   try {
-    logger.info('Setup requested: starting transaction...');
-    await client.query('BEGIN');
+    logger.info('Setup requested: starting migrations...');
+    currentStep = 'migrations';
 
-    // 1. Run Migrations (Manual SQL execution)
+    // 1. Run Migrations (Outside transaction to avoid poisoning)
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const migrationsDir = path.join(__dirname, '../../../migrations');
@@ -52,18 +53,23 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     for (const file of files) {
       try {
         const sql = readFileSync(path.join(migrationsDir, file), 'utf-8');
-        await client.query(sql);
+        await pool.query(sql);
         migrationResults.push({ file, status: 'completed' });
       } catch (err: any) {
         if (err.message.includes('already exists') || err.message.includes('already a primary key') || err.message.includes('already a trigger')) {
           migrationResults.push({ file, status: 'skipped' });
         } else {
-          throw err;
+          logger.warn(`Migration ${file} failed: ${err.message}`);
+          migrationResults.push({ file, status: 'failed', error: err.message });
         }
       }
     }
 
+    logger.info('Migrations processing finished. Starting deduplication transaction...');
+    await client.query('BEGIN');
+
     // 2. Deduplicate and Ensure Constraints
+    currentStep = 'deduplication: campaigns';
     logger.info('Deduplicating campaigns...');
     await client.query(`
       DELETE FROM campaigns 
@@ -75,6 +81,7 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     `);
     await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
 
+    currentStep = 'deduplication: items';
     logger.info('Deduplicating items...');
     await client.query(`
       DELETE FROM campaign_items 
@@ -86,6 +93,7 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     `);
     await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_items_name_unique ON campaign_items (name)');
 
+    currentStep = 'deduplication: stories';
     logger.info('Deduplicating stories...');
     await client.query(`
       DELETE FROM impact_stories 
@@ -102,6 +110,7 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     // So we manually perform the essential seeding here or update the seeds to accept a client
     // For now, let's just do it manually here for reliability in production
 
+    currentStep = 'seeding';
     logger.info('Executing seeding...');
     await seedDatabase();
     await seedEssentials();
@@ -118,13 +127,15 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    await client.query('ROLLBACK');
-    logger.error('Setup failed', error);
+    if (currentStep !== 'migrations') {
+      try { await client.query('ROLLBACK'); } catch (e) { }
+    }
+    logger.error(`Setup failed at step [${currentStep}]`, error);
     res.status(500).json({
       success: false,
-      message: 'Setup failed',
+      message: `Setup failed at step [${currentStep}]`,
       error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      step: currentStep
     });
   } finally {
     client.release();
