@@ -1,11 +1,23 @@
 import { Router, Request, Response } from 'express';
 import { logger } from '../../utils/logger.js';
+import { getPool } from '../../db/connection.js';
 
 export const healthRouter = Router();
 
-healthRouter.get('/', (req: Request, res: Response) => {
+healthRouter.get('/', async (req: Request, res: Response) => {
+  let dbStatus = 'unknown';
+  try {
+    const pool = getPool();
+    await pool.query('SELECT 1');
+    dbStatus = 'connected';
+  } catch (error) {
+    dbStatus = 'disconnected';
+    logger.error('Health check database error', error);
+  }
+
   res.json({
     status: 'ok',
+    database: dbStatus,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
