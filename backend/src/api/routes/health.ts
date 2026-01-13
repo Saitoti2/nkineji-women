@@ -67,9 +67,11 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     await pool.query(`
       DELETE FROM campaigns 
       WHERE id NOT IN (
-        SELECT MIN(id) 
-        FROM campaigns 
-        GROUP BY title
+        SELECT id FROM (
+          SELECT DISTINCT ON (title) id 
+          FROM campaigns 
+          ORDER BY title, id
+        ) sub
       )
     `);
 
@@ -77,11 +79,14 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     await pool.query(`
       DELETE FROM campaign_items 
       WHERE id NOT IN (
-        SELECT MIN(id) 
-        FROM campaign_items 
-        GROUP BY name
+        SELECT id FROM (
+          SELECT DISTINCT ON (name) id 
+          FROM campaign_items 
+          ORDER BY name, id
+        ) sub
       )
     `);
+
 
     // Ensure unique indexes for ON CONFLICT logic
     await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
