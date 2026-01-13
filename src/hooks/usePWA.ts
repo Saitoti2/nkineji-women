@@ -49,30 +49,33 @@ export function usePWA() {
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
+        // Show install button by default if not already installed, 
+        // we will handle the click logic based on whether we have the prompt or not.
+        if (!isInstalled) {
+            setIsInstallable(true);
+        }
+
         return () => {
+
+
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, []);
 
     const installApp = async () => {
-        if (!deferredPrompt) {
-            if (platform === 'ios') {
-                alert('To install this app on iOS: Tap the share button (square with arrow) and select "Add to Home Screen".');
-            }
-            return;
+        if (deferredPrompt) {
+            // Show the install prompt
+            await deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            setDeferredPrompt(null);
+            setIsInstallable(false);
+        } else if (platform === 'ios') {
+            alert('To install Inua Mama on iOS:\n\n1. Tap the Share button (square with arrow) in your browser.\n2. Scroll down and tap "Add to Home Screen".');
+        } else {
+            alert('To install this app: look for the "Install" icon in your browser address bar or menu.');
         }
-
-        // Show the install prompt
-        await deferredPrompt.prompt();
-
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to the install prompt: ${outcome}`);
-
-        // We've used the prompt, and can't use it again, throw it away
-        setDeferredPrompt(null);
-        setIsInstallable(false);
     };
 
     return {

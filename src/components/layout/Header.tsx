@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Menu, Heart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+
 
 const navLinks = [
   { label: "Our Mission", href: "#mission" },
@@ -23,20 +24,19 @@ export function Header() {
   }, []);
 
   return (
-    <header 
-      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${
-        scrolled 
-          ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50" 
+    <header
+      className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${scrolled
+          ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50"
           : "bg-card/80 backdrop-blur-lg border border-border/30"
-      }`}
+        }`}
     >
       <div className="container mx-auto px-3 sm:px-4 md:px-6">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-18">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
-            <img 
-              src="/logo.png" 
-              alt="Maasai Mara Women Empowerment Initiative" 
+            <img
+              src="/logo.png"
+              alt="Maasai Mara Women Empowerment Initiative"
               className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
             />
             <div className="hidden min-[375px]:block min-w-0">
@@ -65,7 +65,7 @@ export function Header() {
               <span className="hidden md:inline">Donate Now</span>
               <span className="md:hidden">Donate</span>
             </Button>
-            
+
             {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
@@ -76,17 +76,20 @@ export function Header() {
                   <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
                 </button>
               </SheetTrigger>
-              <SheetContent 
-                side="right" 
+              <SheetContent
+                side="right"
                 className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl"
               >
+                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <SheetDescription className="sr-only">Main navigation menu for mobile users.</SheetDescription>
                 <div className="flex flex-col h-full p-6">
+
                   {/* Mobile Menu Header */}
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
-                      <img 
-                        src="/logo.png" 
-                        alt="Maasai Mara Women Empowerment Initiative" 
+                      <img
+                        src="/logo.png"
+                        alt="Maasai Mara Women Empowerment Initiative"
                         className="w-10 h-10 rounded-xl object-contain"
                       />
                       <div>

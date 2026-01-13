@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, Heart, X, ChevronUp, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+
 import { useTheme } from "next-themes";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -419,7 +420,12 @@ export function DynamicNavbar() {
                 side="right"
                 className="w-[85vw] max-w-[320px] p-0 border-none bg-transparent shadow-none [&>button]:hidden inset-y-0 right-0 h-full"
               >
+                <SheetTitle className="sr-only">Main Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Quick access to all sections of the Inua Mama Initiative website and donation options.
+                </SheetDescription>
                 <div
+
                   className={cn(
                     "flex flex-col h-full p-6 border-l rounded-l-[2rem] shadow-2xl overflow-hidden",
                     theme === 'dark'
