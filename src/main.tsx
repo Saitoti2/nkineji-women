@@ -32,5 +32,11 @@ if ('serviceWorker' in navigator) {
             .catch(registrationError => {
                 console.log('SW registration failed: ', registrationError);
             });
+
+        // Listen for service worker updates
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('New service worker active, reloading...');
+            window.location.reload();
+        });
     });
 }

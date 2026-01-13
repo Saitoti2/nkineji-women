@@ -1,58 +1,45 @@
-const CACHE_NAME = 'mara-bloom-v2'; // Incrementing version to force update
-const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/logo.png',
-    '/site.webmanifest',
-    '/favicon.ico',
-];
+const CACHE_NAME = 'mara-bloom-v3';
 
-// Install event - caching basic assets
+// Service worker will cache assets as they are requested
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
-    self.skipWaiting(); // Force new service worker to activate immediately
+    self.skipWaiting();
 });
 
-// Activate event - cleaning up old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
-                        console.log('Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
         })
     );
-    self.clients.claim(); // Take control of all pages immediately
+    self.clients.claim();
 });
 
-// Fetch event - Stale-While-Revalidate strategy
 self.addEventListener('fetch', (event) => {
-    // Only handle GET requests
     if (event.request.method !== 'GET') return;
+
+    // Skip cross-origin requests unless they are for our assets or APIs we want to cache
+    const url = new URL(event.request.url);
+    if (url.origin !== self.location.origin) return;
 
     event.respondWith(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.match(event.request).then((cachedResponse) => {
                 const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    // If network request succeeds, update the cache
                     if (networkResponse && networkResponse.status === 200) {
                         cache.put(event.request, networkResponse.clone());
                     }
                     return networkResponse;
                 }).catch(() => {
-                    // If network fails, we fall back to cache (already handled by returning cachedResponse)
+                    return cachedResponse;
                 });
 
-                // Return cached response immediately if available, otherwise wait for network
+                // Stale-while-revalidate: return cache immediately, update in background
                 return cachedResponse || fetchPromise;
             });
         })
