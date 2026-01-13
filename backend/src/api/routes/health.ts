@@ -63,11 +63,32 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
 
     logger.info('Migrations complete. Ensuring unique constraints for seeding...');
 
+    // 1.5 Deduplicate Campaigns before creating unique index
+    await pool.query(`
+      DELETE FROM campaigns 
+      WHERE id NOT IN (
+        SELECT MIN(id) 
+        FROM campaigns 
+        GROUP BY title
+      )
+    `);
+
+    // 1.6 Deduplicate Campaign Items before creating unique index
+    await pool.query(`
+      DELETE FROM campaign_items 
+      WHERE id NOT IN (
+        SELECT MIN(id) 
+        FROM campaign_items 
+        GROUP BY name
+      )
+    `);
+
     // Ensure unique indexes for ON CONFLICT logic
     await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
     await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_items_name_unique ON campaign_items (name)');
 
     logger.info('Constraints verified. Running comprehensive seeding...');
+
 
     // 2. Base Seeding (Admin User, etc.)
     await seedDatabase();
