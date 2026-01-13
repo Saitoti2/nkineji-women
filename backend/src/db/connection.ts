@@ -13,12 +13,13 @@ export const getPool = (): pg.Pool => {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
+    const isNeon = connectionString.includes('neon.tech');
     pool = new Pool({
       connectionString,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: (process.env.NODE_ENV === 'production' || isNeon) ? { rejectUnauthorized: false } : false
     });
 
     pool.on('error', (err) => {
