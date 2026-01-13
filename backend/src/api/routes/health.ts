@@ -104,20 +104,16 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
       )
     `);
     await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_impact_stories_title_unique ON impact_stories (title)');
+    await client.query('COMMIT');
+    logger.info('Deduplication committed. Starting seeding...');
 
-    // 3. Run Seeding Logic
-    // Since seedDatabase, etc. use the pool.query, they might escape the transaction
-    // So we manually perform the essential seeding here or update the seeds to accept a client
-    // For now, let's just do it manually here for reliability in production
-
+    // 3. Run Seeding Logic (Uses pool.query, must be outside the client transaction to avoid deadlocks)
     currentStep = 'seeding';
-    logger.info('Executing seeding...');
     await seedDatabase();
     await seedEssentials();
     await seedCampaigns();
     await seedImpactStories();
 
-    await client.query('COMMIT');
     logger.info('Setup completed successfully');
 
     res.json({
