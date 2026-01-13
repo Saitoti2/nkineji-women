@@ -9,13 +9,16 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 export function StoriesSection() {
   const navigate = useNavigate();
 
+  const fetchStories = async () => {
+    const res = await fetch(`${API_BASE}/impact-stories?status=published&limit=3`);
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to fetch stories');
+    return data.data;
+  };
+
   const { data: stories = [] } = useQuery({
     queryKey: ['landing-stories'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE}/impact-stories?limit=3&status=published`);
-      const data = await res.json();
-      return data.data;
-    }
+    queryFn: fetchStories,
   });
 
   return (

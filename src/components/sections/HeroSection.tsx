@@ -1,4 +1,6 @@
-import { Heart, ArrowRight } from "lucide-react";
+import { ArrowRight, Heart, Play } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useDonationStore } from "@/stores/donationStore";
 import { Button } from "@/components/ui/button";
 import heroBg from "@/assets/hero-bg.jpg";
 

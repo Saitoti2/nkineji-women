@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/authenticate.js';
 import { authorize } from '../../middleware/authorize.js';
-import { query } from '../../db/connection.js';
+import { query, getPool } from '../../db/connection.js';
 import { ApiError } from '../../middleware/errorHandler.js';
 import { logger } from '../../utils/logger.js';
 
@@ -46,7 +46,7 @@ adminRouter.get('/campaigns', async (req, res, next) => {
     const { status, limit = 50, offset = 0 } = req.query;
     let sql = 'SELECT * FROM campaigns WHERE is_deleted = FALSE';
     const params: any[] = [];
-    
+
     if (status) {
       sql += ' AND status = $1';
       params.push(status);
@@ -90,6 +90,29 @@ adminRouter.get('/donations', async (req, res, next) => {
     }
 
     sql += ` ORDER BY d.created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    params.push(parseInt(limit as string), parseInt(offset as string));
+
+    const result = await query(sql, params);
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Impact Stories Management
+adminRouter.get('/impact-stories', async (req, res, next) => {
+  try {
+    const { status, limit = 50, offset = 0 } = req.query;
+    let sql = 'SELECT * FROM impact_stories WHERE is_deleted = FALSE';
+    const params: any[] = [];
+    let paramCount = 1;
+
+    if (status) {
+      sql += ` AND status = $${paramCount++}`;
+      params.push(status);
+    }
+
+    sql += ` ORDER BY priority DESC, created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
     params.push(parseInt(limit as string), parseInt(offset as string));
 
     const result = await query(sql, params);
@@ -285,6 +308,48 @@ adminRouter.get('/reports/donations', async (req, res, next) => {
     next(error);
   }
 });
+// Bulk Reorder
+adminRouter.post('/reorder', async (req, res, next) => {
+  try {
+    const { items, type } = req.body;
+    // items: { id: string, priority: number }[]
+    // type: 'campaigns' | 'stories' | 'items'
 
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      throw new ApiError('Invalid items array', 400);
+    }
+
+    let tableName = '';
+    switch (type) {
+      case 'campaigns': tableName = 'campaigns'; break;
+      case 'stories': tableName = 'impact_stories'; break;
+      case 'items': tableName = 'campaign_items'; break;
+      default: throw new ApiError('Invalid type', 400);
+    }
+
+    // Begin transaction
+    const client = await getPool().connect();
+    try {
+      await client.query('BEGIN');
+
+      for (const item of items) {
+        await client.query(
+          `UPDATE ${tableName} SET priority = $1 WHERE id = $2`,
+          [item.priority, item.id]
+        );
+      }
+
+      await client.query('COMMIT');
+      res.json({ success: true, message: 'Reorder successful' });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 

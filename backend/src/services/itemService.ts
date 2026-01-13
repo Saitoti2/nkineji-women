@@ -11,6 +11,7 @@ export interface CampaignItem {
     unit_price: number;
     currency: string;
     is_active: boolean;
+    priority?: number;
     created_at: string;
     updated_at: string;
 }
@@ -31,7 +32,7 @@ export const getItems = async (filters: { activeOnly?: boolean; campaignId?: str
             params.push(filters.campaignId);
         }
 
-        sql += ' ORDER BY created_at DESC';
+        sql += ' ORDER BY priority DESC, created_at DESC';
 
         const result = await query<CampaignItem>(sql, params);
         return result.rows;
@@ -89,6 +90,10 @@ export const updateItem = async (id: string, data: Partial<CampaignItem>): Promi
         if (data.is_active !== undefined) {
             updates.push(`is_active = $${paramCount++}`);
             params.push(data.is_active);
+        }
+        if (data.priority !== undefined) {
+            updates.push(`priority = $${paramCount++}`);
+            params.push(data.priority);
         }
 
         const result = await query<CampaignItem>(

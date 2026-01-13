@@ -28,7 +28,7 @@ function formatCurrency(amount: number) {
 }
 
 const fetchCampaigns = async (): Promise<Campaign[]> => {
-  const res = await fetch(`${API_BASE}/campaigns?status=active&limit=4`);
+  const res = await fetch(`${API_BASE}/campaigns?status=active&limit=3`);
   const data = await res.json();
   if (!data.success) throw new Error('Failed to fetch campaigns');
   return data.data;

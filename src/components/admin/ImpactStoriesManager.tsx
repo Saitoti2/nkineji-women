@@ -3,22 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Loader2, Edit, Trash2, X, Save, Image as ImageIcon, Film, Eye, Upload, Activity } from "lucide-react";
+import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Eye, ImageIcon, Film, Upload, Activity, GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 interface StoryMedia {
-    id?: string;
+    url: string;
+    caption: string;
     media_type: 'image' | 'video';
-    media_url: string;
-    thumbnail_url?: string;
-    caption?: string;
-    display_order: number;
+    display_order?: number;
 }
 
 interface ImpactStory {
@@ -37,6 +36,7 @@ interface ImpactStory {
     views_count: number;
     created_at: string;
     media?: StoryMedia[];
+    priority?: number;
 }
 
 interface Campaign {
@@ -64,7 +64,8 @@ export function ImpactStoriesManager() {
         impact_summary: '',
         campaign_id: '',
         status: 'published' as 'draft' | 'published' | 'archived',
-        media: [] as StoryMedia[]
+        media: [] as StoryMedia[],
+        priority: '0',
     });
 
     useEffect(() => {
@@ -75,12 +76,15 @@ export function ImpactStoriesManager() {
     const fetchStories = async () => {
         try {
             const token = localStorage.getItem('mara_bloom_auth_token');
-            const res = await fetch(`${API_BASE}/impact-stories?status=all`, {
+            const res = await fetch(`${API_BASE}/admin/impact-stories?limit=100`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
-            if (data.success) {
-                setStories(data.data);
+            if (res.ok) {
+                const sorted = (data.data || []).sort((a: ImpactStory, b: ImpactStory) =>
+                    (b.priority || 0) - (a.priority || 0)
+                );
+                setStories(sorted);
             }
         } catch (error) {
             toast.error("Failed to load stories");
@@ -91,12 +95,17 @@ export function ImpactStoriesManager() {
 
     const fetchCampaigns = async () => {
         try {
-            const res = await fetch(`${API_BASE}/campaigns`);
+            const token = localStorage.getItem('mara_bloom_auth_token');
+            const res = await fetch(`${API_BASE}/admin/campaigns?status=active`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             const data = await res.json();
-            if (data.success) {
-                setCampaigns(data.data);
+            if (res.ok) {
+                setCampaigns(data.data || []);
             }
-        } catch (error) { }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleEdit = (story: ImpactStory) => {
@@ -112,10 +121,10 @@ export function ImpactStoriesManager() {
             impact_summary: story.impact_summary || '',
             campaign_id: story.campaign_id || '',
             status: story.status,
-            media: story.media || []
+            media: story.media || [],
+            priority: story.priority?.toString() || '0'
         });
         setImagePreview(null);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancel = () => {
@@ -131,20 +140,21 @@ export function ImpactStoriesManager() {
             impact_summary: '',
             campaign_id: '',
             status: 'published' as 'draft' | 'published' | 'archived',
-            media: []
+            media: [],
+            priority: '0'
         });
         setImagePreview(null);
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'profile' | { type: 'media', index: number }) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (target === 'profile') {
-            const reader = new FileReader();
-            reader.onloadend = () => setImagePreview(reader.result as string);
-            reader.readAsDataURL(file);
-        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
 
         const token = localStorage.getItem('mara_bloom_auth_token');
         if (!token) return;
@@ -164,11 +174,7 @@ export function ImpactStoriesManager() {
 
             if (response.ok) {
                 const data = await response.json();
-                if (target === 'profile') {
-                    setFormData({ ...formData, profile_image_url: data.data.url });
-                } else {
-                    updateMediaRow(target.index, 'media_url', data.data.url);
-                }
+                setFormData({ ...formData, profile_image_url: data.data.url });
                 toast.success("Image uploaded successfully");
             } else {
                 toast.error("Failed to upload image");
@@ -198,7 +204,8 @@ export function ImpactStoriesManager() {
             media: formData.media.map((m, idx) => ({
                 ...m,
                 display_order: m.display_order ?? idx
-            }))
+            })),
+            priority: formData.priority ? parseInt(formData.priority) : 0,
         };
 
         try {
@@ -218,12 +225,12 @@ export function ImpactStoriesManager() {
             });
 
             if (res.ok) {
-                toast.success(editingStory ? "Story updated" : "Story created");
+                toast.success(editingStory ? "Story updated" : "Story published");
                 handleCancel();
                 fetchStories();
             } else {
                 const data = await res.json();
-                toast.error(data.message || "Action failed");
+                toast.error(data.error || "Action failed");
             }
         } catch (error) {
             toast.error("Network error");
@@ -233,7 +240,7 @@ export function ImpactStoriesManager() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete this impact story?")) return;
+        if (!confirm("Delete this story?")) return;
         try {
             const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/impact-stories/${id}`, {
@@ -243,57 +250,93 @@ export function ImpactStoriesManager() {
             if (res.ok) {
                 toast.success("Story deleted");
                 fetchStories();
+            } else {
+                toast.error("Failed to delete story");
             }
         } catch (error) {
             toast.error("Failed to delete");
         }
     };
 
-    const addMediaRow = () => {
-        setFormData({
-            ...formData,
-            media: [...formData.media, { media_type: 'image', media_url: '', display_order: formData.media.length }]
-        });
-    };
+    const handleDragEnd = async (result: DropResult) => {
+        if (!result.destination) return;
 
-    const removeMediaRow = (index: number) => {
-        const newMedia = formData.media.filter((_, i) => i !== index);
-        setFormData({ ...formData, media: newMedia });
-    };
+        const items = Array.from(stories);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
 
-    const updateMediaRow = (index: number, field: keyof StoryMedia, value: any) => {
-        const newMedia = [...formData.media];
-        newMedia[index] = { ...newMedia[index], [field]: value };
-        setFormData({ ...formData, media: newMedia });
+        // Calculate new priorities
+        // First item gets highest priority
+        const updates = items.map((item, index) => ({
+            id: item.id,
+            priority: items.length - index
+        }));
+
+        setStories(items.map((item, index) => ({ ...item, priority: items.length - index })));
+
+        try {
+            const token = localStorage.getItem('mara_bloom_auth_token');
+            const res = await fetch(`${API_BASE}/admin/reorder`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: updates, type: 'stories' })
+            });
+
+            if (!res.ok) {
+                toast.error("Failed to save new order");
+                fetchStories(); // Revert
+            } else {
+                toast.success("Order updated");
+            }
+        } catch (e) {
+            toast.error("Failed to save order");
+            fetchStories(); // Revert
+        }
     };
 
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold font-display">Impact Story Lab</h1>
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-none p-2 px-4 rounded-xl">
-                    {stories.length} Transformation Tales
+                <h1 className="text-3xl font-bold font-display">Impact Stories</h1>
+                <Badge variant="outline" className="text-primary border-primary rounded-lg px-4 py-1">
+                    {stories.length} Stories
                 </Badge>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                <div className="space-y-8">
-                    <Card className="border-none shadow-2xl bg-card rounded-[2.5rem] overflow-hidden">
-                        <CardHeader className="bg-muted/30 pb-4">
-                            <CardTitle className="text-2xl font-bold font-display flex items-center gap-3">
-                                {editingStory ? <Edit className="text-primary" /> : <Plus className="text-primary" />}
-                                {editingStory ? 'Refine the Tale' : 'Draft New Story'}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="lg:col-span-1">
+                    {/* Add/Edit Form - Same as before */}
+                    <Card className="border-none shadow-2xl bg-card rounded-[2.5rem]">
+                        <CardHeader>
+                            <CardTitle className="text-2xl font-bold font-display flex items-center gap-2">
+                                {editingStory ? <Edit className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
+                                {editingStory ? 'Edit Story' : 'New Story'}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8">
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Beneficiary Name</Label>
+                                    <Input
+                                        value={formData.beneficiary_name}
+                                        onChange={e => setFormData({ ...formData, beneficiary_name: e.target.value })}
+                                        placeholder="e.g. Naramat"
+                                        className="h-12 rounded-xl"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Beneficiary Name</Label>
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Age</Label>
                                         <Input
-                                            value={formData.beneficiary_name}
-                                            onChange={e => setFormData({ ...formData, beneficiary_name: e.target.value })}
-                                            className="h-12 rounded-xl" required
+                                            type="number"
+                                            value={formData.beneficiary_age}
+                                            onChange={e => setFormData({ ...formData, beneficiary_age: e.target.value })}
+                                            placeholder="34"
+                                            className="h-12 rounded-xl"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -301,28 +344,43 @@ export function ImpactStoriesManager() {
                                         <Input
                                             value={formData.location}
                                             onChange={e => setFormData({ ...formData, location: e.target.value })}
+                                            placeholder="e.g. Talek"
                                             className="h-12 rounded-xl"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Catchy Title</Label>
+                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Story Title</Label>
                                     <Input
                                         value={formData.title}
                                         onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                        className="h-12 rounded-xl text-lg font-bold" required
+                                        placeholder="e.g. A New Beginning"
+                                        className="h-12 rounded-xl"
+                                        required
                                     />
                                 </div>
 
-                                <div className="space-y-4">
-                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Beneficiary Avatar</Label>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Story Content</Label>
+                                    <Textarea
+                                        value={formData.content}
+                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                        placeholder="Tell the story..."
+                                        className="rounded-2xl resize-none"
+                                        rows={6}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-4 pt-4 border-t border-border">
+                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Profile Image</Label>
                                     <div className="flex flex-col gap-4">
                                         {formData.profile_image_url || imagePreview ? (
-                                            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20 group">
+                                            <div className="relative w-full aspect-square rounded-full overflow-hidden border-2 border-border group shadow-float mx-auto max-w-[200px]">
                                                 <img
                                                     src={imagePreview || getImageUrl(formData.profile_image_url)}
-                                                    alt="Avatar"
+                                                    alt="Preview"
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <button
@@ -331,69 +389,174 @@ export function ImpactStoriesManager() {
                                                         setFormData({ ...formData, profile_image_url: '' });
                                                         setImagePreview(null);
                                                     }}
-                                                    className="absolute inset-0 bg-background/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-destructive"
+                                                    className="absolute top-2 right-2 p-1.5 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive hover:text-white"
                                                 >
-                                                    <X className="w-6 h-6" />
+                                                    <X className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         ) : (
                                             <div
-                                                onClick={() => document.getElementById('avatar-upload')?.click()}
-                                                className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-all flex items-center justify-center cursor-pointer bg-muted/5 group"
+                                                onClick={() => document.getElementById('story-image-upload')?.click()}
+                                                className="w-full aspect-square rounded-full border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer bg-muted/5 group mx-auto max-w-[200px]"
                                             >
-                                                <Upload className="w-6 h-6 text-primary/40 group-hover:scale-110 transition-transform" />
+                                                <div className="p-3 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                                                    <Upload className="w-6 h-6 text-primary/60" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="text-sm font-medium">Upload Photo</p>
+                                                </div>
                                             </div>
                                         )}
                                         <Input
-                                            id="avatar-upload"
+                                            id="story-image-upload"
                                             type="file"
                                             accept="image/*"
                                             className="hidden"
-                                            onChange={(e) => handleImageUpload(e, 'profile')}
+                                            onChange={handleImageUpload}
                                             disabled={uploading}
                                         />
-                                        <div className="flex-1 space-y-2">
-                                            <Input
-                                                value={formData.profile_image_url}
-                                                onChange={e => setFormData({ ...formData, profile_image_url: e.target.value })}
-                                                placeholder="Or paste profile image URL..."
-                                                className="h-10 rounded-xl"
-                                            />
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">The Full Story</Label>
-                                    <Textarea
-                                        value={formData.content}
-                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                        className="rounded-2xl resize-none leading-relaxed" rows={10} required
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Impact Summary (Quoteable)</Label>
-                                    <Textarea
-                                        value={formData.impact_summary}
-                                        onChange={e => setFormData({ ...formData, impact_summary: e.target.value })}
-                                        className="rounded-xl resize-none italic" rows={2}
-                                        placeholder="e.g. Now serving 40 women daily..."
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Linked Campaign</Label>
-                                        <Select value={formData.campaign_id} onValueChange={v => setFormData({ ...formData, campaign_id: v })}>
-                                            <SelectTrigger className="h-12 rounded-xl">
-                                                <SelectValue placeholder="Social Link" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {campaigns.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
+                                <div className="space-y-4 pt-4 border-t border-border">
+                                    <div className="flex justify-between items-center">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Gallery & Media</Label>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setFormData({
+                                                ...formData,
+                                                media: [...formData.media, { url: '', caption: '', media_type: 'image' }]
+                                            })}
+                                            className="h-8 text-xs"
+                                        >
+                                            <Plus className="w-3 h-3 mr-1" /> Add Media
+                                        </Button>
                                     </div>
+
+                                    <div className="space-y-3">
+                                        {formData.media.map((media, index) => (
+                                            <div key={index} className="flex gap-3 items-start p-3 rounded-xl bg-muted/30 border border-border/50">
+                                                <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden shrink-0 relative group">
+                                                    {media.url ? (
+                                                        <img src={getImageUrl(media.url)} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                            <ImageIcon className="w-6 h-6 opacity-20" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-white hover:text-white hover:bg-white/20"
+                                                            onClick={() => document.getElementById(`media-upload-${index}`)?.click()}
+                                                        >
+                                                            <Upload className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                    <Input
+                                                        id={`media-upload-${index}`}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (!file) return;
+
+                                                            setUploading(true);
+                                                            const formDataUpload = new FormData();
+                                                            formDataUpload.append('image', file);
+
+                                                            try {
+                                                                const token = localStorage.getItem('mara_bloom_auth_token');
+                                                                const res = await fetch(`${API_BASE}/upload`, {
+                                                                    method: 'POST',
+                                                                    headers: { 'Authorization': `Bearer ${token}` },
+                                                                    body: formDataUpload
+                                                                });
+                                                                if (res.ok) {
+                                                                    const data = await res.json();
+                                                                    const newMedia = [...formData.media];
+                                                                    newMedia[index] = { ...newMedia[index], url: data.data.url };
+                                                                    setFormData({ ...formData, media: newMedia });
+                                                                    toast.success("Image uploaded");
+                                                                }
+                                                            } catch (err) {
+                                                                toast.error("Upload failed");
+                                                            } finally {
+                                                                setUploading(false);
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="flex-grow space-y-2">
+                                                    <Input
+                                                        placeholder="Caption (optional)"
+                                                        value={media.caption}
+                                                        onChange={(e) => {
+                                                            const newMedia = [...formData.media];
+                                                            newMedia[index] = { ...newMedia[index], caption: e.target.value };
+                                                            setFormData({ ...formData, media: newMedia });
+                                                        }}
+                                                        className="h-9 text-sm"
+                                                    />
+                                                    <div className="flex items-center gap-2">
+                                                        <Select
+                                                            value={media.media_type}
+                                                            onValueChange={(v: 'image' | 'video') => {
+                                                                const newMedia = [...formData.media];
+                                                                newMedia[index] = { ...newMedia[index], media_type: v };
+                                                                setFormData({ ...formData, media: newMedia });
+                                                            }}
+                                                        >
+                                                            <SelectTrigger className="h-8 text-xs w-24">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="image">Image</SelectItem>
+                                                                <SelectItem value="video">Video</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {media.media_type === 'video' && (
+                                                            <Input
+                                                                placeholder="Video URL"
+                                                                value={media.url}
+                                                                onChange={(e) => {
+                                                                    const newMedia = [...formData.media];
+                                                                    newMedia[index] = { ...newMedia[index], url: e.target.value };
+                                                                    setFormData({ ...formData, media: newMedia });
+                                                                }}
+                                                                className="h-8 text-xs flex-grow"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => {
+                                                        const newMedia = formData.media.filter((_, i) => i !== index);
+                                                        setFormData({ ...formData, media: newMedia });
+                                                    }}
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                        {formData.media.length === 0 && (
+                                            <div className="text-center py-8 bg-muted/10 border-2 border-dashed border-border rounded-xl">
+                                                <p className="text-xs text-muted-foreground">No extra media added</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Visibility</Label>
                                         <Select value={formData.status} onValueChange={(v: any) => setFormData({ ...formData, status: v })}>
@@ -407,82 +570,41 @@ export function ImpactStoriesManager() {
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Priority (Higher = First)</Label>
+                                        <Input
+                                            type="number"
+                                            value={formData.priority}
+                                            onChange={e => setFormData({ ...formData, priority: e.target.value })}
+                                            className="h-12 rounded-xl"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4 pt-4 border-t border-border">
-                                    <div className="flex justify-between items-center">
-                                        <Label className="text-sm font-bold uppercase text-primary">Media Gallery</Label>
-                                        <Button type="button" variant="outline" size="sm" onClick={addMediaRow} className="rounded-xl">
-                                            <Plus className="w-4 h-4 mr-2" /> Add Media
-                                        </Button>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        {formData.media.map((item, idx) => (
-                                            <div key={idx} className="p-4 rounded-2xl bg-muted/20 border border-border/50 flex gap-4 items-start relative">
-                                                <div className="flex-grow space-y-3">
-                                                    <div className="flex gap-4">
-                                                        <div className="w-32">
-                                                            <Select value={item.media_type} onValueChange={v => updateMediaRow(idx, 'media_type', v)}>
-                                                                <SelectTrigger className="h-9 rounded-lg">
-                                                                    <SelectValue />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="image">Image</SelectItem>
-                                                                    <SelectItem value="video">Video</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                        <div className="flex-1 flex gap-2">
-                                                            <Input
-                                                                value={item.media_url}
-                                                                onChange={e => updateMediaRow(idx, 'media_url', e.target.value)}
-                                                                placeholder="Media URL..."
-                                                                className="h-9 rounded-lg flex-grow"
-                                                            />
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="icon"
-                                                                onClick={() => document.getElementById(`media-upload-${idx}`)?.click()}
-                                                                className="h-9 w-9 shrink-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                                                                disabled={uploading}
-                                                            >
-                                                                <Upload className="h-4 w-4" />
-                                                            </Button>
-                                                            <Input
-                                                                id={`media-upload-${idx}`}
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="hidden"
-                                                                onChange={(e) => handleImageUpload(e, { type: 'media', index: idx })}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <Input
-                                                        value={item.caption || ''}
-                                                        onChange={e => updateMediaRow(idx, 'caption', e.target.value)}
-                                                        placeholder="Caption..."
-                                                        className="h-9 rounded-lg"
-                                                    />
-                                                </div>
-                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeMediaRow(idx)} className="text-destructive hover:bg-destructive/10 h-8 w-8">
-                                                    <X className="w-4 h-4" />
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Linked Campaign</Label>
+                                    <Select value={formData.campaign_id} onValueChange={(v) => setFormData({ ...formData, campaign_id: v })}>
+                                        <SelectTrigger className="h-12 rounded-xl">
+                                            <SelectValue placeholder="Select a campaign (optional)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            {campaigns.map(c => (
+                                                <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
-                                <div className="flex gap-4 pt-6">
+                                <div className="flex gap-3 pt-4">
                                     {editingStory && (
-                                        <Button type="button" variant="outline" onClick={handleCancel} className="flex-1 h-14 rounded-2xl">
-                                            Cancel
+                                        <Button type="button" variant="outline" onClick={handleCancel} className="flex-1 h-12 rounded-xl">
+                                            <X className="w-4 h-4 mr-2" /> Cancel
                                         </Button>
                                     )}
-                                    <Button type="submit" className="flex-[2] h-14 rounded-2xl font-bold bg-primary shadow-xl shadow-primary/20" disabled={submitting}>
-                                        {submitting ? <Loader2 className="animate-spin mr-2" /> : (editingStory ? <Save className="mr-2 h-5 w-5" /> : <Plus className="mr-2 h-5 w-5" />)}
-                                        {editingStory ? 'Save Transformations' : 'Share the Impact'}
+                                    <Button type="submit" className="flex-grow h-12 rounded-xl bg-primary shadow-lg shadow-primary/20" disabled={submitting}>
+                                        {submitting ? <Loader2 className="animate-spin mr-2" /> : (editingStory ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />)}
+                                        {editingStory ? 'Update Story' : 'Publish Story'}
                                     </Button>
                                 </div>
                             </form>
@@ -515,6 +637,9 @@ export function ImpactStoriesManager() {
                                                 <div>
                                                     <div className="flex justify-between items-start mb-2">
                                                         <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors">{story.title}</h3>
+                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+                                                            <Activity className="w-3.5 h-3.5" /> Prio: {story.priority || 0}
+                                                        </div>
                                                         <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
                                                             <Eye className="w-3.5 h-3.5" /> {story.views_count}
                                                         </div>
@@ -556,6 +681,6 @@ export function ImpactStoriesManager() {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

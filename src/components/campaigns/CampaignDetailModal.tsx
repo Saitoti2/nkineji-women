@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Heart, Users, Calendar, Target, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { useState } from "react";
 import { cn, getImageUrl } from "@/lib/utils";
+import { useDonationStore } from "@/stores/donationStore";
 
 interface Campaign {
     id: string;
@@ -40,6 +41,7 @@ function calculateDaysLeft(endDate?: string): number | null {
 
 export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetailModalProps) {
     const [donationAmount, setDonationAmount] = useState('');
+    const { openDonationModal } = useDonationStore();
 
     if (!campaign) return null;
 
@@ -176,7 +178,13 @@ export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetai
                                                 onChange={(e) => setDonationAmount(e.target.value)}
                                             />
                                         </div>
-                                        <Button className="w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 group">
+                                        <Button
+                                            className="w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 group"
+                                            onClick={() => {
+                                                onClose();
+                                                openDonationModal();
+                                            }}
+                                        >
                                             Contribute Now
                                             <Heart className="w-5 h-5 ml-2 transition-transform group-active:scale-150" />
                                         </Button>

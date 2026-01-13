@@ -12,6 +12,7 @@ export interface Campaign {
   end_date?: string;
   earmark?: string;
   status: 'draft' | 'active' | 'paused' | 'completed';
+  priority?: number;
   created_at: string;
   updated_at: string;
   created_by?: string;
@@ -35,7 +36,7 @@ export const getCampaigns = async (filters: CampaignFilters): Promise<Campaign[]
       paramCount++;
     }
 
-    sql += ` ORDER BY created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    sql += ` ORDER BY priority DESC, created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
     params.push(filters.limit, filters.offset);
 
     const result = await query<Campaign>(sql, params);
@@ -114,8 +115,8 @@ export const createCampaign = async (data: any, userId: string): Promise<Campaig
     const result = await query<Campaign>(
       `INSERT INTO campaigns (
         title, description, goal_amount, start_date, end_date, 
-        earmark, status, image_url, category, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        earmark, status, image_url, category, created_by, priority
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *`,
       [
         data.title,
@@ -128,6 +129,7 @@ export const createCampaign = async (data: any, userId: string): Promise<Campaig
         data.image_url || null,
         data.category || null,
         userId,
+        data.priority || 0
       ]
     );
 
@@ -186,6 +188,10 @@ export const updateCampaign = async (id: string, data: any, userId: string): Pro
     if (data.category !== undefined) {
       updates.push(`category = $${paramCount++}`);
       params.push(data.category || null);
+    }
+    if (data.priority !== undefined) {
+      updates.push(`priority = $${paramCount++}`);
+      params.push(data.priority);
     }
 
     if (updates.length === 0) {

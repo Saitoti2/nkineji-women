@@ -10,7 +10,7 @@ impactCommentRouter.get('/story/:id', async (req: Request, res: Response, next: 
         const userId = typeof req.query.userId === 'string' ? req.query.userId : undefined;
         // Visitor ID from query or header
         const visitorId = (req.query.visitor_id as string) || (req.headers['x-visitor-id'] as string);
-        const comments = await getCommentsByStory(req.params.id, userId, visitorId);
+        const comments = await getCommentsByStory(req.params.id as string, userId, visitorId);
         res.json({ success: true, data: comments });
     } catch (error) {
         next(error);
@@ -49,7 +49,7 @@ impactCommentRouter.put(
             // Visitor ID from body (or header if we chose that path, keeping body for simplicity for now)
             const visitorId = visitor_id || req.headers['x-visitor-id'] as string;
 
-            const updated = await updateComment(req.params.id, content, userId, visitorId);
+            const updated = await updateComment(req.params.id as string, content, userId, visitorId);
             res.json({ success: true, data: updated });
         } catch (error) {
             next(error);
@@ -67,7 +67,7 @@ impactCommentRouter.delete(
             // Visitor ID from query or header
             const visitorId = (req.query.visitor_id as string) || (req.headers['x-visitor-id'] as string);
 
-            const result = await deleteComment(req.params.id, userId, visitorId);
+            const result = await deleteComment(req.params.id as string, userId, visitorId);
             res.json({ success: true, data: result });
         } catch (error) {
             next(error);

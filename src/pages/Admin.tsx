@@ -16,6 +16,7 @@ import { CampaignsManager } from '@/components/admin/CampaignsManager';
 import { DonationsManager } from '@/components/admin/DonationsManager';
 import { BeneficiariesManager } from '@/components/admin/BeneficiariesManager';
 import { UsersManager } from '@/components/admin/UsersManager';
+import { PaymentSettingsManager } from '@/components/admin/PaymentSettingsManager';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
@@ -185,14 +186,15 @@ export function Admin() {
 
       <div className="container mx-auto px-4 sm:px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7 float-card p-1 mb-6 bg-card/90 backdrop-blur-xl">
-            <TabsTrigger value="dashboard" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Dashboard</TabsTrigger>
-            <TabsTrigger value="campaigns" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Campaigns</TabsTrigger>
-            <TabsTrigger value="stories" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Impact Stories</TabsTrigger>
-            <TabsTrigger value="donations" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Donations</TabsTrigger>
-            <TabsTrigger value="beneficiaries" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Beneficiaries</TabsTrigger>
-            <TabsTrigger value="essentials" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Essentials</TabsTrigger>
-            <TabsTrigger value="users" className="transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Users</TabsTrigger>
+          <TabsList className="w-full flex overflow-x-auto scrollbar-hide py-1 mb-6 bg-card/90 backdrop-blur-xl border border-white/20 rounded-xl sticky top-[72px] z-40 gap-1 px-1">
+            <TabsTrigger value="dashboard" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Dashboard</TabsTrigger>
+            <TabsTrigger value="campaigns" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Campaigns</TabsTrigger>
+            <TabsTrigger value="stories" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Impact Stories</TabsTrigger>
+            <TabsTrigger value="donations" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Donations</TabsTrigger>
+            <TabsTrigger value="beneficiaries" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Beneficiaries</TabsTrigger>
+            <TabsTrigger value="essentials" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Essentials</TabsTrigger>
+            <TabsTrigger value="users" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Users</TabsTrigger>
+            <TabsTrigger value="settings" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -299,6 +301,10 @@ export function Admin() {
 
           <TabsContent value="essentials" className="space-y-6">
             <EssentialsManager />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <PaymentSettingsManager />
           </TabsContent>
         </Tabs>
       </div>

@@ -78,3 +78,18 @@ export const authenticateOptional = async (
   }
 };
 
+export const requireAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.user) {
+    return next(new ApiError('Authentication required', 401));
+  }
+
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return next(new ApiError('Admin access required', 403));
+  }
+
+  next();
+};

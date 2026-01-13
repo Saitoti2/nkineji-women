@@ -15,6 +15,7 @@ export interface ImpactStory {
     campaign_id?: string;
     beneficiary_id?: string;
     status: 'draft' | 'published' | 'archived';
+    priority?: number;
     views_count: number;
     created_at: Date;
     updated_at: Date;
@@ -62,7 +63,7 @@ export const getAllStories = async (filters: {
             params.push(filters.campaign_id);
         }
 
-        sql += ` ORDER BY s.created_at DESC LIMIT $${pIdx++} OFFSET $${pIdx++}`;
+        sql += ` ORDER BY s.priority DESC, s.created_at DESC LIMIT $${pIdx++} OFFSET $${pIdx++}`;
         params.push(filters.limit || 12, filters.offset || 0);
 
         const result = await query<ImpactStory>(sql, params);
@@ -124,8 +125,8 @@ export const createStory = async (data: any) => {
 
         const result = await query<ImpactStory>(
             `INSERT INTO impact_stories 
-       (beneficiary_name, beneficiary_age, location, profile_image_url, short_bio, title, content, impact_summary, campaign_id, beneficiary_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       (beneficiary_name, beneficiary_age, location, profile_image_url, short_bio, title, content, impact_summary, campaign_id, beneficiary_id, status, priority)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING *`,
             [
                 storyData.beneficiary_name,
@@ -138,7 +139,8 @@ export const createStory = async (data: any) => {
                 storyData.impact_summary,
                 storyData.campaign_id,
                 storyData.beneficiary_id,
-                storyData.status || 'published'
+                storyData.status || 'published',
+                storyData.priority || 0
             ]
         );
 
@@ -174,7 +176,7 @@ export const updateStory = async (id: string, data: any) => {
        SET beneficiary_name = $1, beneficiary_age = $2, location = $3, 
            profile_image_url = $4, short_bio = $5, title = $6, 
            content = $7, impact_summary = $8, campaign_id = $9, 
-           status = $10, updated_at = CURRENT_TIMESTAMP
+           status = $10, priority = COALESCE($12, priority), updated_at = CURRENT_TIMESTAMP
        WHERE id = $11`,
             [
                 storyData.beneficiary_name,
@@ -187,7 +189,8 @@ export const updateStory = async (id: string, data: any) => {
                 storyData.impact_summary,
                 storyData.campaign_id,
                 storyData.status,
-                id
+                id,
+                storyData.priority // $12
             ]
         );
 

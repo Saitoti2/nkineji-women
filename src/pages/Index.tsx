@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { MissionSection } from "@/components/sections/MissionSection";
 import { ImpactStats } from "@/components/sections/ImpactStats";
 import { ProgramsSection } from "@/components/sections/ProgramsSection";
+import { EssentialsSection } from "@/components/sections/EssentialsSection";
 import { CampaignsSection } from "@/components/sections/CampaignsSection";
 import { StoriesSection } from "@/components/sections/StoriesSection";
 import { DonateSection } from "@/components/sections/DonateSection";
@@ -17,6 +18,7 @@ const Index = () => {
         <MissionSection />
         <ImpactStats />
         <ProgramsSection />
+        <EssentialsSection />
         <CampaignsSection />
         <StoriesSection />
         <DonateSection />

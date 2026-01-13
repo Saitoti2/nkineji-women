@@ -23,6 +23,7 @@ import { healthRouter } from './api/routes/health.js';
 import { impactStoryRouter } from './api/routes/impactStories.js';
 import { impactCommentRouter } from './api/routes/impactComments.js';
 import { uploadRouter } from './api/routes/upload.js';
+import { settingsRouter } from './api/routes/settings.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -82,6 +83,7 @@ app.use(`${API_PREFIX}/impact-comments`, impactCommentRouter);
 app.get(`${API_PREFIX}/debug-test`, (req, res) => res.status(200).json({ status: 'alive' }));
 console.log('Registering upload router at', `${API_PREFIX}/upload`);
 app.use(`${API_PREFIX}/upload`, uploadRouter);
+app.use(`${API_PREFIX}/settings`, settingsRouter);
 // Assuming generic health check or module
 
 // 404 Handler

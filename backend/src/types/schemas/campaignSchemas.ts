@@ -11,6 +11,7 @@ export const createCampaignSchema = z.object({
     image_url: z.string().optional(),
     category: z.string().optional(),
     status: z.enum(['draft', 'active', 'paused', 'completed']).default('draft'),
+    priority: z.number().int().optional(),
   }),
 });
 
@@ -25,6 +26,7 @@ export const updateCampaignSchema = z.object({
     image_url: z.string().optional(),
     category: z.string().optional(),
     status: z.enum(['draft', 'active', 'paused', 'completed']).optional(),
+    priority: z.number().int().optional(),
   }),
   params: z.object({
     id: z.string().uuid(),

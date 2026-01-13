@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Heart, Check, CreditCard, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useDonationStore } from "@/stores/donationStore";
 
 const amounts = [25, 50, 100, 250, 500, 1000];
 
@@ -17,9 +18,15 @@ export function DonateSection() {
   const [selectedAmount, setSelectedAmount] = useState(100);
   const [isRecurring, setIsRecurring] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
+  const { openDonationModal } = useDonationStore();
 
   const activeAmount = customAmount ? parseInt(customAmount) : selectedAmount;
   const currentImpact = impactExamples.find(ex => ex.amount <= activeAmount)?.impact || impactExamples[0].impact;
+
+  const handleDonateClick = () => {
+    // In a future iteration, we could pass selectedAmount/isRecurring to the modal via the store
+    openDonationModal();
+  };
 
   return (
     <section id="donate" className="py-20 bg-secondary">
@@ -44,21 +51,19 @@ export function DonateSection() {
             <div className="flex justify-center mb-8">
               <div className="inline-flex rounded-2xl bg-muted p-1.5">
                 <button
-                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                    !isRecurring 
-                      ? "bg-card text-foreground shadow-float" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${!isRecurring
+                    ? "bg-card text-foreground shadow-float"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                   onClick={() => setIsRecurring(false)}
                 >
                   One-Time
                 </button>
                 <button
-                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                    isRecurring 
-                      ? "bg-card text-foreground shadow-float" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${isRecurring
+                    ? "bg-card text-foreground shadow-float"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                   onClick={() => setIsRecurring(true)}
                 >
                   Monthly
@@ -71,11 +76,10 @@ export function DonateSection() {
               {amounts.map((amount) => (
                 <button
                   key={amount}
-                  className={`py-4 rounded-xl font-semibold transition-all ${
-                    selectedAmount === amount && !customAmount
-                      ? "bg-primary text-primary-foreground shadow-float"
-                      : "bg-muted text-foreground hover:bg-muted/80"
-                  }`}
+                  className={`py-4 rounded-xl font-semibold transition-all ${selectedAmount === amount && !customAmount
+                    ? "bg-primary text-primary-foreground shadow-float"
+                    : "bg-muted text-foreground hover:bg-muted/80"
+                    }`}
                   onClick={() => {
                     setSelectedAmount(amount);
                     setCustomAmount("");
@@ -117,12 +121,12 @@ export function DonateSection() {
 
             {/* Payment Methods */}
             <div className="space-y-3 mb-8">
-              <Button variant="donate" size="xl" className="w-full">
-                <CreditCard className="w-5 h-5" />
+              <Button variant="donate" size="xl" className="w-full" onClick={handleDonateClick}>
+                <CreditCard className="w-5 h-5 mr-2" />
                 Donate with Card
               </Button>
-              <Button variant="secondary" size="lg" className="w-full">
-                <Smartphone className="w-5 h-5" />
+              <Button variant="secondary" size="lg" className="w-full" onClick={handleDonateClick}>
+                <Smartphone className="w-5 h-5 mr-2" />
                 Donate with M-PESA
               </Button>
             </div>

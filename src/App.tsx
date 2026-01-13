@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import { Admin } from "./pages/Admin";
 import EssentialsDonation from "./pages/EssentialsDonation";
 import Campaigns from "./pages/Campaigns";
+import { DonationModal } from "@/components/payment/DonationModal";
 import Impact from "./pages/Impact";
 import Dashboard from "./pages/Dashboard";
 
@@ -43,6 +44,7 @@ const App = () => (
             {/* Admin sub-routes removed as they are now handled in Admin.tsx */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <DonationModal />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

@@ -6,9 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Loader2, Trash2, Edit, Save, X, Package, Upload, Activity } from "lucide-react";
+import { Plus, Loader2, Trash2, Edit, Save, X, Package, Upload, GripVertical, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
@@ -19,6 +20,7 @@ interface Item {
     image_url: string;
     unit_price: number;
     is_active: boolean;
+    priority?: number;
 }
 
 export function EssentialsManager() {
@@ -30,7 +32,8 @@ export function EssentialsManager() {
         description: '',
         unit_price: '',
         image_url: '',
-        is_active: true
+        is_active: true,
+        priority: ''
     });
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -43,12 +46,15 @@ export function EssentialsManager() {
     const fetchItems = async () => {
         try {
             const token = localStorage.getItem('mara_bloom_auth_token');
-            const res = await fetch(`${API_BASE}/items`, {
+            const res = await fetch(`${API_BASE}/items?limit=100`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
             if (data.success) {
-                setItems(data.data);
+                const sorted = (data.data || []).sort((a: Item, b: Item) =>
+                    (b.priority || 0) - (a.priority || 0)
+                );
+                setItems(sorted);
             }
         } catch (error) {
             toast.error("Failed to load items");
@@ -64,7 +70,8 @@ export function EssentialsManager() {
             description: item.description || '',
             unit_price: item.unit_price.toString(),
             image_url: item.image_url || '',
-            is_active: item.is_active
+            is_active: item.is_active,
+            priority: item.priority?.toString() || '0'
         });
         setImagePreview(null);
     };
@@ -76,7 +83,8 @@ export function EssentialsManager() {
             description: '',
             unit_price: '',
             image_url: '',
-            is_active: true
+            is_active: true,
+            priority: ''
         });
         setImagePreview(null);
     };
@@ -127,7 +135,8 @@ export function EssentialsManager() {
 
         const payload = {
             ...formData,
-            unit_price: parseFloat(formData.unit_price)
+            unit_price: parseFloat(formData.unit_price),
+            priority: formData.priority ? parseInt(formData.priority) : 0
         };
 
         try {
@@ -175,6 +184,44 @@ export function EssentialsManager() {
         }
     };
 
+    const handleDragEnd = async (result: DropResult) => {
+        if (!result.destination) return;
+
+        const sortedItems = Array.from(items);
+        const [reorderedItem] = sortedItems.splice(result.source.index, 1);
+        sortedItems.splice(result.destination.index, 0, reorderedItem);
+
+        // Calculate new priorities
+        const updates = sortedItems.map((item, index) => ({
+            id: item.id,
+            priority: sortedItems.length - index
+        }));
+
+        setItems(sortedItems.map((item, index) => ({ ...item, priority: sortedItems.length - index })));
+
+        try {
+            const token = localStorage.getItem('mara_bloom_auth_token');
+            const res = await fetch(`${API_BASE}/admin/reorder`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: updates, type: 'items' })
+            });
+
+            if (!res.ok) {
+                toast.error("Failed to save new order");
+                fetchItems();
+            } else {
+                toast.success("Order updated");
+            }
+        } catch (e) {
+            toast.error("Failed to save order");
+            fetchItems();
+        }
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
@@ -206,17 +253,29 @@ export function EssentialsManager() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Price (USD)</Label>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        value={formData.unit_price}
-                                        onChange={e => setFormData({ ...formData, unit_price: e.target.value })}
-                                        placeholder="25.00"
-                                        className="h-12 rounded-xl"
-                                        required
-                                    />
+                                <div className="flex gap-4">
+                                    <div className="space-y-2 flex-grow">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Price (USD)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={formData.unit_price}
+                                            onChange={e => setFormData({ ...formData, unit_price: e.target.value })}
+                                            placeholder="25.00"
+                                            className="h-12 rounded-xl"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2 flex-grow">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Priority</Label>
+                                        <Input
+                                            type="number"
+                                            value={formData.priority}
+                                            onChange={e => setFormData({ ...formData, priority: e.target.value })}
+                                            placeholder="0"
+                                            className="h-12 rounded-xl"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -310,63 +369,94 @@ export function EssentialsManager() {
                             {loading ? (
                                 <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                             ) : (
-                                <Table>
-                                    <TableHeader className="bg-muted/50">
-                                        <TableRow className="border-none hover:bg-transparent">
-                                            <TableHead className="py-6 pl-8 font-bold">Item</TableHead>
-                                            <TableHead className="font-bold">Price</TableHead>
-                                            <TableHead className="font-bold">Status</TableHead>
-                                            <TableHead className="text-right pr-8 font-bold">Manage</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {items.map((item) => (
-                                            <TableRow key={item.id} className="group hover:bg-muted/30 border-border/40 transition-colors">
-                                                <TableCell className="py-6 pl-8">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-14 h-14 rounded-2xl bg-muted overflow-hidden">
-                                                            <img
-                                                                src={getImageUrl(item.image_url)}
-                                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-bold leading-none mb-1">{item.name}</p>
-                                                            <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="font-bold text-lg">${Number(item.unit_price).toFixed(2)}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant={item.is_active ? "default" : "secondary"} className={cn(
-                                                        "rounded-full px-3 py-0.5 text-[10px] uppercase font-bold tracking-wider",
-                                                        item.is_active ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"
-                                                    )}>
-                                                        {item.is_active ? 'In Stock' : 'Inactive'}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right pr-8 space-x-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </TableCell>
+                                <DragDropContext onDragEnd={handleDragEnd}>
+                                    <Table>
+                                        <TableHeader className="bg-muted/50">
+                                            <TableRow className="border-none hover:bg-transparent">
+                                                <TableHead className="w-[50px] pl-8"></TableHead>
+                                                <TableHead className="py-6 font-bold">Item</TableHead>
+                                                <TableHead className="font-bold">Price</TableHead>
+                                                <TableHead className="font-bold">Status</TableHead>
+                                                <TableHead className="text-right pr-8 font-bold">Manage</TableHead>
                                             </TableRow>
-                                        ))}
-                                        {items.length === 0 && (
-                                            <TableRow>
-                                                <TableCell colSpan={4} className="h-64 text-center">
-                                                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                        <Package className="w-10 h-10 opacity-20" />
-                                                        <p className="font-bold">Inventory is empty</p>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <Droppable droppableId="items">
+                                            {(provided) => (
+                                                <TableBody
+                                                    {...provided.droppableProps}
+                                                    ref={provided.innerRef}
+                                                >
+                                                    {items.map((item, index) => (
+                                                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                                                            {(provided, snapshot) => (
+                                                                <TableRow
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    className={cn(
+                                                                        "group border-border/40 transition-colors",
+                                                                        snapshot.isDragging ? "bg-muted/50 shadow-lg" : "hover:bg-muted/30"
+                                                                    )}
+                                                                    style={provided.draggableProps.style}
+                                                                >
+                                                                    <TableCell className="pl-8">
+                                                                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-muted/50 w-fit">
+                                                                            <GripVertical className="w-5 h-5 text-muted-foreground/50" />
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="py-6">
+                                                                        <div className="flex items-center gap-4">
+                                                                            <div className="w-14 h-14 rounded-2xl bg-muted overflow-hidden shrink-0">
+                                                                                <img
+                                                                                    src={getImageUrl(item.image_url)}
+                                                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="font-bold leading-none mb-1">{item.name}</p>
+                                                                                <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="font-bold text-lg">${Number(item.unit_price).toFixed(2)}</TableCell>
+                                                                    <TableCell>
+                                                                        <Badge variant={item.is_active ? "default" : "secondary"} className={cn(
+                                                                            "rounded-full px-3 py-0.5 text-[10px] uppercase font-bold tracking-wider",
+                                                                            item.is_active ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"
+                                                                        )}>
+                                                                            {item.is_active ? 'In Stock' : 'Inactive'}
+                                                                        </Badge>
+                                                                        <div className="text-[10px] text-muted-foreground mt-1 font-mono">
+                                                                            Pri: {item.priority || 0}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right pr-8 space-x-2">
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
+                                                                            <Edit className="h-4 w-4" />
+                                                                        </Button>
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                    {provided.placeholder}
+                                                    {items.length === 0 && (
+                                                        <TableRow>
+                                                            <TableCell colSpan={5} className="h-64 text-center">
+                                                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                                                    <Package className="w-10 h-10 opacity-20" />
+                                                                    <p className="font-bold">Inventory is empty</p>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )}
+                                                </TableBody>
+                                            )}
+                                        </Droppable>
+                                    </Table>
+                                </DragDropContext>
                             )}
                         </CardContent>
                     </Card>

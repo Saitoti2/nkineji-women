@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { useTheme } from "next-themes";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useDonationStore } from "@/stores/donationStore";
 
 const navLinks = [
   { label: "Home", href: "/", sectionId: "hero" },
@@ -38,6 +39,7 @@ export function DynamicNavbar() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const { openDonationModal } = useDonationStore();
 
   useEffect(() => {
     setMounted(true);
@@ -366,6 +368,7 @@ export function DynamicNavbar() {
               variant="donate"
               size="sm"
               className="hidden sm:flex text-xs px-3 min-h-[36px] bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={openDonationModal}
             >
               <Heart className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Donate</span>
@@ -462,7 +465,10 @@ export function DynamicNavbar() {
                       variant="donate"
                       className="w-full"
                       size="lg"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        openDonationModal();
+                      }}
                     >
                       <Heart className="w-4 h-4" />
                       Donate Now
