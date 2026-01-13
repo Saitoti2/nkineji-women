@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-async function seedCampaigns() {
+export async function seedCampaigns() {
+
     try {
         logger.info('Seeding campaigns...');
         const pool = getPool();
@@ -57,9 +58,18 @@ async function seedCampaigns() {
         logger.info('Campaigns seeded successfully');
     } catch (error) {
         logger.error('Seeding failed', error);
-    } finally {
-        await closePool();
     }
-}
 
-seedCampaigns();
+    // Run if called directly
+    if (import.meta.url === `file://${process.argv[1]}`) {
+        seedCampaigns()
+            .then(() => {
+                logger.info('Seeding completed');
+                process.exit(0);
+            })
+            .catch((error) => {
+                logger.error('Seeding error', error);
+                process.exit(1);
+            });
+    }
+

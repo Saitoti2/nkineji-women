@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
 import { query } from './connection.js';
 
 dotenv.config();
 
-async function seedImpactStories() {
+export async function seedImpactStories() {
+
     try {
         console.log('Seeding impact stories...');
 
@@ -40,6 +42,13 @@ async function seedImpactStories() {
         ];
 
         for (const s of stories) {
+            // Check if story already exists by title
+            const existingStory = await query('SELECT id FROM impact_stories WHERE title = $1', [s.title]);
+            if (existingStory.rows.length > 0) {
+                console.log(`Story "${s.title}" already exists, skipping...`);
+                continue;
+            }
+
             const storyResult = await query(
                 `INSERT INTO impact_stories (beneficiary_name, beneficiary_age, location, profile_image_url, short_bio, title, content, impact_summary, campaign_id, status)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -64,12 +73,22 @@ async function seedImpactStories() {
             );
         }
 
-        console.log('✅ Seeding completed successfully');
-        process.exit(0);
-    } catch (error) {
-        console.error('❌ Seeding failed:', error);
-        process.exit(1);
-    }
-}
 
-seedImpactStories();
+        const __filename = fileURLToPath(import.meta.url);
+        const isDirectRun = process.argv[1] && (
+            process.argv[1].endsWith('seed-impact-stories.ts') ||
+            process.argv[1].endsWith('seed-impact-stories.js')
+        );
+
+        if (isDirectRun) {
+            seedImpactStories()
+                .then(() => {
+                    console.log('Seeding completed');
+                    process.exit(0);
+                })
+                .catch((error) => {
+                    console.error('Seeding error', error);
+                    process.exit(1);
+                });
+        }
+

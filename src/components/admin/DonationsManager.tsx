@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
 interface Donation {
     id: string;

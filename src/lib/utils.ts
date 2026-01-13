@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 const SERVER_URL = API_BASE.replace('/api/v1', '');
 
 export function getImageUrl(path: string | undefined, placeholder: string = "/placeholder.jpg"): string {

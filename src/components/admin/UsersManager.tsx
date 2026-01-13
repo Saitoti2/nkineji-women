@@ -10,7 +10,7 @@ import { Plus, Loader2, Trash2, Edit, Save, X, UserPlus, Shield, Key } from "luc
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
 interface User {
     id: string;

@@ -57,7 +57,7 @@ export function DonationModal() {
             // Fetch payment settings
             const fetchSettings = async () => {
                 try {
-                    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+                    const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
                     const res = await fetch(`${API_BASE}/settings/payments`);
                     const data = await res.json();
                     if (data.success) {
@@ -97,7 +97,7 @@ export function DonationModal() {
                     return;
                 }
 
-                const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+                const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
                 const res = await fetch(`${API_BASE}/donations`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

@@ -5,7 +5,8 @@ import { getPool } from './connection.js';
 
 dotenv.config();
 
-async function seedEssentials() {
+export async function seedEssentials() {
+
     try {
         logger.info('Seeding essentials...');
         const pool = getPool();
@@ -57,9 +58,18 @@ async function seedEssentials() {
         logger.info('Seeding completed successfully');
     } catch (error) {
         logger.error('Seeding failed', error);
-    } finally {
-        await closePool();
     }
-}
 
-seedEssentials();
+    // Run if called directly
+    if (import.meta.url === `file://${process.argv[1]}`) {
+        seedEssentials()
+            .then(() => {
+                logger.info('Seeding completed');
+                process.exit(0);
+            })
+            .catch((error) => {
+                logger.error('Seeding error', error);
+                process.exit(1);
+            });
+    }
+

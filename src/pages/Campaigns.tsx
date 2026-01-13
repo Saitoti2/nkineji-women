@@ -10,7 +10,7 @@ import { cn, getImageUrl } from "@/lib/utils";
 import { Heart, Target, Search, Filter, ArrowRight } from "lucide-react";
 import { CampaignDetailModal } from "@/components/campaigns/CampaignDetailModal";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
 interface Campaign {
     id: string;

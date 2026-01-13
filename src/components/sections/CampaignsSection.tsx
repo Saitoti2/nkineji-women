@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CampaignDetailModal } from "@/components/campaigns/CampaignDetailModal";
 import { getImageUrl } from "@/lib/utils";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
 interface Campaign {
   id: string;

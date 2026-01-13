@@ -13,7 +13,7 @@ import { Plus, Loader2, Edit, Pause, Play, Trash2, X, Save, Upload, Image as Ima
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
 interface Campaign {
     id: string;

@@ -44,7 +44,7 @@ export function PaymentSettingsManager() {
 
     const fetchSettings = async () => {
         try {
-            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+            const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
             const res = await fetch(`${API_BASE}/settings/payments`);
             const data = await res.json();
             if (data.success && data.data) {
@@ -70,7 +70,7 @@ export function PaymentSettingsManager() {
         setSaving(true);
         try {
             const token = localStorage.getItem('mara_bloom_auth_token');
-            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+            const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
             const res = await fetch(`${API_BASE}/settings/payments`, {
                 method: 'PUT',
