@@ -59,14 +59,15 @@ app.use(limiter);
 // Logging
 app.use(requestLogger);
 
-// Database Connection Check
-getPool().connect().then(client => {
-    logger.info('Database connection established');
-    client.release();
-}).catch(err => {
-    logger.error('Database connection failed', err);
-    process.exit(1);
-});
+// Database Connection Check (non-blocking for serverless)
+if (process.env.VERCEL !== '1') {
+    getPool().connect().then(client => {
+        logger.info('Database connection established');
+        client.release();
+    }).catch(err => {
+        logger.error('Database connection failed', err);
+    });
+}
 
 // Routes
 const API_PREFIX = '/api/v1';
@@ -97,9 +98,8 @@ app.use((req, res, next) => {
 // Error Handler
 app.use(errorHandler);
 
-// Start Server
 // Start Server only if not running in Vercel (Vercel handles binding)
-if (process.env.VERCEL !== '1') {
+if (!process.env.VERCEL) {
     app.listen(PORT, () => {
         logger.info(`Server running on port ${PORT}`);
         logger.info(`Environment: ${process.env.NODE_ENV}`);
