@@ -33,6 +33,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Handle Vercel's proxy for express-rate-limit
+if (process.env.VERCEL) {
+    app.set('trust proxy', 1);
+}
+
 // Security & Middleware
 app.use(helmet({
     crossOriginResourcePolicy: false,
@@ -71,6 +76,16 @@ if (process.env.VERCEL !== '1') {
 
 // Routes
 const API_PREFIX = '/api/v1';
+
+// Root route to avoid 404 on base deployment URL
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Mara Bloom API is running',
+        version: '1.0.0',
+        health: `${API_PREFIX}/health`
+    });
+});
+
 
 app.use(`${API_PREFIX}/auth`, authRouter);
 app.use(`${API_PREFIX}/admin`, adminRouter);
