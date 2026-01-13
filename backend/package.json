@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Backend API for Maasai Mara Women Empowerment Initiative",
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
