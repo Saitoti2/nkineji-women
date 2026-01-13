@@ -70,26 +70,34 @@ export async function seedImpactStories() {
             }
 
             // Add dummy media if none exists
-
-            const existingMedia = await query('SELECT id FROM story_media WHERE story_id = $1', [storyId]);
-            if (existingMedia.rows.length === 0) {
-                await query(
-                    `INSERT INTO story_media (story_id, media_type, media_url, caption)
-             VALUES ($1, $2, $3, $4)`,
-                    [storyId, 'image', s.profile_image_url, `Our beneficiary ${s.beneficiary_name} in their home.`]
-                );
+            try {
+                const existingMedia = await query('SELECT id FROM story_media WHERE story_id = $1', [storyId]);
+                if (existingMedia.rows.length === 0) {
+                    await query(
+                        `INSERT INTO story_media (story_id, media_type, media_url, caption)
+                 VALUES ($1, $2, $3, $4)`,
+                        [storyId, 'image', s.profile_image_url, `Our beneficiary ${s.beneficiary_name} in their home.`]
+                    );
+                }
+            } catch (mediaError: any) {
+                console.error(`Failed to seed media for story ${storyId}: ${mediaError.message}`);
             }
 
             // Add a dummy comment if none exists
-            const existingComments = await query('SELECT id FROM impact_comments WHERE story_id = $1', [storyId]);
-            if (existingComments.rows.length === 0) {
-                await query(
-                    `INSERT INTO impact_comments (story_id, user_name, content, status)
-             VALUES ($1, $2, $3, $4)`,
-                    [storyId, 'Sarah Johnson', 'This is so inspiring! Thank you for the update.', 'approved']
-                );
+            try {
+                const existingComments = await query('SELECT id FROM impact_comments WHERE story_id = $1', [storyId]);
+                if (existingComments.rows.length === 0) {
+                    await query(
+                        `INSERT INTO impact_comments (story_id, user_name, content, status)
+                 VALUES ($1, $2, $3, $4)`,
+                        [storyId, 'Sarah Johnson', 'This is so inspiring! Thank you for the update.', 'approved']
+                    );
+                }
+            } catch (commentError: any) {
+                console.error(`Failed to seed comment for story ${storyId}: ${commentError.message}`);
             }
         }
+
 
 
 
