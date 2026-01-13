@@ -27,9 +27,10 @@
     {
       "source": "/og-image-1200x630.png",
       "destination": "/og-image-1200x630.png"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
-
-
-
