@@ -42,36 +42,46 @@ export async function seedImpactStories() {
         ];
 
         for (const s of stories) {
-            // Check if story already exists by title
-            const existingStory = await query('SELECT id FROM impact_stories WHERE title = $1', [s.title]);
-            if (existingStory.rows.length > 0) {
-                console.log(`Story "${s.title}" already exists, skipping...`);
-                continue;
-            }
-
             const storyResult = await query(
                 `INSERT INTO impact_stories (beneficiary_name, beneficiary_age, location, profile_image_url, short_bio, title, content, impact_summary, campaign_id, status)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         ON CONFLICT (title) DO UPDATE SET
+            beneficiary_name = EXCLUDED.beneficiary_name,
+            beneficiary_age = EXCLUDED.beneficiary_age,
+            location = EXCLUDED.location,
+            profile_image_url = EXCLUDED.profile_image_url,
+            short_bio = EXCLUDED.short_bio,
+            content = EXCLUDED.content,
+            impact_summary = EXCLUDED.impact_summary,
+            campaign_id = COALESCE(impact_stories.campaign_id, EXCLUDED.campaign_id),
+            status = EXCLUDED.status
          RETURNING id`,
                 [s.beneficiary_name, s.beneficiary_age, s.location, s.profile_image_url, s.short_bio, s.title, s.content, s.impact_summary, s.campaign_id, s.status]
             );
 
             const storyId = storyResult.rows[0].id;
 
-            // Add dummy media
-            await query(
-                `INSERT INTO story_media (story_id, media_type, media_url, caption)
-         VALUES ($1, $2, $3, $4)`,
-                [storyId, 'image', s.profile_image_url, `Our beneficiary ${s.beneficiary_name} in their home.`]
-            );
+            // Add dummy media if none exists
+            const existingMedia = await query('SELECT id FROM story_media WHERE story_id = $1', [storyId]);
+            if (existingMedia.rows.length === 0) {
+                await query(
+                    `INSERT INTO story_media (story_id, media_type, media_url, caption)
+             VALUES ($1, $2, $3, $4)`,
+                    [storyId, 'image', s.profile_image_url, `Our beneficiary ${s.beneficiary_name} in their home.`]
+                );
+            }
 
-            // Add a dummy comment
-            await query(
-                `INSERT INTO impact_comments (story_id, user_name, content, status)
-         VALUES ($1, $2, $3, $4)`,
-                [storyId, 'Sarah Johnson', 'This is so inspiring! Thank you for the update.', 'approved']
-            );
+            // Add a dummy comment if none exists
+            const existingComments = await query('SELECT id FROM impact_comments WHERE story_id = $1', [storyId]);
+            if (existingComments.rows.length === 0) {
+                await query(
+                    `INSERT INTO impact_comments (story_id, user_name, content, status)
+             VALUES ($1, $2, $3, $4)`,
+                    [storyId, 'Sarah Johnson', 'This is so inspiring! Thank you for the update.', 'approved']
+                );
+            }
         }
+
 
 
         const __filename = fileURLToPath(import.meta.url);

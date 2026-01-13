@@ -50,10 +50,16 @@ export async function seedCampaigns() {
             await query(
                 `INSERT INTO campaigns (title, description, goal_amount, image_url, category, status)
          VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT DO NOTHING`,
+         ON CONFLICT (title) DO UPDATE SET 
+            description = EXCLUDED.description,
+            goal_amount = EXCLUDED.goal_amount,
+            image_url = EXCLUDED.image_url,
+            category = EXCLUDED.category,
+            status = EXCLUDED.status`,
                 [campaign.title, campaign.description, campaign.goal_amount, campaign.image_url, campaign.category, campaign.status]
             );
         }
+
 
         logger.info('Campaigns seeded successfully');
     } catch (error) {

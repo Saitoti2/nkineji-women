@@ -17,7 +17,10 @@ export async function seedEssentials() {
         await query(
             `INSERT INTO campaign_items (name, description, unit_price, image_url, created_by)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT (name) DO UPDATE SET
+         description = EXCLUDED.description,
+         unit_price = EXCLUDED.unit_price,
+         image_url = EXCLUDED.image_url`,
             [
                 'Sanitary Pads (Pack of 8)',
                 'Hygiene essentials to keep girls in school comfortably.',
@@ -31,7 +34,10 @@ export async function seedEssentials() {
         await query(
             `INSERT INTO campaign_items (name, description, unit_price, image_url, created_by)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT (name) DO UPDATE SET
+         description = EXCLUDED.description,
+         unit_price = EXCLUDED.unit_price,
+         image_url = EXCLUDED.image_url`,
             [
                 'School Textbook',
                 'Standard curriculum textbook for primary school students.',
@@ -45,7 +51,10 @@ export async function seedEssentials() {
         await query(
             `INSERT INTO campaign_items (name, description, unit_price, image_url, created_by)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT (name) DO UPDATE SET
+         description = EXCLUDED.description,
+         unit_price = EXCLUDED.unit_price,
+         image_url = EXCLUDED.image_url`,
             [
                 'School Uniform Set',
                 'Complete uniform including sweater and dress/shorts.',
