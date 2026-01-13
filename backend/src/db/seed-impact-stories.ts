@@ -60,8 +60,17 @@ export async function seedImpactStories() {
             );
 
             const storyId = storyResult.rows[0].id;
+            console.log(`Story created/updated. ID: ${storyId}, Title: ${s.title}`);
+
+            // Verify story exists in same session
+            const verify = await query('SELECT id FROM impact_stories WHERE id = $1', [storyId]);
+            if (verify.rows.length === 0) {
+                console.error(`CRITICAL: Story ID ${storyId} not found immediately after creation!`);
+                continue;
+            }
 
             // Add dummy media if none exists
+
             const existingMedia = await query('SELECT id FROM story_media WHERE story_id = $1', [storyId]);
             if (existingMedia.rows.length === 0) {
                 await query(
