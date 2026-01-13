@@ -3,6 +3,9 @@ import { logger } from '../../utils/logger.js';
 import { getPool } from '../../db/connection.js';
 import { runMigrations } from '../../db/migrate.js';
 import { seedDatabase } from '../../db/seed.js';
+import path from 'path';
+import { readdirSync, readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 
 export const healthRouter = Router();
 
@@ -30,14 +33,39 @@ healthRouter.get('/', async (req: Request, res: Response) => {
 healthRouter.post('/setup', async (req: Request, res: Response) => {
   try {
     logger.info('Setup requested: running migrations...');
-    await runMigrations();
 
-    logger.info('Migrations complete: running seeding...');
+    // Improved migration logic that continues on "already exists" errors
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const migrationsDir = path.join(__dirname, '../../../migrations');
+    const files = readdirSync(migrationsDir)
+      .filter(f => f.endsWith('.sql'))
+      .sort();
+
+    const results = [];
+    for (const file of files) {
+      try {
+        const sql = readFileSync(path.join(migrationsDir, file), 'utf-8');
+        await getPool().query(sql);
+        results.push({ file, status: 'completed' });
+      } catch (err: any) {
+        if (err.message.includes('already exists') || err.message.includes('already a primary key')) {
+          results.push({ file, status: 'skipped (already exists)' });
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    logger.info('Migrations processing complete. Results:', results);
+
+    logger.info('Running seeding...');
     await seedDatabase();
 
     res.json({
       success: true,
-      message: 'Migrations and seeding completed successfully'
+      message: 'Migrations and seeding completed',
+      migrations: results
     });
   } catch (error: any) {
     logger.error('Setup failed', error);
