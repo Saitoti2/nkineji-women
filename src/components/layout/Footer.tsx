@@ -1,5 +1,8 @@
-import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube, ChevronUp } from "lucide-react";
+import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube, ChevronUp, Download } from "lucide-react";
 import { useState } from "react";
+import { usePWA } from "@/hooks/usePWA";
+import { Button } from "@/components/ui/button";
+
 
 const quickLinks = [
   { label: "Mission", href: "/#mission" },
@@ -23,6 +26,8 @@ const socialLinks = [
 
 export function Footer() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { isInstallable, installApp, isInstalled } = usePWA();
+
 
   return (
     <footer className="bg-foreground">
@@ -104,6 +109,18 @@ export function Footer() {
               ))}
             </div>
 
+            {isInstallable && !isInstalled && (
+              <Button
+                variant="outline"
+                className="w-full justify-center gap-2 text-white border-white/20 bg-white/5 hover:bg-white/10"
+                onClick={installApp}
+              >
+                <Download className="w-4 h-4" />
+                Install App
+              </Button>
+            )}
+
+
             {/* Legal Links */}
             <div className="flex flex-wrap gap-x-4 gap-y-1 pt-4 border-t border-white/10">
               {legalLinks.map((link) => (
@@ -165,19 +182,33 @@ export function Footer() {
               </nav>
             </div>
 
-            {/* Social Links */}
-            <div className="flex items-center gap-2">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-300 hover:scale-110"
-                  aria-label={social.label}
+            {/* Social Links and Install */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-300 hover:scale-110"
+                    aria-label={social.label}
+                  >
+                    <social.icon className="w-5 h-5 text-white" />
+                  </a>
+                ))}
+              </div>
+
+              {isInstallable && !isInstalled && (
+                <Button
+                  variant="outline"
+                  className="text-white border-white/20 bg-white/5 hover:bg-white/10 gap-2"
+                  onClick={installApp}
                 >
-                  <social.icon className="w-5 h-5 text-white" />
-                </a>
-              ))}
+                  <Download className="w-4 h-4" />
+                  Install App
+                </Button>
+              )}
             </div>
+
           </div>
 
           {/* Contact Row */}

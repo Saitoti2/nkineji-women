@@ -6,6 +6,9 @@ import { useTheme } from "next-themes";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useDonationStore } from "@/stores/donationStore";
+import { usePWA } from "@/hooks/usePWA";
+import { LogIn, Download } from "lucide-react";
+
 
 const navLinks = [
   { label: "Home", href: "/", sectionId: "hero" },
@@ -40,6 +43,14 @@ export function DynamicNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openDonationModal } = useDonationStore();
+  const { isInstallable, installApp, isInstalled } = usePWA();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('mara_bloom_auth_token');
+    setIsLoggedIn(!!token);
+  }, [location.pathname]);
+
 
   useEffect(() => {
     setMounted(true);
@@ -460,10 +471,38 @@ export function DynamicNavbar() {
                     ))}
                   </nav>
 
-                  <div className="pt-6 border-t border-border/50">
+                  <div className="pt-6 border-t border-border/50 flex flex-col gap-3">
+                    {!isLoggedIn && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-12 rounded-xl"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          navigate('/login');
+                        }}
+                      >
+                        <LogIn className="w-4 h-4" />
+                        Login
+                      </Button>
+                    )}
+
+                    {isInstallable && !isInstalled && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3 h-12 rounded-xl text-primary border-primary/20 hover:bg-primary/5"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          installApp();
+                        }}
+                      >
+                        <Download className="w-4 h-4" />
+                        Install App
+                      </Button>
+                    )}
+
                     <Button
                       variant="donate"
-                      className="w-full"
+                      className="w-full h-12 rounded-xl"
                       size="lg"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
@@ -474,6 +513,7 @@ export function DynamicNavbar() {
                       Donate Now
                     </Button>
                   </div>
+
                 </div>
               </SheetContent>
             </Sheet>
