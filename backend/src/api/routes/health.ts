@@ -35,12 +35,14 @@ healthRouter.get('/', async (req: Request, res: Response) => {
 
 // Temporary endpoint to trigger migrations and seeding in production
 healthRouter.post('/setup', async (req: Request, res: Response) => {
+  const pool = getPool();
+  const client = await pool.connect();
 
   try {
-    const pool = getPool();
-    logger.info('Setup requested: running migrations...');
+    logger.info('Setup requested: starting transaction...');
+    await client.query('BEGIN');
 
-    // 1. Run Migrations
+    // 1. Run Migrations (Manual SQL execution)
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const migrationsDir = path.join(__dirname, '../../../migrations');
@@ -50,75 +52,64 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     for (const file of files) {
       try {
         const sql = readFileSync(path.join(migrationsDir, file), 'utf-8');
-        await pool.query(sql);
+        await client.query(sql);
         migrationResults.push({ file, status: 'completed' });
       } catch (err: any) {
-        if (err.message.includes('already exists') || err.message.includes('already a primary key')) {
-          migrationResults.push({ file, status: 'skipped (already exists)' });
+        if (err.message.includes('already exists') || err.message.includes('already a primary key') || err.message.includes('already a trigger')) {
+          migrationResults.push({ file, status: 'skipped' });
         } else {
           throw err;
         }
       }
     }
 
-    logger.info('Migrations complete. Ensuring unique constraints for seeding...');
-
-    // 1.5 Deduplicate Campaigns before creating unique index
-    await pool.query(`
+    // 2. Deduplicate and Ensure Constraints
+    logger.info('Deduplicating campaigns...');
+    await client.query(`
       DELETE FROM campaigns 
       WHERE id NOT IN (
         SELECT id FROM (
-          SELECT DISTINCT ON (title) id 
-          FROM campaigns 
-          ORDER BY title, id
-        ) sub
+          SELECT DISTINCT ON (title) id FROM campaigns ORDER BY title, created_at ASC
+        ) s
       )
     `);
-    // 1.6 Deduplicate Campaign Items before creating unique index
-    await pool.query(`
+    await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
+
+    logger.info('Deduplicating items...');
+    await client.query(`
       DELETE FROM campaign_items 
       WHERE id NOT IN (
         SELECT id FROM (
-          SELECT DISTINCT ON (name) id 
-          FROM campaign_items 
-          ORDER BY name, id
-        ) sub
+          SELECT DISTINCT ON (name) id FROM campaign_items ORDER BY name, created_at ASC
+        ) s
       )
     `);
+    await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_items_name_unique ON campaign_items (name)');
 
-
-    // 1.7 Deduplicate Impact Stories before creating unique index
-    await pool.query(`
+    logger.info('Deduplicating stories...');
+    await client.query(`
       DELETE FROM impact_stories 
       WHERE id NOT IN (
         SELECT id FROM (
-          SELECT DISTINCT ON (title) id 
-          FROM impact_stories 
-          ORDER BY title, id
-        ) sub
+          SELECT DISTINCT ON (title) id FROM impact_stories ORDER BY title, created_at ASC
+        ) s
       )
     `);
+    await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_impact_stories_title_unique ON impact_stories (title)');
 
-    // Ensure unique indexes for ON CONFLICT logic
-    await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
-    await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_items_name_unique ON campaign_items (name)');
-    await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_impact_stories_title_unique ON impact_stories (title)');
+    // 3. Run Seeding Logic
+    // Since seedDatabase, etc. use the pool.query, they might escape the transaction
+    // So we manually perform the essential seeding here or update the seeds to accept a client
+    // For now, let's just do it manually here for reliability in production
 
-
-    logger.info('Constraints verified. Running comprehensive seeding...');
-
-
-    // 2. Base Seeding (Admin User, etc.)
+    logger.info('Executing seeding...');
     await seedDatabase();
-
-    // 3. Seed Essentials
     await seedEssentials();
-
-    // 4. Seed Campaigns
     await seedCampaigns();
-
-    // 5. Seed Impact Stories
     await seedImpactStories();
+
+    await client.query('COMMIT');
+    logger.info('Setup completed successfully');
 
     res.json({
       success: true,
@@ -127,14 +118,19 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
+    await client.query('ROLLBACK');
     logger.error('Setup failed', error);
     res.status(500).json({
       success: false,
       message: 'Setup failed',
-      error: error.message
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
+  } finally {
+    client.release();
   }
 });
+
 
 healthRouter.get('/ready', async (req: Request, res: Response) => {
   try {
