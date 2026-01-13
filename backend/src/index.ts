@@ -98,9 +98,12 @@ app.use((req, res, next) => {
 app.use(errorHandler);
 
 // Start Server
-app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`);
-    logger.info(`Environment: ${process.env.NODE_ENV}`);
-});
+// Start Server only if not running in Vercel (Vercel handles binding)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT}`);
+        logger.info(`Environment: ${process.env.NODE_ENV}`);
+    });
+}
 
 export default app;
