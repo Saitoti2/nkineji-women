@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { query } from './connection';
+import { query } from './connection.js';
 
 dotenv.config();
 

@@ -1,6 +1,6 @@
-import { query } from '../db/connection';
-import { ApiError } from '../middleware/errorHandler';
-import { logger } from '../utils/logger';
+import { query } from '../db/connection.js';
+import { ApiError } from '../middleware/errorHandler.js';
+import { logger } from '../utils/logger.js';
 
 export interface ImpactStory {
     id: string;
