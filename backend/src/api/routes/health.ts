@@ -56,7 +56,13 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
       }
     }
 
-    logger.info('Migrations complete. Running comprehensive seeding...');
+    logger.info('Migrations complete. Ensuring unique constraints for seeding...');
+
+    // Ensure unique indexes for ON CONFLICT logic
+    await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
+    await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_items_name_unique ON campaign_items (name)');
+
+    logger.info('Constraints verified. Running comprehensive seeding...');
 
     // 2. Base Seeding (Admin User, etc.)
     await seedDatabase();
