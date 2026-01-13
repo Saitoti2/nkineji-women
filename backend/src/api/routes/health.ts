@@ -74,7 +74,6 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
         ) sub
       )
     `);
-
     // 1.6 Deduplicate Campaign Items before creating unique index
     await pool.query(`
       DELETE FROM campaign_items 
@@ -88,9 +87,23 @@ healthRouter.post('/setup', async (req: Request, res: Response) => {
     `);
 
 
+    // 1.7 Deduplicate Impact Stories before creating unique index
+    await pool.query(`
+      DELETE FROM impact_stories 
+      WHERE id NOT IN (
+        SELECT id FROM (
+          SELECT DISTINCT ON (title) id 
+          FROM impact_stories 
+          ORDER BY title, id
+        ) sub
+      )
+    `);
+
     // Ensure unique indexes for ON CONFLICT logic
     await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_title_unique ON campaigns (title)');
     await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_items_name_unique ON campaign_items (name)');
+    await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_impact_stories_title_unique ON impact_stories (title)');
+
 
     logger.info('Constraints verified. Running comprehensive seeding...');
 
