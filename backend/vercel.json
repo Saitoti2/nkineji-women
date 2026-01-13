@@ -1,16 +1,3 @@
 {
-    "version": 2,
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
-    "functions": {
-        "dist/index.js": {
-            "runtime": "nodejs20.x"
-        }
-    },
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "/dist/index.js"
-        }
-    ]
+    "buildCommand": "npm run build"
 }
