@@ -7,23 +7,33 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
+const transports: winston.transport[] = [
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    )
+  })
+];
+
+// Only add file transport in non-serverless environments
+if (!process.env.VERCEL) {
+  transports.push(
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error'
+    }),
+    new winston.transports.File({
+      filename: 'logs/combined.log'
+    })
+  );
+}
+
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
-  format: logFormat,
-  defaultMeta: { service: 'mara-bloom-api' },
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          return `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''}`;
-        })
-      ),
-    }),
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' }),
-  ],
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports
 });
-
-
-
