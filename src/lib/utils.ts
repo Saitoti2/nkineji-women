@@ -17,5 +17,11 @@ export function getImageUrl(path: string | undefined, placeholder: string = "/pl
 
   // Ensure the path starts with / if it doesn't
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  // If path starts with /images/, it's a static frontend asset (public folder)
+  if (normalizedPath.startsWith('/images/')) {
+    return normalizedPath;
+  }
+
   return `${SERVER_URL}${normalizedPath}`;
 }

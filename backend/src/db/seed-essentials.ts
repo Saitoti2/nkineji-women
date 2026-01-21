@@ -25,7 +25,7 @@ export async function seedEssentials() {
                 'Maternal Health Kit',
                 'Vitamins, hygiene essentials, and safe delivery supplies for mothers.',
                 35.00,
-                '/uploads/items/maternal-health-kit.png',
+                '/images/items/maternal-health-kit.png',
                 null // system created
             ]
         );
@@ -42,7 +42,7 @@ export async function seedEssentials() {
                 'Nkineji Student Pack',
                 'Comprehensive set of textbooks, stationery, and a sturdy school bag.',
                 25.00,
-                '/uploads/items/student-pack.png',
+                '/images/items/student-pack.png',
                 null
             ]
         );
@@ -59,7 +59,7 @@ export async function seedEssentials() {
                 'Dignity & Hygiene Kit',
                 'Sanitary pads and basic hygiene items to keep girls in school.',
                 15.00,
-                'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?q=80&w=2670&auto=format&fit=crop',
+                '/images/items/dignity-kit.png',
                 null
             ]
         );
