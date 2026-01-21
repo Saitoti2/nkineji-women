@@ -12,9 +12,9 @@ const quickLinks = [
 ];
 
 const legalLinks = [
-  { label: "Privacy", href: "/#contact" },
-  { label: "Terms", href: "/#contact" },
-  { label: "Finances", href: "/#contact" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+  { label: "Finances", href: "/finances" },
 ];
 
 const socialLinks = [
@@ -87,13 +87,13 @@ export function Footer() {
 
             {/* Contact Info */}
             <div id="contact" className="space-y-2 text-xs text-gray-400">
-              <a href="mailto:info@nkineji.org" className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href="mailto:nkinejiwomeninitiative@gmail.com" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>info@nkineji.org</span>
+                <span>nkinejiwomeninitiative@gmail.com</span>
               </a>
-              <a href="tel:+254712345678" className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href="tel:+254792848665" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>+254 712 345 678</span>
+                <span>+254 792 848 665</span>
               </a>
               <span className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
@@ -224,13 +224,13 @@ export function Footer() {
           {/* Contact Row */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div id="contact-desktop" className="flex flex-wrap items-center gap-4 md:gap-6 text-xs sm:text-sm text-gray-400">
-              <a href="mailto:info@nkineji.org" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <a href="mailto:nkinejiwomeninitiative@gmail.com" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="break-all">info@nkineji.org</span>
+                <span className="break-all">nkinejiwomeninitiative@gmail.com</span>
               </a>
-              <a href="tel:+254712345678" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <a href="tel:+254792848665" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Phone className="w-4 h-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">+254 712 345 678</span>
+                <span className="whitespace-nowrap">+254 792 848 665</span>
               </a>
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
@@ -240,7 +240,7 @@ export function Footer() {
 
             <p className="text-gray-500 text-xs text-right">
               © {new Date().getFullYear()} Nkineji Community Initiative.
-              <span className="block opacity-0 group-hover:opacity-100 transition-opacity">Built with ❤️ for the community</span>
+              <span className="block mt-1">Developed by <span className="text-gray-400 font-medium">Saitoti Njapit</span></span>
             </p>
           </div>
         </div>

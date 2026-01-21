@@ -15,6 +15,9 @@ import Campaigns from "./pages/Campaigns";
 import { DonationModal } from "@/components/payment/DonationModal";
 import Impact from "./pages/Impact";
 import Dashboard from "./pages/Dashboard";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Finances from "./pages/Finances";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,9 @@ const App = () => (
             <Route path="/campaigns" element={<Campaigns />} />
             <Route path="/impact" element={<Impact />} />
             <Route path="/essentials" element={<EssentialsDonation />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/finances" element={<Finances />} />
             {/* Admin sub-routes removed as they are now handled in Admin.tsx */}
             <Route path="*" element={<NotFound />} />
           </Routes>

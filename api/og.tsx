@@ -79,7 +79,7 @@ export default function handler(request) {
                             }}
                         >
                             <img
-                                src="https://inua-mama-initiative.vercel.app/logo.png"
+                                src="https://nkinejiwomen.com/logo.png"
                                 width="32"
                                 height="32"
                                 style={{ borderRadius: '50%', marginRight: '10px' }}
