@@ -62,8 +62,8 @@ button:hover img[src*="logo"],
     --muted: 35 30% 92%;
     --muted-foreground: 20 15% 45%;
 
-    /* Gold Accent - Hope, Prosperity */
-    --accent: 38 80% 55%;
+    /* Gold Accent - Hope, Prosperity - Darker/Richer */
+    --accent: 30 80% 50%;
     --accent-foreground: 20 20% 15%;
 
     --destructive: 0 72% 51%;
@@ -128,8 +128,8 @@ button:hover img[src*="logo"],
     --muted: 222 15% 15%;
     --muted-foreground: 215 10% 65%;
 
-    /* Toned down accent gold */
-    --accent: 38 60% 50%;
+    /* Toned down accent gold - Darker/Richer */
+    --accent: 30 70% 45%;
     --accent-foreground: 222 20% 12%;
 
     --destructive: 0 60% 50%;
