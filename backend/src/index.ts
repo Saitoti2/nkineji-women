@@ -48,7 +48,10 @@ app.use(cors({
         process.env.FRONTEND_URL || 'http://localhost:5173',
         'https://nkineji.org',
         'https://nkineji-initiative.vercel.app',
-        'https://inua-mama-initiative.vercel.app'
+        'https://inua-mama-initiative.vercel.app',
+        'https://mara-bloom.vercel.app',
+        'https://nkinejiwomen.com',
+        'https://www.nkinejiwomen.com'
     ],
     credentials: true
 }));
