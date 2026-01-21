@@ -32,51 +32,53 @@ export default async function handler(req, res) {
     };
 
     // Logic to fetch data
-    // Using public API or hardcoded check
-    // Url format: /impact/123 or /campaigns/123
-
     let title = "Nkineji Community Development Initiative";
     let description = "Empowering the marginalized heart of the Maasai Mara through GirlChild Education and Maternal Health.";
     let image = "https://inua-mama-initiative.vercel.app/og-logo.png";
 
     try {
-        if (url.includes('/impact/')) {
-            const id = url.split('/impact/')[1]?.split('?')[0];
-            if (id) {
-                // Fetch from API
-                // Note: We need absolute URL for fetch in Node
-                const apiUrl = process.env.VITE_API_URL || 'https://inua-mama-initiative.vercel.app/api/v1';
-                const resp = await fetch(`${apiUrl}/impact-stories/${id}`);
-                if (resp.ok) {
-                    const data = await resp.json();
-                    const story = data.data;
-                    title = story.title;
-                    description = story.impact_summary || story.short_bio;
-                    // Ensure image is absolute
-                    image = story.profile_image_url.startsWith('http')
-                        ? story.profile_image_url
-                        : `https://inua-mama-initiative.vercel.app${story.profile_image_url}`;
+        const { id, type } = req.query;
+        // console.log('SEO Request:', { id, type, url }); // DEBUG
+
+        const apiUrl = process.env.VITE_API_URL || 'https://inua-mama-initiative.vercel.app/api/v1';
+
+        if (type === 'impact' && id) {
+            const resp = await fetch(`${apiUrl}/impact-stories/${id}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                const story = data.data;
+                if (story) {
+                    title = story.title || title;
+                    description = story.impact_summary || story.short_bio || description;
+                    if (story.profile_image_url) {
+                        image = story.profile_image_url.startsWith('http')
+                            ? story.profile_image_url
+                            : `https://inua-mama-initiative.vercel.app${story.profile_image_url}`;
+                    }
                 }
+            } else {
+                console.error(`Failed to fetch impact story: ${resp.status}`);
             }
-        } else if (url.includes('/campaigns/')) {
-            const id = url.split('/campaigns/')[1]?.split('?')[0];
-            if (id) {
-                const apiUrl = process.env.VITE_API_URL || 'https://inua-mama-initiative.vercel.app/api/v1';
-                const resp = await fetch(`${apiUrl}/campaigns/${id}`);
-                if (resp.ok) {
-                    const data = await resp.json();
-                    const campaign = data.data;
-                    title = campaign.title;
-                    description = campaign.description;
-                    image = campaign.image_url.startsWith('http')
-                        ? campaign.image_url
-                        : `https://inua-mama-initiative.vercel.app${campaign.image_url}`;
+        } else if (type === 'campaign' && id) {
+            const resp = await fetch(`${apiUrl}/campaigns/${id}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                const campaign = data.data;
+                if (campaign) {
+                    title = campaign.title || title;
+                    description = campaign.description || description;
+                    if (campaign.image_url) {
+                        image = campaign.image_url.startsWith('http')
+                            ? campaign.image_url
+                            : `https://inua-mama-initiative.vercel.app${campaign.image_url}`;
+                    }
                 }
+            } else {
+                console.error(`Failed to fetch campaign: ${resp.status}`);
             }
         }
     } catch (e) {
         console.error('Error fetching data for OG', e);
-        // Fallback to default
     }
 
     // Inject tags

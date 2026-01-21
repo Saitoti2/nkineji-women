@@ -30,11 +30,11 @@
     },
     {
       "source": "/impact/:id",
-      "destination": "/api/seo"
+      "destination": "/api/seo?id=:id&type=impact"
     },
     {
       "source": "/campaigns/:id",
-      "destination": "/api/seo"
+      "destination": "/api/seo?id=:id&type=campaign"
     },
     {
       "source": "/(.*)",
