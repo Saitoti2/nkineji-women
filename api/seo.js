@@ -50,11 +50,20 @@ export default async function handler(req, res) {
                 if (story) {
                     title = story.title || title;
                     description = story.impact_summary || story.short_bio || description;
+                    let imageUrl = image;
                     if (story.profile_image_url) {
-                        image = story.profile_image_url.startsWith('http')
+                        imageUrl = story.profile_image_url.startsWith('http')
                             ? story.profile_image_url
                             : `https://inua-mama-initiative.vercel.app${story.profile_image_url}`;
                     }
+
+                    const params = new URLSearchParams();
+                    params.append('title', title);
+                    params.append('desc', description);
+                    params.append('img', imageUrl);
+                    params.append('type', 'impact');
+                    image = `https://inua-mama-initiative.vercel.app/api/og?${params.toString()}`;
+
                 }
             } else {
                 console.error(`Failed to fetch impact story: ${resp.status}`);
@@ -67,11 +76,19 @@ export default async function handler(req, res) {
                 if (campaign) {
                     title = campaign.title || title;
                     description = campaign.description || description;
+                    let imageUrl = image;
                     if (campaign.image_url) {
-                        image = campaign.image_url.startsWith('http')
+                        imageUrl = campaign.image_url.startsWith('http')
                             ? campaign.image_url
                             : `https://inua-mama-initiative.vercel.app${campaign.image_url}`;
                     }
+
+                    const params = new URLSearchParams();
+                    params.append('title', title);
+                    params.append('desc', description);
+                    params.append('img', imageUrl);
+                    params.append('type', 'campaign');
+                    image = `https://inua-mama-initiative.vercel.app/api/og?${params.toString()}`;
                 }
             } else {
                 console.error(`Failed to fetch campaign: ${resp.status}`);
