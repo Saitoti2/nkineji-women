@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useDonationStore } from "@/stores/donationStore";
 import { usePWA } from "@/hooks/usePWA";
-import { LogIn, Download } from "lucide-react";
+import { LogIn, Download, LogOut, LayoutDashboard } from "lucide-react";
 
 
 const navLinks = [
@@ -45,12 +45,34 @@ export function DynamicNavbar() {
   const location = useLocation();
   const { openDonationModal } = useDonationStore();
   const { isInstallable, installApp, isInstalled } = usePWA();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('mara_bloom_auth_token');
+    const userDataStr = localStorage.getItem('user_data');
     setIsLoggedIn(!!token);
+
+    if (userDataStr) {
+      try {
+        const user = JSON.parse(userDataStr);
+        setIsAdmin(user.role === 'admin' || user.role === 'super_admin');
+      } catch (e) {
+        console.error("Failed to parse user data", e);
+      }
+    }
   }, [location.pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('mara_bloom_auth_token');
+    localStorage.removeItem('mara_bloom_refresh_token');
+    localStorage.removeItem('user_data');
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    navigate('/');
+    setIsMobileMenuOpen(false);
+  };
 
 
   useEffect(() => {
@@ -478,7 +500,33 @@ export function DynamicNavbar() {
                   </nav>
 
                   <div className="pt-6 border-t border-border/50 flex flex-col gap-3">
-                    {!isLoggedIn && (
+
+                    {/* Theme Toggle in Sidebar */}
+                    <div className="flex items-center justify-between px-1 mb-2">
+                      <span className="text-sm font-medium text-muted-foreground">Appearance</span>
+                      <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+                        <button
+                          onClick={() => setTheme("light")}
+                          className={cn(
+                            "p-1.5 rounded-md transition-all",
+                            theme === "light" ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          <Sun className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setTheme("dark")}
+                          className={cn(
+                            "p-1.5 rounded-md transition-all",
+                            theme === "dark" ? "bg-black/90 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          <Moon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {!isLoggedIn ? (
                       <Button
                         variant="outline"
                         className="w-full justify-start gap-3 h-12 rounded-xl"
@@ -490,6 +538,28 @@ export function DynamicNavbar() {
                         <LogIn className="w-4 h-4" />
                         Login
                       </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start gap-3 h-12 rounded-xl hover:bg-muted/50"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            navigate(isAdmin ? '/admin' : '/dashboard');
+                          }}
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          {isAdmin ? 'Admin Dashboard' : 'Dashboard'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start gap-3 h-12 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={handleLogout}
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </Button>
+                      </>
                     )}
 
                     {isInstallable && !isInstalled && (
