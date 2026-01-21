@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/og-image-1200x630.png",
+      "source": "/og-logo.png",
       "headers": [
         {
           "key": "Cache-Control",
@@ -25,8 +25,16 @@
   ],
   "rewrites": [
     {
-      "source": "/og-image-1200x630.png",
-      "destination": "/og-image-1200x630.png"
+      "source": "/og-logo.png",
+      "destination": "/og-logo.png"
+    },
+    {
+      "source": "/impact/:id",
+      "destination": "/api/seo"
+    },
+    {
+      "source": "/campaigns/:id",
+      "destination": "/api/seo"
     },
     {
       "source": "/(.*)",
