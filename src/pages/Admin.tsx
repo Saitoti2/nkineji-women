@@ -168,7 +168,7 @@ export function Admin() {
       {/* Header */}
       <header className="border-b bg-card/90 backdrop-blur-xl sticky top-0 z-50 shadow-float border-b-border/30">
         <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-display font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
             Admin Dashboard
           </h1>
           <div className="flex items-center gap-2">
@@ -326,7 +326,7 @@ function AdminLogin({ onLogin }: { onLogin: (email: string, password: string) =>
               Admin Access
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent mb-2 text-center">
+          <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-2 text-center">
             Admin Login
           </h1>
           <p className="text-muted-foreground text-center text-sm sm:text-base">Enter your credentials to access the admin dashboard</p>

@@ -47,7 +47,7 @@ export function HeroSection() {
             {/* Headline with text reveal animation - Responsive sizing */}
             <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground text-center mb-3 sm:mb-4 md:mb-5 lg:mb-6 leading-tight animate-text-reveal px-2">
               Empowering the Heart <br className="hidden sm:block" />
-              <span className="text-gradient animate-gradient-text">of the Maasai Mara</span>
+              <span className="text-accent">of the Maasai Mara</span>
             </h1>
 
             {/* Subheadline with fade and slide - Responsive sizing */}
