@@ -82,9 +82,12 @@ export function EssentialsSection() {
                                 <p className="text-muted-foreground line-clamp-2 mb-6">
                                     {item.description}
                                 </p>
-                                <div className="flex items-center text-primary font-medium text-sm">
-                                    <ShoppingBag className="w-4 h-4 mr-2" />
-                                    Give this item
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center text-primary font-medium text-sm">
+                                        <ShoppingBag className="w-4 h-4 mr-2" />
+                                        Give this item
+                                    </div>
+                                    <span className="text-[9px] text-muted-foreground/40 uppercase font-bold">NKCI Brand</span>
                                 </div>
                             </div>
                         </div>

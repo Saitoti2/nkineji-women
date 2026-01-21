@@ -52,7 +52,7 @@ export function HeroSection() {
 
             {/* Subheadline with fade and slide - Responsive sizing */}
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-center mb-6 sm:mb-7 md:mb-8 lg:mb-10 animate-fade-slide-up px-2 leading-relaxed">
-              Nkineji Community Development Initiative is dedicated to GirlChild Education and Maternal Healthcare for the marginalized women and girls of the Mara.
+              Nkineji Community Initiative is dedicated to GirlChild Education and Maternal Healthcare for the marginalized women and girls of the Mara.
             </p>
 
             {/* CTA Buttons with enhanced hover effects - Responsive layout */}

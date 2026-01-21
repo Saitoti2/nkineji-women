@@ -161,6 +161,9 @@ function CampaignItem({ campaign, index, onClick }: { campaign: Campaign; index:
               Support Now
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
             </Button>
+            <p className="text-[10px] text-muted-foreground/60 text-center mt-3 uppercase tracking-tighter">
+              © Nkineji Community Initiative
+            </p>
           </div>
         </div>
       </div>

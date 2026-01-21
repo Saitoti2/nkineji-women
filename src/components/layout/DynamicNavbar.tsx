@@ -460,7 +460,7 @@ export function DynamicNavbar() {
                     <div className="flex items-center gap-3">
                       <img
                         src="/logo.png"
-                        alt="Nkineji Community Development Initiative"
+                        alt="Nkineji Community Initiative"
                         className="h-10 w-auto rounded-xl object-contain"
                         style={{
                           filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)",

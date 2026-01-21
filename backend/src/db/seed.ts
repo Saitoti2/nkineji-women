@@ -13,16 +13,22 @@ async function seedDatabase() {
     const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'ChangeMe123!';
     const hashedPassword = await bcrypt.hash(defaultPassword, bcryptRounds);
 
+    // Ensure roles exist
+    const roles = ['super_admin', 'community_rep', 'donor', 'field_officer'];
+    for (const role of roles) {
+      await query(
+        `INSERT INTO roles (name, description)
+         VALUES ($1, $2)
+         ON CONFLICT (name) DO NOTHING`,
+        [role, `Default description for ${role}`]
+      );
+    }
+
     // Get super_admin role ID
     const roleResult = await query<{ id: string }>(
       "SELECT id FROM roles WHERE name = 'super_admin' LIMIT 1"
     );
 
-    if (roleResult.rows.length === 0) {
-      throw new Error('Super admin role not found. Run migrations first.');
-    }
-
-    const superAdminRoleId = roleResult.rows[0].id;
 
     // Create default super admin user
     const userResult = await query<{ id: string }>(

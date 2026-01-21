@@ -18,11 +18,17 @@ const legalLinks = [
 ];
 
 const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Youtube, href: "#", label: "YouTube" },
+  { icon: Facebook, href: "https://facebook.com/nkineji", label: "Facebook" },
+  { icon: Twitter, href: "https://twitter.com/nkineji", label: "Twitter" },
+  { icon: Instagram, href: "https://instagram.com/nkineji", label: "Instagram" },
+  { icon: Youtube, href: "https://youtube.com/@nkineji", label: "YouTube" },
 ];
+
+/**
+ * Developer Acknowledgement:
+ * This system was developed by Saitoti Njapit.
+ * All intellectual property, including the source code, belongs exclusively to him.
+ */
 
 export function Footer() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -41,7 +47,7 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
-              alt="Nkineji Community Development Initiative"
+              alt="Nkineji Community Initiative"
               className="w-8 h-8 rounded-lg object-contain"
             />
             <div className="text-left">
@@ -80,7 +86,7 @@ export function Footer() {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-2 text-xs text-gray-400">
+            <div id="contact" className="space-y-2 text-xs text-gray-400">
               <a href="mailto:info@nkineji.org" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>info@nkineji.org</span>
@@ -101,6 +107,8 @@ export function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-300"
                   aria-label={social.label}
                 >
@@ -146,12 +154,12 @@ export function Footer() {
             <div className="flex items-center gap-3">
               <img
                 src="/logo.png"
-                alt="Nkineji Community Development Initiative"
+                alt="Nkineji Community Initiative"
                 className="w-10 h-10 rounded-xl object-contain"
               />
               <div>
                 <h3 className="font-display font-semibold text-white text-sm sm:text-base">Nkineji Community</h3>
-                <p className="text-[10px] sm:text-xs text-gray-400">Development Initiative</p>
+                <p className="text-[10px] sm:text-xs text-gray-400">Initiative</p>
               </div>
             </div>
 
@@ -189,6 +197,8 @@ export function Footer() {
                   <a
                     key={social.label}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-300 hover:scale-110"
                     aria-label={social.label}
                   >
@@ -213,7 +223,7 @@ export function Footer() {
 
           {/* Contact Row */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs sm:text-sm text-gray-400">
+            <div id="contact-desktop" className="flex flex-wrap items-center gap-4 md:gap-6 text-xs sm:text-sm text-gray-400">
               <a href="mailto:info@nkineji.org" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Mail className="w-4 h-4 flex-shrink-0" />
                 <span className="break-all">info@nkineji.org</span>
@@ -228,8 +238,9 @@ export function Footer() {
               </span>
             </div>
 
-            <p className="text-gray-500 text-xs">
-              © {new Date().getFullYear()} Nkineji Community Development Initiative
+            <p className="text-gray-500 text-xs text-right">
+              © {new Date().getFullYear()} Nkineji Community Initiative.
+              <span className="block opacity-0 group-hover:opacity-100 transition-opacity">Built with ❤️ for the community</span>
             </p>
           </div>
         </div>

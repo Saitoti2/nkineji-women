@@ -41,7 +41,7 @@ export function Header() {
             />
             <div className="hidden min-[375px]:block min-w-0">
               <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Nkineji</h1>
-              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Community Development</p>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Community Initiative</p>
             </div>
           </a>
 
@@ -89,7 +89,7 @@ export function Header() {
                     <div className="flex items-center gap-3">
                       <img
                         src="/logo.png"
-                        alt="Nkineji Community Development Initiative"
+                        alt="Nkineji Community Initiative"
                         className="w-10 h-10 rounded-xl object-contain"
                       />
                       <div>

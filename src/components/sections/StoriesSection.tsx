@@ -74,6 +74,10 @@ export function StoriesSection() {
                 <span className="font-bold text-primary uppercase tracking-wider text-[10px] block mb-1">Impact</span>
                 {story.impact_summary}
               </div>
+
+              <p className="text-[9px] text-muted-foreground/50 mt-4 uppercase tracking-[0.2em] text-center font-bold">
+                Nkineji Community Initiative Property
+              </p>
             </div>
           ))}
         </div>
