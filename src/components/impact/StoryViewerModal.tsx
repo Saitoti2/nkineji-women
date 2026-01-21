@@ -5,6 +5,7 @@ import { cn, getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CommentSection } from "./CommentSection";
+import { toast } from "@/hooks/use-toast";
 
 export function StoryViewerModal({ isOpen, onClose, story }: any) {
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -19,6 +20,28 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
             if (isPlaying) videoRef.current.pause();
             else videoRef.current.play();
             setIsPlaying(!isPlaying);
+        }
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: story.title,
+            text: `Check out this impact story: ${story.title}`,
+            url: `${window.location.origin}/impact/${story.id}`,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error("Error sharing:", err);
+            }
+        } else {
+            navigator.clipboard.writeText(shareData.url);
+            toast({
+                title: "Link copied",
+                description: "Story link copied to clipboard",
+            });
         }
     };
 
@@ -165,7 +188,10 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                                         </span>
                                     </div>
                                 </div>
-                                <Share2 className="w-5 h-5 md:w-5 md:h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+                                <Share2
+                                    className="w-5 h-5 md:w-5 md:h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                                    onClick={handleShare}
+                                />
                             </div>
 
                             {/* Comment Section */}

@@ -6,6 +6,7 @@ import { X, Heart, Users, Calendar, Target, ChevronLeft, ChevronRight, Share2 } 
 import { useState } from "react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { useDonationStore } from "@/stores/donationStore";
+import { toast } from "@/hooks/use-toast";
 
 interface Campaign {
     id: string;
@@ -42,6 +43,30 @@ function calculateDaysLeft(endDate?: string): number | null {
 export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetailModalProps) {
     const [donationAmount, setDonationAmount] = useState('');
     const { openDonationModal } = useDonationStore();
+
+    const handleShare = async () => {
+        if (!campaign) return;
+
+        const shareData = {
+            title: campaign.title,
+            text: `Support this campaign: ${campaign.title}`,
+            url: `${window.location.origin}/campaigns/${campaign.id}`,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error("Error sharing:", err);
+            }
+        } else {
+            navigator.clipboard.writeText(shareData.url);
+            toast({
+                title: "Link copied",
+                description: "Campaign link copied to clipboard",
+            });
+        }
+    };
 
     if (!campaign) return null;
 
@@ -188,7 +213,11 @@ export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetai
                                             Contribute Now
                                             <Heart className="w-5 h-5 ml-2 transition-transform group-active:scale-150" />
                                         </Button>
-                                        <Button variant="ghost" className="w-full h-12 rounded-xl text-muted-foreground hover:text-foreground">
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full h-12 rounded-xl text-muted-foreground hover:text-foreground"
+                                            onClick={handleShare}
+                                        >
                                             <Share2 className="w-4 h-4 mr-2" />
                                             Share Campaign
                                         </Button>
