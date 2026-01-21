@@ -78,13 +78,6 @@ export function ProgramsSection() {
             </div>
           ))}
         </div>
-
-        {/* CTA */}
-        <div className="mt-8 sm:mt-10 md:mt-12 text-center">
-          <Button variant="default" size="lg" className="min-h-[48px] sm:min-h-[56px] text-sm sm:text-base" onClick={() => navigate('/essentials')}>
-            Donate Essentials
-          </Button>
-        </div>
       </div>
     </section>
   );

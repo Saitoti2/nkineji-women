@@ -38,21 +38,21 @@ export function HeroSection() {
             <div className="flex justify-center mb-4 sm:mb-5 md:mb-6 lg:mb-8 animate-slide-down">
               <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs md:text-sm font-medium animate-badge-glow relative overflow-hidden">
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/30 to-transparent animate-shimmer" />
-                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-accent animate-pulse relative z-10" />
-                <span className="relative z-10 whitespace-nowrap">Empowering Maasai Women Since 2015</span>
+                <span className="relative z-10">
+                  Nkineji Community Initiative CBO
+                </span>
               </div>
             </div>
 
             {/* Headline with text reveal animation - Responsive sizing */}
             <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground text-center mb-3 sm:mb-4 md:mb-5 lg:mb-6 leading-tight animate-text-reveal px-2">
-              Transform Lives, <br className="hidden sm:block" />
-              <span className="text-gradient animate-gradient-text">Empower Women</span>
+              Empowering the Heart <br className="hidden sm:block" />
+              <span className="text-gradient animate-gradient-text">of the Maasai Mara</span>
             </h1>
 
             {/* Subheadline with fade and slide - Responsive sizing */}
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-center mb-6 sm:mb-7 md:mb-8 lg:mb-10 animate-fade-slide-up px-2 leading-relaxed">
-              Your donation creates lasting change — from rescue and healthcare to education and
-              economic empowerment. Join us in building a brighter future.
+              Nkineji Community Development Initiative is dedicated to GirlChild Education and Maternal Healthcare for the marginalized women and girls of the Mara.
             </p>
 
             {/* CTA Buttons with enhanced hover effects - Responsive layout */}

@@ -90,12 +90,6 @@ export function EssentialsSection() {
                         </div>
                     ))}
                 </div>
-
-                <div className="mt-12 text-center md:hidden">
-                    <Button onClick={() => navigate('/essentials')} variant="outline" className="w-full group">
-                        View All Items <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                </div>
             </div>
         </section>
     );

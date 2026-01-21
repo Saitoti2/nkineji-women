@@ -13,34 +13,34 @@ export async function seedCampaigns() {
 
         const campaigns = [
             {
-                title: 'Rescue & Safe House Fund',
-                description: 'Provide shelter, care, and rehabilitation for girls rescued from harmful traditional practices. Our safe house offers 24/7 support, trauma counseling, and legal aid.',
-                goal_amount: 75000,
-                image_url: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200&h=800&fit=crop&q=80&auto=format',
-                category: 'rescue',
-                status: 'active'
-            },
-            {
-                title: 'Women\'s Micro-Enterprise Fund',
-                description: 'Seed capital and training to help women start sustainable small businesses. Includes business planning, market linkages, and ongoing mentorship.',
-                goal_amount: 50000,
-                image_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=800&fit=crop&q=80&auto=format',
-                category: 'economic',
-                status: 'active'
-            },
-            {
-                title: 'Girls\' Education Sponsorship',
-                description: 'Cover school fees, uniforms, and supplies for girls from primary to university. Every girl deserves the chance to learn and thrive.',
-                goal_amount: 30000,
-                image_url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=1200&h=800&fit=crop&q=80&auto=format',
+                title: 'Nkineji GirlChild Education Sponsorship',
+                description: 'Cover school fees, uniforms, and supplies for marginalized girls in Nkineji. Empowering the next generation through education in the heart of the Maasai Mara.',
+                goal_amount: 35000,
+                image_url: '/uploads/campaigns/girlchild-education.png',
                 category: 'education',
                 status: 'active'
             },
             {
-                title: 'Maternal Health Outreach',
-                description: 'Mobile clinics bringing prenatal care and safe delivery services to remote communities. Saving lives, one mother at a time.',
+                title: 'Marginalized Mothers\' Healthcare Fund',
+                description: 'Critical prenatal and postnatal care for women in the remote heart of the Mara. Ensuring safe deliveries and healthy starts for both mother and child.',
+                goal_amount: 50000,
+                image_url: '/uploads/campaigns/maternal-health.png',
+                category: 'health',
+                status: 'active'
+            },
+            {
+                title: 'Nkineji Mentorship & Safe Space',
+                description: 'A dedicated center in Nkineji providing a safe environment, mentorship, and educational support for girls at risk of early marriage and FGM.',
                 goal_amount: 45000,
-                image_url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&h=800&fit=crop&q=80&auto=format',
+                image_url: '/uploads/campaigns/safe-space.png',
+                category: 'rescue',
+                status: 'active'
+            },
+            {
+                title: 'Mobile Maternal Health Clinic',
+                description: 'Bringing life-saving healthcare directly to women in the most marginalized parts of the Maasai Mara. Mobile units equipped for maternal health outreach.',
+                goal_amount: 60000,
+                image_url: '/uploads/campaigns/mobile-clinic.png',
                 category: 'health',
                 status: 'active'
             }
@@ -65,17 +65,18 @@ export async function seedCampaigns() {
     } catch (error) {
         logger.error('Seeding failed', error);
     }
+}
 
-    // Run if called directly
-    if (import.meta.url === `file://${process.argv[1]}`) {
-        seedCampaigns()
-            .then(() => {
-                logger.info('Seeding completed');
-                process.exit(0);
-            })
-            .catch((error) => {
-                logger.error('Seeding error', error);
-                process.exit(1);
-            });
-    }
+// Run if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+    seedCampaigns()
+        .then(() => {
+            logger.info('Seeding completed');
+            process.exit(0);
+        })
+        .catch((error) => {
+            logger.error('Seeding error', error);
+            process.exit(1);
+        });
+}
 

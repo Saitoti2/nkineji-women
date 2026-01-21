@@ -72,7 +72,7 @@ export function usePWA() {
             setDeferredPrompt(null);
             setIsInstallable(false);
         } else if (platform === 'ios') {
-            alert('To install Inua Mama on iOS:\n\n1. Tap the Share button (square with arrow) in your browser.\n2. Scroll down and tap "Add to Home Screen".');
+            alert('To install Nkineji Initiative on iOS:\n\n1. Tap the Share button (square with arrow) in your browser.\n2. Scroll down and tap "Add to Home Screen".');
         } else {
             alert('To install this app: look for the "Install" icon in your browser address bar or menu.');
         }

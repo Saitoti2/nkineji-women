@@ -1,4 +1,8 @@
 import { Heart, Leaf, BookOpen, Users } from "lucide-react";
+import mission1 from "@/assets/mission-1.png";
+import mission2 from "@/assets/mission-2.png";
+import mission3 from "@/assets/mission-3.png";
+import mission4 from "@/assets/mission-4.png";
 
 const pillars = [
   {
@@ -37,9 +41,9 @@ export function MissionSection() {
               Transforming the Maasai Mara, <span className="text-primary">One Woman at a Time</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-7 md:mb-8">
-              We are a community-based organization dedicated to empowering Maasai women and girls 
-              through holistic support — from emergency rescue and healthcare to education, 
-              economic independence, and community leadership. Your donations fuel every aspect 
+              We are a community-based organization dedicated to empowering Maasai women and girls
+              through holistic support — from emergency rescue and healthcare to education,
+              economic independence, and community leadership. Your donations fuel every aspect
               of this transformation.
             </p>
 
@@ -64,15 +68,15 @@ export function MissionSection() {
             <div className="space-y-2 sm:space-y-3 md:space-y-4">
               <div className="float-card overflow-hidden h-32 sm:h-40 md:h-48 lg:h-56 group">
                 <img
-                  src="https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop&q=80&auto=format"
-                  alt="Maasai women in traditional dress working together"
+                  src={mission1}
+                  alt="Maasai women in traditional dress working together in community"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
               <div className="float-card overflow-hidden h-24 sm:h-32 md:h-40 group">
                 <img
-                  src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=500&fit=crop&q=80&auto=format"
-                  alt="Maasai children learning in classroom"
+                  src={mission2}
+                  alt="Maasai girls learning in classroom"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
@@ -80,15 +84,15 @@ export function MissionSection() {
             <div className="space-y-2 sm:space-y-3 md:space-y-4 pt-4 sm:pt-6 md:pt-8">
               <div className="float-card overflow-hidden h-24 sm:h-32 md:h-40 group">
                 <img
-                  src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=500&fit=crop&q=80&auto=format"
-                  alt="Maasai women and children in community"
+                  src={mission3}
+                  alt="Maasai women and children in community gathering"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
               <div className="float-card overflow-hidden h-32 sm:h-40 md:h-48 lg:h-56 group">
                 <img
-                  src="https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop&q=80&auto=format"
-                  alt="Maasai women receiving healthcare support"
+                  src={mission4}
+                  alt="Maasai women receiving maternal healthcare support"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>

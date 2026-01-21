@@ -13,7 +13,7 @@ export async function seedEssentials() {
         // Ensure connection
         await pool.query('SELECT 1');
 
-        // Create Sanitary Pads
+        // Create Maternal Health Kit
         await query(
             `INSERT INTO campaign_items (name, description, unit_price, image_url, created_by)
        VALUES ($1, $2, $3, $4, $5)
@@ -22,15 +22,15 @@ export async function seedEssentials() {
          unit_price = EXCLUDED.unit_price,
          image_url = EXCLUDED.image_url`,
             [
-                'Sanitary Pads (Pack of 8)',
-                'Hygiene essentials to keep girls in school comfortably.',
-                1.50,
-                'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?q=80&w=2670&auto=format&fit=crop',
+                'Maternal Health Kit',
+                'Vitamins, hygiene essentials, and safe delivery supplies for mothers.',
+                35.00,
+                '/uploads/items/maternal-health-kit.png',
                 null // system created
             ]
         );
 
-        // Create Textbooks
+        // Create Student Pack
         await query(
             `INSERT INTO campaign_items (name, description, unit_price, image_url, created_by)
        VALUES ($1, $2, $3, $4, $5)
@@ -39,15 +39,15 @@ export async function seedEssentials() {
          unit_price = EXCLUDED.unit_price,
          image_url = EXCLUDED.image_url`,
             [
-                'School Textbook',
-                'Standard curriculum textbook for primary school students.',
-                12.00,
-                'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2673&auto=format&fit=crop',
+                'Nkineji Student Pack',
+                'Comprehensive set of textbooks, stationery, and a sturdy school bag.',
+                25.00,
+                '/uploads/items/student-pack.png',
                 null
             ]
         );
 
-        // Create School Uniform
+        // Create Dignity Kit
         await query(
             `INSERT INTO campaign_items (name, description, unit_price, image_url, created_by)
        VALUES ($1, $2, $3, $4, $5)
@@ -56,10 +56,10 @@ export async function seedEssentials() {
          unit_price = EXCLUDED.unit_price,
          image_url = EXCLUDED.image_url`,
             [
-                'School Uniform Set',
-                'Complete uniform including sweater and dress/shorts.',
-                25.00,
-                'https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=2672&auto=format&fit=crop',
+                'Dignity & Hygiene Kit',
+                'Sanitary pads and basic hygiene items to keep girls in school.',
+                15.00,
+                'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?q=80&w=2670&auto=format&fit=crop',
                 null
             ]
         );
@@ -68,17 +68,18 @@ export async function seedEssentials() {
     } catch (error) {
         logger.error('Seeding failed', error);
     }
+}
 
-    // Run if called directly
-    if (import.meta.url === `file://${process.argv[1]}`) {
-        seedEssentials()
-            .then(() => {
-                logger.info('Seeding completed');
-                process.exit(0);
-            })
-            .catch((error) => {
-                logger.error('Seeding error', error);
-                process.exit(1);
-            });
-    }
+// Run if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+    seedEssentials()
+        .then(() => {
+            logger.info('Seeding completed');
+            process.exit(0);
+        })
+        .catch((error) => {
+            logger.error('Seeding error', error);
+            process.exit(1);
+        });
+}
 

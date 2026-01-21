@@ -26,8 +26,8 @@ export function Header() {
   return (
     <header
       className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${scrolled
-          ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50"
-          : "bg-card/80 backdrop-blur-lg border border-border/30"
+        ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50"
+        : "bg-card/80 backdrop-blur-lg border border-border/30"
         }`}
     >
       <div className="container mx-auto px-3 sm:px-4 md:px-6">
@@ -36,12 +36,12 @@ export function Header() {
           <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
             <img
               src="/logo.png"
-              alt="Maasai Mara Women Empowerment Initiative"
+              alt="Nkineji Community Development Initiative"
               className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
             />
             <div className="hidden min-[375px]:block min-w-0">
-              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Maasai Mara</h1>
-              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Women Empowerment</p>
+              <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Nkineji</h1>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground truncate">Community Development</p>
             </div>
           </a>
 
@@ -89,7 +89,7 @@ export function Header() {
                     <div className="flex items-center gap-3">
                       <img
                         src="/logo.png"
-                        alt="Maasai Mara Women Empowerment Initiative"
+                        alt="Nkineji Community Development Initiative"
                         className="w-10 h-10 rounded-xl object-contain"
                       />
                       <div>

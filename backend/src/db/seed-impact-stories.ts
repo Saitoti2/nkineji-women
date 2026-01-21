@@ -9,34 +9,55 @@ export async function seedImpactStories() {
     try {
         console.log('Seeding impact stories...');
 
-        // 1. Get a campaign ID
+        // 1. Get campaign IDs
         const campaignResult = await query('SELECT id FROM campaigns LIMIT 1');
-        const campaignId = campaignResult.rows[0]?.id;
+        const defaultCampaignId = campaignResult.rows[0]?.id;
+
+        const getCampaignId = async (title: string) => {
+            const res = await query('SELECT id FROM campaigns WHERE title = $1 LIMIT 1', [title]);
+            return res.rows[0]?.id || defaultCampaignId;
+        };
+
+        const eduCampaignId = await getCampaignId('Girls\' Education Sponsorship');
+        const maternalCampaignId = await getCampaignId('Maternal Health Outreach');
+        const enterpriseCampaignId = await getCampaignId('Women\'s Micro-Enterprise Fund');
 
         // 2. Create Impact Stories
         const stories = [
             {
-                beneficiary_name: 'Zahara Kamau',
-                beneficiary_age: 32,
-                location: 'Kajiado County',
-                profile_image_url: 'https://images.unsplash.com/photo-1531123897727-8f129e16fd47?auto=format&fit=crop&q=80&w=800',
-                short_bio: 'A mother of four who transformed her family’s future through our entrepreneurship program.',
-                title: 'From Struggle to Success: Zahara’s New Dawn',
-                content: `Zahara used to walk 10 kilometers daily to fetch water, leaving little time for anything else. When the Inua Mama Initiative brought a clean water borehole to her village and provided her with a small business grant, her life changed forever.\n\nToday, she runs a successful beadwork business that employs three other women in her community. "This is more than just money," Zahara says. "It is dignity."`,
-                impact_summary: 'Established a sustainable business and provided clean water access for 500+ villagers.',
-                campaign_id: campaignId,
+                beneficiary_name: 'Leshalon Nolaram',
+                beneficiary_age: 12,
+                location: 'Loita Hills',
+                profile_image_url: '/images/impact-stories/leshalon.png',
+                short_bio: 'A bright Maasai girl pursuing her dream of becoming a teacher through our girl-child education scholarship.',
+                title: 'Breaking Barriers: Leshalon\'s Education Dream',
+                content: `In many parts of the Mara, girls still face the threat of early marriage. Leshalon, a brilliant 12-year-old, was rescued from this fate and enrolled in our partner boarding school. "My books are my future," she says. "When I finish school, I will teach other Maasai girls that they can be anything they want." Your support provides her safe housing, tuition, and a chance to rewrite her story.`,
+                impact_summary: 'Fully sponsored primary education and safe housing for a vulnerable Maasai girl.',
+                campaign_id: eduCampaignId,
                 status: 'published'
             },
             {
-                beneficiary_name: 'David Omondi',
-                beneficiary_age: 12,
-                location: 'Nairobi (Kibera)',
-                profile_image_url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800',
-                short_bio: 'A bright student who returned to school after being out for two years.',
-                title: 'Back to the Classroom: David’s Dream Reborn',
-                content: `David was forced to drop out of school when his family could no longer afford fees and uniforms. He spent his days helping at a local market. Through the Education First campaign, David received a full scholarship.\n\nHe is now the top of his class and dreams of becoming an engineer. "I want to build bridges that connect people," David tells us with a beaming smile.`,
-                impact_summary: 'Full primary education sponsorship and vocational training for parents.',
-                campaign_id: campaignId,
+                beneficiary_name: 'Noonkipa Tipaya',
+                beneficiary_age: 24,
+                location: 'Musiara Plains',
+                profile_image_url: '/images/impact-stories/noonkipa.png',
+                short_bio: 'A young Maasai mother who received life-saving support through our Maternal Outreach program.',
+                title: 'Hope for Mothers: Noonkipa\'s Safe Delivery',
+                content: `Living miles away from the nearest clinic, Noonkipa feared for her life during a complicated pregnancy. Our mobile maternal outreach unit provided her with prenatal checkups and emergency transport for a safe hospital delivery. "Without the outreach clinic, I don't think I would be holding my healthy daughter today," she shares. We continue to support her and her baby with postnatal care and nutrition.`,
+                impact_summary: 'Provided emergency maternal transport and comprehensive prenatal/postnatal care.',
+                campaign_id: maternalCampaignId,
+                status: 'published'
+            },
+            {
+                beneficiary_name: 'Sinteyia Ole Naurori',
+                beneficiary_age: 39,
+                location: 'Aitong Community',
+                profile_image_url: '/images/impact-stories/sinteyia.png',
+                short_bio: 'A community leader empowered through our Women Aid initiative and vocational training.',
+                title: 'Leading the Way: Sinteyia\'s Community Growth',
+                content: `Sinteyia was one of the first women in Aitong to join our vocational training center. Now, she leads a group of 30 women in a sustainable livestock management program. "We used to wait for others to help us. Now, we support our families and even help other widows in our village," Sinteyia explains. Her leadership has transformed her family's economy and inspired a whole generation of women.`,
+                impact_summary: 'Empowered 30+ women with vocational skills and sustainable livelihood leadership.',
+                campaign_id: enterpriseCampaignId,
                 status: 'published'
             }
         ];
@@ -93,22 +114,27 @@ export async function seedImpactStories() {
 
 
 
+        console.log('Impact stories seeding completed successfully');
+    } catch (error: any) {
+        console.error('Seeding impact stories failed:', error.message);
+        throw error;
+    }
+}
 
-        const __filename = fileURLToPath(import.meta.url);
-        const isDirectRun = process.argv[1] && (
-            process.argv[1].endsWith('seed-impact-stories.ts') ||
-            process.argv[1].endsWith('seed-impact-stories.js')
-        );
+const __filename = fileURLToPath(import.meta.url);
+const isDirectRun = process.argv[1] && (
+    process.argv[1].endsWith('seed-impact-stories.ts') ||
+    process.argv[1].endsWith('seed-impact-stories.js')
+);
 
-        if (isDirectRun) {
-            seedImpactStories()
-                .then(() => {
-                    console.log('Seeding completed');
-                    process.exit(0);
-                })
-                .catch((error) => {
-                    console.error('Seeding error', error);
-                    process.exit(1);
-                });
-        }
-
+if (isDirectRun) {
+    seedImpactStories()
+        .then(() => {
+            console.log('Seeding completed');
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error('Seeding error', error);
+            process.exit(1);
+        });
+}

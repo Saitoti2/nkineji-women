@@ -46,7 +46,8 @@ app.use(helmet({
 app.use(cors({
     origin: [
         process.env.FRONTEND_URL || 'http://localhost:5173',
-        'https://inua-mama-initiative.vercel.app'
+        'https://nkineji.org',
+        'https://nkineji-initiative.vercel.app'
     ],
     credentials: true
 }));
@@ -83,7 +84,7 @@ const API_PREFIX = '/api/v1';
 // Root route to avoid 404 on base deployment URL
 app.get('/', (req, res) => {
     res.json({
-        message: 'Mara Bloom API is running',
+        message: 'Nkineji Community Development API is running',
         version: '1.0.0',
         health: `${API_PREFIX}/health`
     });

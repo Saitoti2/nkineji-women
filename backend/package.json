@@ -1,7 +1,7 @@
 {
   "name": "mara-bloom-backend",
   "version": "1.0.0",
-  "description": "Backend API for Maasai Mara Women Empowerment Initiative",
+  "description": "Backend API for Nkineji Community Development Initiative",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

@@ -303,7 +303,7 @@ export function DynamicNavbar() {
           >
             <img
               src="/logo.png"
-              alt="Inua Mama Initiative"
+              alt="Nkineji Initiative"
               className={cn(
                 "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
                 isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
@@ -316,7 +316,7 @@ export function DynamicNavbar() {
               }}
             />
             <div className={cn("min-w-0 flex-1", isScrolled && !isExpanded && "hidden")}>
-              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Inua Mama Initiative</h1>
+              <h1 className="font-display font-semibold text-sm text-foreground leading-tight truncate">Nkineji Initiative</h1>
               <p className="text-[10px] text-muted-foreground leading-tight truncate">Kenya</p>
             </div>
           </div>
@@ -422,7 +422,7 @@ export function DynamicNavbar() {
               >
                 <SheetTitle className="sr-only">Main Menu</SheetTitle>
                 <SheetDescription className="sr-only">
-                  Quick access to all sections of the Inua Mama Initiative website and donation options.
+                  Quick access to all sections of the Nkineji Initiative website and donation options.
                 </SheetDescription>
                 <div
 
@@ -438,7 +438,7 @@ export function DynamicNavbar() {
                     <div className="flex items-center gap-3">
                       <img
                         src="/logo.png"
-                        alt="Maasai Mara Women Empowerment Initiative"
+                        alt="Nkineji Community Development Initiative"
                         className="h-10 w-auto rounded-xl object-contain"
                         style={{
                           filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) contrast(1.15) brightness(0.95) saturate(1.1)",
@@ -447,7 +447,7 @@ export function DynamicNavbar() {
                       />
                       <div>
                         <h2 className="font-display font-semibold text-foreground">Menu</h2>
-                        <p className="text-xs text-muted-foreground">Navigation</p>
+                        <p className="text-xs text-muted-foreground">Nkineji Initiative</p>
                       </div>
                     </div>
                     <SheetClose asChild>

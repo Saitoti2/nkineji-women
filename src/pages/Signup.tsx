@@ -108,7 +108,7 @@ export default function Signup() {
                 <CardHeader className="space-y-1">
                     <div className="flex justify-center mb-4">
                         <Link to="/">
-                            <img src="/logo.png" alt="Inua Mama" className="h-12 w-auto object-contain" />
+                            <img src="/logo.png" alt="Nkineji Initiative" className="h-12 w-auto object-contain" />
                         </Link>
                     </div>
                     <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>

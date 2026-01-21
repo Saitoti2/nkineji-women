@@ -41,11 +41,11 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
-              alt="Maasai Mara Women Empowerment Initiative"
+              alt="Nkineji Community Development Initiative"
               className="w-8 h-8 rounded-lg object-contain"
             />
             <div className="text-left">
-              <p className="text-xs font-semibold text-white">Maasai Mara Women</p>
+              <p className="text-xs font-semibold text-white">Nkineji Community</p>
               <p className="text-[10px] text-gray-400">© {new Date().getFullYear()}</p>
             </div>
           </div>
@@ -81,13 +81,13 @@ export function Footer() {
 
             {/* Contact Info */}
             <div className="space-y-2 text-xs text-gray-400">
-              <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href="mailto:info@nkineji.org" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>info@maasaimarawomen.org</span>
+                <span>info@nkineji.org</span>
               </a>
-              <a href="tel:+254700000000" className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href="tel:+254712345678" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>+254 700 000 000</span>
+                <span>+254 712 345 678</span>
               </a>
               <span className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
@@ -146,12 +146,12 @@ export function Footer() {
             <div className="flex items-center gap-3">
               <img
                 src="/logo.png"
-                alt="Maasai Mara Women Empowerment Initiative"
+                alt="Nkineji Community Development Initiative"
                 className="w-10 h-10 rounded-xl object-contain"
               />
               <div>
-                <h3 className="font-display font-semibold text-white text-sm sm:text-base">Maasai Mara Women</h3>
-                <p className="text-[10px] sm:text-xs text-gray-400">Empowerment Initiative</p>
+                <h3 className="font-display font-semibold text-white text-sm sm:text-base">Nkineji Community</h3>
+                <p className="text-[10px] sm:text-xs text-gray-400">Development Initiative</p>
               </div>
             </div>
 
@@ -214,13 +214,13 @@ export function Footer() {
           {/* Contact Row */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs sm:text-sm text-gray-400">
-              <a href="mailto:info@maasaimarawomen.org" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <a href="mailto:info@nkineji.org" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="break-all">info@maasaimarawomen.org</span>
+                <span className="break-all">info@nkineji.org</span>
               </a>
-              <a href="tel:+254700000000" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <a href="tel:+254712345678" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Phone className="w-4 h-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">+254 700 000 000</span>
+                <span className="whitespace-nowrap">+254 712 345 678</span>
               </a>
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
@@ -229,7 +229,7 @@ export function Footer() {
             </div>
 
             <p className="text-gray-500 text-xs">
-              © {new Date().getFullYear()} Maasai Mara Women Empowerment Initiative
+              © {new Date().getFullYear()} Nkineji Community Development Initiative
             </p>
           </div>
         </div>

@@ -104,23 +104,38 @@ export default function Impact() {
 }
 
 function ImpactStoryCard({ story, onClick }: { story: any; onClick: () => void }) {
+    const [imageError, setImageError] = useState(false);
     const mainMedia = story.media?.[0];
+
+    // Array of beautiful gradients for fallbacks
+    const gradients = [
+        "from-orange-400 to-rose-400",
+        "from-amber-400 to-orange-500",
+        "from-rose-400 to-pink-500",
+    ];
+    const cardGradient = gradients[Math.floor(Math.random() * gradients.length)];
 
     return (
         <div
             onClick={onClick}
-            className="group relative cursor-pointer rounded-[2.5rem] overflow-hidden bg-card border border-border/50 hover:border-accent/60 transition-all duration-700 hover:shadow-2xl hover:shadow-accent/20 hover:-translate-y-4 animate-in fade-in slide-in-from-bottom-10 fill-mode-both"
+            className="group relative cursor-pointer rounded-[2.5rem] overflow-hidden bg-card border border-border/50 hover:border-accent/60 transition-all duration-700 hover:shadow-2xl hover:shadow-accent/20 hover:-translate-y-4 animate-in fade-in slide-in-from-bottom-10 fill-mode-both flex flex-col h-full"
             style={{ animationDuration: '900ms' }}
         >
-            {/* Image Container */}
-            <div className="aspect-[4/5] relative overflow-hidden bg-muted rounded-t-[2.5rem]">
-                <img
-                    src={getImageUrl(story.profile_image_url, "/placeholder-avatar.jpg")}
-                    alt={story.beneficiary_name}
-                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                    style={{ objectPosition: 'center' }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-60 group-hover:opacity-90 transition-all duration-700" />
+            {/* Image Container / Gradient Fallback */}
+            <div className="aspect-[4/5] relative overflow-hidden bg-muted rounded-t-[2.5rem] flex-shrink-0">
+                {story.profile_image_url && !imageError ? (
+                    <img
+                        src={getImageUrl(story.profile_image_url)}
+                        alt={story.beneficiary_name}
+                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                        style={{ objectPosition: 'center' }}
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <div className={cn("w-full h-full bg-gradient-to-br opacity-80 group-hover:scale-110 transition-transform duration-700", cardGradient)} />
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-700" />
 
                 {/* Animated overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/0 via-primary/0 to-accent/0 opacity-0 group-hover:opacity-40 transition-opacity duration-700" />
@@ -141,42 +156,42 @@ function ImpactStoryCard({ story, onClick }: { story: any; onClick: () => void }
 
                 {/* Info Overlay */}
                 <div className="absolute bottom-8 left-8 right-8 text-white space-y-2 transition-all duration-500 group-hover:bottom-10">
-                    <Badge className="bg-accent/90 text-white border-none backdrop-blur-sm mb-2 transition-all duration-500 group-hover:bg-accent group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-accent/50">
-                        {story.campaign_title || "Foundation Support"}
+                    <Badge className="bg-accent/90 text-white border-none backdrop-blur-sm mb-2 transition-all duration-500 group-hover:bg-accent group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-accent/50 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                        {story.campaign_title || "Women Aid Program"}
                     </Badge>
-                    <h3 className="text-2xl sm:text-3xl font-bold font-display leading-tight group-hover:text-accent transition-all duration-500 group-hover:scale-105 origin-left">
+                    <h3 className="text-2xl sm:text-3xl lg:text-3xl font-bold font-display leading-tight group-hover:text-amber-200 transition-all duration-500 group-hover:scale-105 origin-left truncate">
                         {story.beneficiary_name}
                     </h3>
-                    <div className="flex items-center gap-3 text-white/80 text-sm font-medium transition-all duration-500 group-hover:text-white">
-                        <MapPin className="w-4 h-4 transition-transform duration-500 group-hover:scale-125" />
+                    <div className="flex items-center gap-3 text-white/90 text-sm font-medium transition-all duration-500 group-hover:text-white">
+                        <MapPin className="w-4 h-4 text-accent/80 transition-transform duration-500 group-hover:scale-125" />
                         <span>{story.location}</span>
-                        <span className="w-1 h-1 rounded-full bg-white/40" />
+                        <span className="w-1 h-1 rounded-full bg-white/60" />
                         <span>{story.beneficiary_age} years old</span>
                     </div>
                 </div>
             </div>
 
             {/* Content Section */}
-            <div className="p-8 bg-card flex flex-col justify-between h-auto relative rounded-b-[2.5rem]">
+            <div className="p-8 bg-card flex flex-col justify-between flex-grow relative rounded-b-[2.5rem]">
                 {/* Animated background glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-b-[2.5rem]" />
 
-                <p className="text-muted-foreground line-clamp-2 text-base leading-relaxed mb-6 relative z-10 transition-colors duration-500 group-hover:text-foreground">
+                <p className="text-muted-foreground line-clamp-3 text-base leading-relaxed mb-6 relative z-10 transition-colors duration-500 group-hover:text-foreground">
                     {story.short_bio}
                 </p>
 
-                <div className="flex items-center justify-between pt-6 border-t border-border/50 relative z-10 group-hover:border-accent/30 transition-colors duration-500">
+                <div className="flex items-center justify-between pt-6 border-t border-border/50 relative z-10 group-hover:border-accent/30 transition-colors duration-500 mt-auto">
                     <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium">
-                        <div className="flex items-center gap-1.5 transition-all duration-500 group-hover:scale-110 group-hover:text-accent">
-                            <Heart className="w-4 h-4 text-accent transition-transform duration-500 group-hover:scale-125 group-hover:fill-current" />
+                        <div className="flex items-center gap-1.5 transition-all duration-500 group-hover:scale-110 group-hover:text-rose-500">
+                            <Heart className="w-4 h-4 text-rose-500 transition-transform duration-500 group-hover:scale-125 group-hover:fill-current" />
                             <span>{story.likes_count || 42}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 transition-all duration-500 group-hover:scale-110 group-hover:text-blue-500">
-                            <MessageCircle className="w-4 h-4 text-blue-500 transition-transform duration-500 group-hover:scale-125" />
-                            <span>{story.comments_count || 12}</span>
+                        <div className="flex items-center gap-1.5 transition-all duration-500 group-hover:scale-110 group-hover:text-sky-500">
+                            <MessageCircle className="w-4 h-4 text-sky-500 transition-transform duration-500 group-hover:scale-125" />
+                            <span>{story.comments_count || 1}</span>
                         </div>
                     </div>
-                    <button className="text-accent font-semibold flex items-center gap-2 group/btn text-sm sm:text-base transition-all duration-500 hover:scale-110">
+                    <button className="text-accent font-bold flex items-center gap-2 group/btn text-sm sm:text-base border-b-2 border-transparent hover:border-accent transition-all duration-300">
                         Read Story
                         <ArrowRight className="w-4 h-4 transition-all duration-500 group-hover/btn:translate-x-2 group-hover/btn:scale-125" />
                     </button>

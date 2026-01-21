@@ -2,8 +2,8 @@
   "name": "mara-bloom",
   "private": true,
   "version": "1.0.0",
-  "description": "Maasai Mara Women Empowerment Initiative - Transform Lives, Empower Women",
-  "author": "Maasai Mara Women Empowerment Initiative",
+  "description": "Nkineji Community Development Initiative - Empowering the marginalized heart of the Maasai Mara",
+  "author": "Nkineji Community Development Initiative",
   "type": "module",
   "scripts": {
     "dev": "vite",
