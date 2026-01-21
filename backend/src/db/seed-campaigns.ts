@@ -16,7 +16,7 @@ export async function seedCampaigns() {
                 title: 'Nkineji GirlChild Education Sponsorship',
                 description: 'Cover school fees, uniforms, and supplies for marginalized girls in Nkineji. Empowering the next generation through education in the heart of the Maasai Mara.',
                 goal_amount: 35000,
-                image_url: '/uploads/campaigns/girlchild-education.png',
+                image_url: '/images/campaigns/girlchild-education.png',
                 category: 'education',
                 status: 'active'
             },
@@ -24,7 +24,7 @@ export async function seedCampaigns() {
                 title: 'Marginalized Mothers\' Healthcare Fund',
                 description: 'Critical prenatal and postnatal care for women in the remote heart of the Mara. Ensuring safe deliveries and healthy starts for both mother and child.',
                 goal_amount: 50000,
-                image_url: '/uploads/campaigns/maternal-health.png',
+                image_url: '/images/campaigns/maternal-health.png',
                 category: 'health',
                 status: 'active'
             },
@@ -32,7 +32,7 @@ export async function seedCampaigns() {
                 title: 'Nkineji Mentorship & Safe Space',
                 description: 'A dedicated center in Nkineji providing a safe environment, mentorship, and educational support for girls at risk of early marriage and FGM.',
                 goal_amount: 45000,
-                image_url: '/uploads/campaigns/safe-space.png',
+                image_url: '/images/campaigns/safe-space.png',
                 category: 'rescue',
                 status: 'active'
             },
@@ -40,7 +40,7 @@ export async function seedCampaigns() {
                 title: 'Mobile Maternal Health Clinic',
                 description: 'Bringing life-saving healthcare directly to women in the most marginalized parts of the Maasai Mara. Mobile units equipped for maternal health outreach.',
                 goal_amount: 60000,
-                image_url: '/uploads/campaigns/mobile-clinic.png',
+                image_url: '/images/campaigns/mobile-clinic.png',
                 category: 'health',
                 status: 'active'
             }
