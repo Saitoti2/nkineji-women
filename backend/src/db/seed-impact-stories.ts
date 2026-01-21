@@ -84,17 +84,19 @@ export async function seedImpactStories() {
 
             // Add dummy media if none exists
 
+            // Refresh media to ensure it matches current profile image
             try {
-                const existingMedia = await query('SELECT id FROM story_media WHERE story_id = $1', [storyId]);
-                if (existingMedia.rows.length === 0) {
-                    await query(
-                        `INSERT INTO story_media (story_id, media_type, media_url, caption)
+                // Delete existing media to avoid stale URLs
+                await query('DELETE FROM story_media WHERE story_id = $1', [storyId]);
+
+                // Insert fresh media
+                await query(
+                    `INSERT INTO story_media (story_id, media_type, media_url, caption)
                  VALUES ($1, $2, $3, $4)`,
-                        [storyId, 'image', s.profile_image_url, `Our beneficiary ${s.beneficiary_name} in their home.`]
-                    );
-                }
+                    [storyId, 'image', s.profile_image_url, `Our beneficiary ${s.beneficiary_name} in their home.`]
+                );
             } catch (mediaError: any) {
-                console.error(`Failed to seed media for story ${storyId}: ${mediaError.message}`);
+                console.error(`Failed to refresh media for story ${storyId}: ${mediaError.message}`);
             }
 
             // Add a dummy comment if none exists

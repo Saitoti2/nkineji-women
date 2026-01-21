@@ -297,10 +297,7 @@ button:hover img[src*="logo"],
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-hero);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    @apply text-accent;
   }
 
   .btn-donate {
