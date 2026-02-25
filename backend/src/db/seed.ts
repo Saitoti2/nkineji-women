@@ -10,7 +10,7 @@ async function seedDatabase() {
     logger.info('Starting database seeding...');
 
     const bcryptRounds = parseInt(process.env.BCRYPT_ROUNDS || '12');
-    const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'ChangeMe123!';
+    const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
     const hashedPassword = await bcrypt.hash(defaultPassword, bcryptRounds);
 
     // Ensure roles exist
@@ -29,6 +29,8 @@ async function seedDatabase() {
       "SELECT id FROM roles WHERE name = 'super_admin' LIMIT 1"
     );
 
+
+    const superAdminRoleId = roleResult.rows[0].id;
 
     // Create default super admin user
     const userResult = await query<{ id: string }>(
