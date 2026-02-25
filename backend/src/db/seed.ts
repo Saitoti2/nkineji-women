@@ -38,7 +38,7 @@ async function seedDatabase() {
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (email) DO NOTHING
        RETURNING id`,
-      ['Super Admin', 'admin@maasaimarawomen.org', hashedPassword, superAdminRoleId, true]
+      ['Super Admin', 'admin@nkinejiwomen.com', hashedPassword, superAdminRoleId, true]
     );
 
     if (userResult.rows.length > 0) {
@@ -53,7 +53,7 @@ async function seedDatabase() {
       `INSERT INTO campaigns (title, description, goal_amount, status, created_by)
        SELECT $1, $2, $3, $4, u.id
        FROM users u
-       WHERE u.email = 'admin@maasaimarawomen.org'
+       WHERE u.email = 'admin@nkinejiwomen.com'
        ON CONFLICT DO NOTHING`,
       [
         'Rescue & Safe House Fund',
