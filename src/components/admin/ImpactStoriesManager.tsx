@@ -10,6 +10,8 @@ import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Eye, ImageIcon, Film, 
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { useAuthStore } from '@/stores/authStore';
+import { AdvancedFilters } from './AdvancedFilters';
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
@@ -45,8 +47,10 @@ interface Campaign {
 }
 
 export function ImpactStoriesManager() {
+    const { accessToken } = useAuthStore();
     const [stories, setStories] = useState<ImpactStory[]>([]);
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+    const [filters, setFilters] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [editingStory, setEditingStory] = useState<ImpactStory | null>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -71,13 +75,20 @@ export function ImpactStoriesManager() {
     useEffect(() => {
         fetchStories();
         fetchCampaigns();
-    }, []);
+    }, [filters]);
 
     const fetchStories = async () => {
+        if (!accessToken) return;
+        setLoading(true);
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
-            const res = await fetch(`${API_BASE}/admin/impact-stories?limit=100`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const queryParams = new URLSearchParams({
+                limit: '100',
+                ...Object.fromEntries(
+                    Object.entries(filters).filter(([_, v]) => v !== undefined)
+                ) as any
+            });
+            const res = await fetch(`${API_BASE}/admin/impact-stories?${queryParams}`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
             if (res.ok) {
@@ -94,10 +105,10 @@ export function ImpactStoriesManager() {
     };
 
     const fetchCampaigns = async () => {
+        if (!accessToken) return;
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/admin/campaigns?status=active`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
             if (res.ok) {
@@ -156,9 +167,7 @@ export function ImpactStoriesManager() {
         };
         reader.readAsDataURL(file);
 
-        const token = localStorage.getItem('mara_bloom_auth_token');
-        if (!token) return;
-
+        if (!accessToken) return;
         setUploading(true);
         const formDataUpload = new FormData();
         formDataUpload.append('image', file);
@@ -167,7 +176,7 @@ export function ImpactStoriesManager() {
             const response = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${accessToken}`,
                 },
                 body: formDataUpload,
             });
@@ -209,7 +218,6 @@ export function ImpactStoriesManager() {
         };
 
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const url = editingStory
                 ? `${API_BASE}/impact-stories/${editingStory.id}`
                 : `${API_BASE}/impact-stories`;
@@ -219,7 +227,7 @@ export function ImpactStoriesManager() {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(payload)
             });
@@ -241,11 +249,11 @@ export function ImpactStoriesManager() {
 
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this story?")) return;
+        if (!accessToken) return;
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/impact-stories/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             if (res.ok) {
                 toast.success("Story deleted");
@@ -275,12 +283,11 @@ export function ImpactStoriesManager() {
         setStories(items.map((item, index) => ({ ...item, priority: items.length - index })));
 
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/admin/reorder`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({ items: updates, type: 'stories' })
             });
@@ -298,13 +305,37 @@ export function ImpactStoriesManager() {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold font-display">Impact Stories</h1>
-                <Badge variant="outline" className="text-primary border-primary rounded-lg px-4 py-1">
-                    {stories.length} Stories
-                </Badge>
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 md:mb-16">
+                <div className="text-center md:text-left max-w-2xl">
+                    <span className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-accent/10 text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                        Voice of Impact
+                    </span>
+                    <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
+                        Impact <span className="text-accent">Story Lab</span>
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
+                        Curate and share stories of resilience and change. Manage media galleries and campaign links.
+                    </p>
+                </div>
+                <div className="flex flex-col items-end gap-2 text-right">
+                    <Badge variant="secondary" className="px-4 py-1.5 rounded-xl font-bold bg-accent/5 text-accent border-none">
+                        {stories.length} Published Chronicles
+                    </Badge>
+                </div>
             </div>
+
+            <AdvancedFilters
+                onFilterChange={setFilters}
+                searchPlaceholder="Search stories by beneficiary, title or content..."
+                statusOptions={[
+                    { label: 'Published', value: 'published' },
+                    { label: 'Draft', value: 'draft' },
+                    { label: 'Archived', value: 'archived' },
+                ]}
+                categoryOptions={campaigns.map(c => ({ label: c.title, value: c.id }))}
+                className="mb-8"
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div className="lg:col-span-1">
@@ -464,17 +495,15 @@ export function ImpactStoriesManager() {
                                                         className="hidden"
                                                         onChange={async (e) => {
                                                             const file = e.target.files?.[0];
-                                                            if (!file) return;
-
-                                                            setUploading(true);
-                                                            const formDataUpload = new FormData();
-                                                            formDataUpload.append('image', file);
-
                                                             try {
-                                                                const token = localStorage.getItem('mara_bloom_auth_token');
+                                                                if (!accessToken) return;
+                                                                setUploading(true);
+                                                                const formDataUpload = new FormData();
+                                                                formDataUpload.append('image', file);
+
                                                                 const res = await fetch(`${API_BASE}/upload`, {
                                                                     method: 'POST',
-                                                                    headers: { 'Authorization': `Bearer ${token}` },
+                                                                    headers: { 'Authorization': `Bearer ${accessToken}` },
                                                                     body: formDataUpload
                                                                 });
                                                                 if (res.ok) {

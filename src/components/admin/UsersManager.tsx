@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, UserPlus, Shield, Key } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from '@/stores/authStore';
+import { AdvancedFilters } from './AdvancedFilters';
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
@@ -29,8 +31,10 @@ interface Role {
 }
 
 export function UsersManager() {
+    const { accessToken } = useAuthStore();
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
+    const [filters, setFilters] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [formData, setFormData] = useState({
@@ -46,14 +50,20 @@ export function UsersManager() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [filters]);
 
     const fetchData = async () => {
+        if (!accessToken) return;
+        setLoading(true);
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
+            const queryParams = new URLSearchParams({
+                ...Object.fromEntries(
+                    Object.entries(filters).filter(([_, v]) => v !== undefined)
+                ) as any
+            });
             const [usersRes, rolesRes] = await Promise.all([
-                fetch(`${API_BASE}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`${API_BASE}/admin/roles`, { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(`${API_BASE}/admin/users?${queryParams}`, { headers: { 'Authorization': `Bearer ${accessToken}` } }),
+                fetch(`${API_BASE}/admin/roles`, { headers: { 'Authorization': `Bearer ${accessToken}` } })
             ]);
 
             if (usersRes.ok) {
@@ -114,19 +124,15 @@ export function UsersManager() {
         }
 
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
+            if (!accessToken) return;
             const url = editingUser ? `${API_BASE}/admin/users/${editingUser.id}` : `${API_BASE}/admin/users`;
             const method = editingUser ? 'PUT' : 'POST';
-
-            // Ensure Admin.tsx logic: roles.map used role.name as value? 
-            // Admin.tsx: value={role.name}
-            // So role sent is name mostly.
 
             const res = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(payload)
             });
@@ -148,11 +154,11 @@ export function UsersManager() {
 
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this user?")) return;
+        if (!accessToken) return;
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/admin/users/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             if (res.ok) {
                 toast.success("User deleted");
@@ -166,13 +172,37 @@ export function UsersManager() {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold font-display">User Management</h1>
-                <Badge variant="outline" className="text-primary border-primary rounded-lg px-4 py-1">
-                    {users.length} Active Users
-                </Badge>
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 md:mb-16">
+                <div className="text-center md:text-left max-w-2xl">
+                    <span className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                        Access Control
+                    </span>
+                    <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
+                        User <span className="text-primary">Administration</span>
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
+                        Manage administrative access, roles, and permissions for the Mara Bloom platform.
+                    </p>
+                </div>
+                <div className="flex flex-col items-end gap-2 text-right">
+                    <Badge variant="secondary" className="px-4 py-1.5 rounded-xl font-bold bg-primary/5 text-primary border-none">
+                        {users.length} Registered Personnel
+                    </Badge>
+                </div>
             </div>
+
+            <AdvancedFilters
+                onFilterChange={setFilters}
+                searchPlaceholder="Search users by name, email or phone..."
+                statusOptions={[
+                    { label: 'Active', value: 'true' },
+                    { label: 'Inactive', value: 'false' },
+                ]}
+                categoryOptions={roles.map(r => ({ label: r.name, value: r.id }))}
+                showDateFilter={false}
+                className="mb-8"
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div className="lg:col-span-1">

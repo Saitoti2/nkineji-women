@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { ApiError } from '../middleware/errorHandler.js';
 import { logger } from '../utils/logger.js';
 import { query } from '../db/connection.js';
+import { PesapalService } from './pesapalService.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2025-02-24.acacia',
@@ -105,7 +106,7 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
         data.currency || 'USD',
         data.paymentMethod,
         data.campaignId || null,
-        'pending',
+        data.status || 'pending',
         JSON.stringify(data.metadata || {}),
       ]
     );
@@ -152,8 +153,76 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
         donation.payment_provider_id = paymentIntent.id;
       } catch (stripeError) {
         logger.error('Stripe PaymentIntent creation failed', stripeError);
-        // We should probably fail the whole transaction if payment init fails
         throw new ApiError('Failed to initiate payment with payment provider', 500);
+      }
+    } else if (data.paymentMethod === 'pesapal') {
+      try {
+        let ipnId = process.env.PESAPAL_IPN_ID;
+
+        if (!ipnId || ipnId === 'your_registered_ipn_id' || ipnId === '') {
+          // Try to fetch an existing IPN if not configured
+          try {
+            const ipns = await PesapalService.listIPNs();
+            if (ipns && ipns.length > 0) {
+              ipnId = ipns[0].ipn_id;
+              logger.info(`Using existing PesaPal IPN: ${ipnId}`);
+            } else {
+              throw new Error('No PesaPal IPN registered. Please register one first.');
+            }
+          } catch (listError: any) {
+            logger.error('Failed to auto-fetch PesaPal IPN', listError);
+            throw new ApiError('PesaPal is not fully configured (Missing IPN ID)', 500);
+          }
+        }
+
+        const callbackUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donations/success?donationId=${donation.id}`;
+
+        // PesaPal (Kenya) processes payments in KES. Convert USD → KES if needed.
+        const USD_TO_KES_RATE = 129; // approximate; can be replaced with a live rate API
+        let pesapalAmount = totalAmount;
+        let pesapalCurrency = donation.currency || 'KES';
+        if (pesapalCurrency === 'USD') {
+          pesapalAmount = Math.round(totalAmount * USD_TO_KES_RATE);
+          pesapalCurrency = 'KES';
+          logger.info(`Converted $${totalAmount} USD → KES ${pesapalAmount} for PesaPal`);
+        }
+
+        const orderData = {
+          id: donation.id,
+          currency: pesapalCurrency,
+          amount: pesapalAmount,
+          description: `Donation for ${data.campaignTitle || 'Nkineji Women Initiative'}`,
+          callback_url: callbackUrl,
+          notification_id: ipnId,
+          billing_address: {
+            email_address: data.donorEmail || 'anonymous@example.com',
+            phone_number: data.donorPhone,
+            first_name: data.donorName?.split(' ')[0] || 'Donor',
+            last_name: data.donorName?.split(' ').slice(1).join(' ') || 'Anonymous',
+          }
+        };
+
+        const pesapalResponse = await PesapalService.submitOrder(orderData);
+        clientSecret = pesapalResponse.redirect_url; // Redirect the user here
+
+        await client.query(
+          'UPDATE donations SET payment_provider_id = $1 WHERE id = $2',
+          [pesapalResponse.order_tracking_id, donation.id]
+        );
+
+        donation.payment_provider_id = pesapalResponse.order_tracking_id;
+      } catch (error: any) {
+        const errorMsg = error.response?.data?.message || error.message;
+        logger.error('PesaPal Submit Order Error', {
+          message: errorMsg,
+          data: error.response?.data,
+          status: error.response?.status
+        });
+        // If PesaPal returns a specific error (e.g., amount too high), treat it as a 400
+        if (error.response?.status === 400) {
+          throw new ApiError(`PesaPal payment initiation failed: ${errorMsg}`, 400);
+        }
+        throw new ApiError(`PesaPal payment initiation failed: ${errorMsg}`, 500);
       }
     }
 
@@ -203,10 +272,11 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
     // Return donation + clientSecret for frontend
     return { ...donation, clientSecret } as any;
 
-  } catch (error) {
+  } catch (error: any) {
     await client.query('ROLLBACK');
+    console.error('CRITICAL DONATION ERROR:', error);
     logger.error('Error creating donation', error);
-    throw new ApiError('Failed to create donation', 500);
+    throw new ApiError(error.message || 'Failed to create donation', 500);
   } finally {
     client.release();
   }
@@ -383,4 +453,63 @@ export const handleMpesaWebhook = async (req: Request): Promise<void> => {
     throw new ApiError('Failed to process webhook', 500);
   }
 };
+export const handlePesapalIPN = async (req: Request): Promise<void> => {
+  try {
+    const { OrderTrackingId, OrderNotificationType } = req.query;
 
+    if (OrderNotificationType === 'IPNCHANGE' && OrderTrackingId) {
+      const statusResponse = await PesapalService.getTransactionStatus(OrderTrackingId as string);
+
+      // Find donation by order tracking ID
+      const result = await query(
+        `SELECT id FROM donations WHERE payment_provider_id = $1`,
+        [OrderTrackingId]
+      );
+
+      if (result.rows.length > 0) {
+        const donationId = result.rows[0].id;
+        let status: 'succeeded' | 'failed' | 'pending' = 'pending';
+
+        // PesaPal statuses: COMPLETED, FAILED, INVALID, CANCELLED, REVERSED
+        if (statusResponse.status_code === 1) { // 1 = COMPLETED in PesaPal v3 usually, but let's check string if possible
+          // According to PesaPal v3 docs, we should check status_code or payment_status_description
+        }
+
+        if (statusResponse.payment_status_description === 'Completed') {
+          status = 'succeeded';
+        } else if (['Failed', 'Invalid', 'Cancelled'].includes(statusResponse.payment_status_description)) {
+          status = 'failed';
+        }
+
+        if (status !== 'pending') {
+          await updateDonationStatus(donationId, status);
+          logger.info(`PesaPal donation ${donationId} status updated to ${status}`);
+        }
+      }
+    }
+  } catch (error) {
+    logger.error('Error handling PesaPal IPN', error);
+    throw new ApiError('Failed to process PesaPal IPN', 500);
+  }
+};
+export const deleteDonation = async (id: string): Promise<void> => {
+  try {
+    const result = await query(
+      `UPDATE donations 
+       SET is_deleted = TRUE, updated_at = NOW()
+       WHERE id = $1 AND is_deleted = FALSE
+       RETURNING id`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new ApiError('Donation not found', 404);
+    }
+
+    logger.info(`Donation ${id} soft deleted.`);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    logger.error('Error deleting donation', error);
+    throw new ApiError('Failed to delete donation', 500);
+  }
+};

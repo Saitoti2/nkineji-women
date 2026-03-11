@@ -17,11 +17,14 @@ healthRouter.get('/', async (req: Request, res: Response) => {
   }
 
   res.json({
-    status: 'ok',
-    database: dbStatus,
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'production',
+    success: true,
+    data: {
+      status: 'healthy',
+      database: dbStatus,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'production',
+    }
   });
 });
 

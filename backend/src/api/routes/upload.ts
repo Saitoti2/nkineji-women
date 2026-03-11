@@ -39,7 +39,7 @@ const upload = multer({
     fileFilter,
 });
 
-router.post('/', authenticate, authorize(['admin', 'super_admin']), upload.single('image'), (req, res) => {
+router.post('/', authenticate, upload.single('image'), (req, res) => {
     if (!req.file) {
         throw new ApiError('No file uploaded', 400);
     }

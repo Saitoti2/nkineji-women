@@ -16,15 +16,15 @@ export interface CampaignItem {
     updated_at: string;
 }
 
-export const getItems = async (filters: { activeOnly?: boolean; campaignId?: string } = {}): Promise<CampaignItem[]> => {
+export const getItems = async (filters: { activeOnly?: boolean; campaignId?: string; search?: string } = {}): Promise<CampaignItem[]> => {
     try {
         let sql = 'SELECT * FROM campaign_items WHERE is_deleted = FALSE';
         const params: any[] = [];
         let paramCount = 1;
 
-        if (filters.activeOnly) {
+        if (filters.activeOnly !== undefined) {
             sql += ` AND is_active = $${paramCount++}`;
-            params.push(true);
+            params.push(filters.activeOnly);
         }
 
         if (filters.campaignId) {
@@ -32,7 +32,14 @@ export const getItems = async (filters: { activeOnly?: boolean; campaignId?: str
             params.push(filters.campaignId);
         }
 
-        sql += ' ORDER BY priority DESC, created_at DESC';
+        if (filters.search) {
+            sql += ` AND (name ILIKE $${paramCount} OR description ILIKE $${paramCount})`;
+            params.push(`%${filters.search}%`);
+            paramCount++;
+        }
+
+        // Defensive ordering until priority is confirmed via migration
+        sql += ' ORDER BY created_at DESC';
 
         const result = await query<CampaignItem>(sql, params);
         return result.rows;

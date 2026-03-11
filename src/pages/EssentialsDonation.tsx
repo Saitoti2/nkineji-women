@@ -78,20 +78,22 @@ export default function EssentialsDonation() {
                 },
                 body: JSON.stringify({
                     amount: totalAmount,
-                    currency: 'USD',
-                    paymentMethod: 'stripe', // Mocking stripe for now
+                    currency: 'KES', // Defaulting to KES for PesaPal
+                    paymentMethod: 'pesapal',
                     items: selectedItems,
-                    // If user is guest, we might need to prompt for details, but assuming logged in or anonymous for now
                 }),
             });
 
             const data = await response.json();
-            if (response.ok) {
+            if (response.ok && data.data?.clientSecret) {
+                toast.success("Redirecting to PesaPal...");
+                window.location.href = data.data.clientSecret;
+            } else if (response.ok) {
                 toast.success("Thank you! Your donation has been initiated.");
                 setQuantities({});
-                // Redirect or show success modal
             } else {
-                toast.error(data.message || "Donation failed");
+                const errorMsg = data.error || data.message || "Donation failed";
+                toast.error(errorMsg);
             }
         } catch (error) {
             toast.error("Network error. Please try again.");

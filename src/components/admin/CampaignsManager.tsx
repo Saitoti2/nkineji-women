@@ -11,6 +11,8 @@ import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Upload, GripVertical, 
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { useAuthStore } from '@/stores/authStore';
+import { AdvancedFilters } from './AdvancedFilters';
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
@@ -30,7 +32,9 @@ interface Campaign {
 }
 
 export function CampaignsManager() {
+    const { accessToken } = useAuthStore();
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+    const [filters, setFilters] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
     const [formData, setFormData] = useState({
@@ -51,14 +55,21 @@ export function CampaignsManager() {
 
     useEffect(() => {
         fetchCampaigns();
-    }, []);
+    }, [filters]);
 
     const fetchCampaigns = async () => {
+        if (!accessToken) return;
+        setLoading(true);
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
-            // Fetch without limit to manage all for reordering
-            const res = await fetch(`${API_BASE}/admin/campaigns?limit=100`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const queryParams = new URLSearchParams({
+                limit: '100',
+                ...Object.fromEntries(
+                    Object.entries(filters).filter(([_, v]) => v !== undefined)
+                ) as any
+            });
+            // Fetch with filters
+            const res = await fetch(`${API_BASE}/admin/campaigns?${queryParams}`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
             if (res.ok) {
@@ -120,9 +131,7 @@ export function CampaignsManager() {
         };
         reader.readAsDataURL(file);
 
-        const token = localStorage.getItem('mara_bloom_auth_token');
-        if (!token) return;
-
+        if (!accessToken) return;
         setUploading(true);
         const formDataUpload = new FormData();
         formDataUpload.append('image', file);
@@ -131,7 +140,7 @@ export function CampaignsManager() {
             const response = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${accessToken}`,
                 },
                 body: formDataUpload,
             });
@@ -168,7 +177,6 @@ export function CampaignsManager() {
         };
 
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const url = editingCampaign ? `${API_BASE}/campaigns/${editingCampaign.id}` : `${API_BASE}/campaigns`;
             const method = editingCampaign ? 'PUT' : 'POST';
 
@@ -176,7 +184,7 @@ export function CampaignsManager() {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(payload)
             });
@@ -198,11 +206,11 @@ export function CampaignsManager() {
 
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this campaign?")) return;
+        if (!accessToken) return;
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/campaigns/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             if (res.ok) {
                 toast.success("Campaign deleted");
@@ -232,12 +240,11 @@ export function CampaignsManager() {
         setCampaigns(items.map((item, index) => ({ ...item, priority: items.length - index })));
 
         try {
-            const token = localStorage.getItem('mara_bloom_auth_token');
             const res = await fetch(`${API_BASE}/admin/reorder`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({ items: updates, type: 'campaigns' })
             });
@@ -255,13 +262,55 @@ export function CampaignsManager() {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold font-display">Campaign Command</h1>
-                <Badge variant="outline" className="text-primary border-primary rounded-lg px-4 py-1">
-                    {campaigns.length} Initiatives
-                </Badge>
+        <div className="space-y-12">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 md:mb-16">
+                <div className="text-center md:text-left max-w-2xl">
+                    <span className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+                        Growth & Fundraising
+                    </span>
+                    <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
+                        Campaign <span className="text-primary">Command</span>
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
+                        Design, launch, and monitor fundraising initiatives. Track progress and manage reordering.
+                    </p>
+                </div>
+
+                {!editingCampaign && !formData.title && (
+                    <Button
+                        onClick={() => {
+                            setFormData({
+                                title: 'New Campaign',
+                                description: '',
+                                goalAmount: '',
+                                startDate: '',
+                                endDate: '',
+                                earmark: '',
+                                status: 'draft',
+                                image_url: '',
+                                category: '',
+                                priority: '0',
+                            });
+                            window.scrollTo({ top: 300, behavior: 'smooth' }); // Adjusted scroll
+                        }}
+                        className="h-14 px-8 rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all font-bold gap-2"
+                    >
+                        <Plus className="w-5 h-5" /> Create Campaign
+                    </Button>
+                )}
             </div>
+
+            <AdvancedFilters
+                onFilterChange={setFilters}
+                searchPlaceholder="Search campaigns by title or description..."
+                statusOptions={[
+                    { label: 'Active', value: 'active' },
+                    { label: 'Draft', value: 'draft' },
+                    { label: 'Paused', value: 'paused' },
+                    { label: 'Completed', value: 'completed' },
+                ]}
+                className="mb-8"
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div className="lg:col-span-1">

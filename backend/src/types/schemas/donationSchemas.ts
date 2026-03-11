@@ -5,7 +5,7 @@ export const createDonationSchema = z.object({
     amount: z.number().positive(),
     currency: z.enum(['USD', 'KES', 'EUR']).default('USD'),
     campaignId: z.string().uuid().optional(),
-    paymentMethod: z.enum(['stripe', 'mpesa', 'bank_transfer']),
+    paymentMethod: z.enum(['stripe', 'pesapal', 'mpesa', 'bank_transfer']),
     paymentToken: z.string().optional(), // For Stripe token or M-PESA phone
     donorName: z.string().min(1).optional(),
     donorEmail: z.string().email().optional(),

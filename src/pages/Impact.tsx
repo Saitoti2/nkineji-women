@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MapPin, Calendar, Users, ArrowRight, Play, Image as ImageIcon } from "lucide-react";
+import { Heart, MessageCircle, Share2, MapPin, Calendar, Users, ArrowRight, Play, Image as ImageIcon, Filter } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StoryViewerModal } from "@/components/impact/StoryViewerModal";
 import { DynamicNavbar } from "@/components/layout/DynamicNavbar";
+import { UserFilters } from "@/components/layout/UserFilters";
 
 // API fetching
 const fetchImpactStories = async () => {
@@ -22,6 +23,8 @@ export default function Impact() {
     const [searchParams] = useSearchParams();
     const [selectedStory, setSelectedStory] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('all');
 
     const { data: stories = [], isLoading } = useQuery({
         queryKey: ["impact-stories"],
@@ -44,6 +47,25 @@ export default function Impact() {
         setIsModalOpen(true);
     };
 
+    const filteredStories = stories.filter((story: any) => {
+        const matchesSearch = story.beneficiary_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            story.content.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesCategory = categoryFilter === 'all' ||
+            story.campaign_id === categoryFilter ||
+            story.status === categoryFilter; // Simple fallback/category mapping
+
+        return matchesSearch && matchesCategory;
+    });
+
+    const categories = [
+        { label: 'All Stories', value: 'all' },
+        { label: 'Published', value: 'published' },
+        { label: 'Rescue', value: 'rescue' }, // These should eventually be fetched from campaigns
+        { label: 'Economic', value: 'economic' },
+    ];
+
     return (
         <main className="min-h-screen pt-20 pb-20 bg-background overflow-x-hidden">
             <DynamicNavbar />
@@ -63,6 +85,17 @@ export default function Impact() {
                 </div>
             </section>
 
+            {/* Filters */}
+            <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+                <UserFilters
+                    onSearchChange={setSearchQuery}
+                    onCategoryChange={setCategoryFilter}
+                    searchPlaceholder="Search stories by beneficiary, title or content..."
+                    categories={categories}
+                    className="max-w-5xl mx-auto"
+                />
+            </section>
+
             {/* Stories Grid */}
             <section className="container mx-auto px-4 sm:px-6 lg:px-8">
                 {isLoading ? (
@@ -80,13 +113,29 @@ export default function Impact() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
-                        {stories.map((story: any) => (
+                        {filteredStories.map((story: any) => (
                             <ImpactStoryCard
                                 key={story.id}
                                 story={story}
                                 onClick={() => handleStoryClick(story)}
                             />
                         ))}
+                    </div>
+                )}
+                {!isLoading && filteredStories.length === 0 && (
+                    <div className="text-center py-32 bg-card/40 backdrop-blur-md rounded-[3rem] border border-dashed border-border/60 max-w-5xl mx-auto">
+                        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Filter className="w-10 h-10 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">No stories matching your filters</h3>
+                        <p className="text-muted-foreground">Try broadening your search or choosing a different category.</p>
+                        <Button
+                            variant="outline"
+                            className="mt-8 rounded-2xl"
+                            onClick={() => { setSearchQuery(''); setCategoryFilter('all'); }}
+                        >
+                            Reset Filters
+                        </Button>
                     </div>
                 )}
             </section>

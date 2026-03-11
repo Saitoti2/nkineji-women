@@ -1,40 +1,32 @@
-import { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { DynamicNavbar } from "@/components/layout/DynamicNavbar";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Gift, Users, ArrowRight, Star, Calendar } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const [userData, setUserData] = useState<any>(null);
+    const { user } = useAuthStore();
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user_data');
-        if (!storedUser) {
-            navigate('/login');
-            return;
-        }
-        setUserData(JSON.parse(storedUser));
-    }, [navigate]);
-
-    if (!userData) return null;
+    if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col font-body">
             <DynamicNavbar />
 
             <main className="flex-grow container mx-auto px-4 py-8 pt-32">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                         <div>
-                            <h1 className="text-4xl font-bold font-display mb-2">Welcome back, {userData.name}!</h1>
+                            <h1 className="text-4xl font-bold font-display mb-2">Welcome back, {user.name || 'Friend'}!</h1>
                             <p className="text-muted-foreground">See the impact of your support and find new ways to help.</p>
                         </div>
                         <Badge variant="outline" className="px-4 py-2 rounded-full border-primary/20 text-primary bg-primary/5">
-                            Active Supporter
+                            {user.role === 'donor' ? 'Active Supporter' : user.role.replace('_', ' ')}
                         </Badge>
                     </div>
 
@@ -43,7 +35,7 @@ export default function Dashboard() {
                             <CardContent className="p-8">
                                 <Heart className="w-10 h-10 text-primary mb-4" />
                                 <h3 className="text-2xl font-bold mb-1">Impact Made</h3>
-                                <p className="text-muted-foreground text-sm mb-4">You've supported 3 initiatives this year.</p>
+                                <p className="text-muted-foreground text-sm mb-4">You've supported our initiatives this year.</p>
                                 <Button variant="link" className="p-0 h-auto text-primary font-bold" onClick={() => navigate('/impact')}>
                                     View stories <ArrowRight className="ml-2 w-4 h-4" />
                                 </Button>
@@ -54,7 +46,7 @@ export default function Dashboard() {
                             <CardContent className="p-8">
                                 <Gift className="w-10 h-10 text-accent mb-4" />
                                 <h3 className="text-2xl font-bold mb-1">Open Initiatives</h3>
-                                <p className="text-muted-foreground text-sm mb-4">There are 5 campaigns needing support right now.</p>
+                                <p className="text-muted-foreground text-sm mb-4">Explore campaigns needing support right now.</p>
                                 <Button variant="link" className="p-0 h-auto text-accent font-bold" onClick={() => navigate('/campaigns')}>
                                     Explore all <ArrowRight className="ml-2 w-4 h-4" />
                                 </Button>
@@ -65,7 +57,7 @@ export default function Dashboard() {
                             <CardContent className="p-8">
                                 <Users className="w-10 h-10 text-secondary mb-4" />
                                 <h3 className="text-2xl font-bold mb-1">Community</h3>
-                                <p className="text-muted-foreground text-sm mb-4">Join 1,200+ supporters in making a difference.</p>
+                                <p className="text-muted-foreground text-sm mb-4">Join hundreds of supporters in making a difference.</p>
                                 <Button variant="link" className="p-0 h-auto text-secondary font-bold" onClick={() => navigate('/impact')}>
                                     Join discussion <ArrowRight className="ml-2 w-4 h-4" />
                                 </Button>
@@ -76,9 +68,8 @@ export default function Dashboard() {
                     <h2 className="text-2xl font-bold font-display mb-6">Recent Activity</h2>
                     <div className="space-y-4">
                         {[
-                            { title: 'New Impact Story Published', type: 'story', date: '2 days ago', initiative: 'Literacy for All' },
-                            { title: 'Donation Received', type: 'donation', date: '1 week ago', initiative: 'Rescue Center' },
-                            { title: 'Community Goal Reached!', type: 'milestone', date: '2 weeks ago', initiative: 'Water Project' },
+                            { title: 'New Impact Story Published', type: 'story', date: 'Just now', initiative: 'Literacy for All' },
+                            { title: 'Goal Reached!', type: 'milestone', date: 'Recently', initiative: 'Rescue Center' },
                         ].map((item, i) => (
                             <div key={i} className="flex items-center p-6 rounded-3xl bg-card shadow-sm border border-border/50 hover:border-primary/20 transition-all group">
                                 <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mr-6 group-hover:scale-110 transition-transform">

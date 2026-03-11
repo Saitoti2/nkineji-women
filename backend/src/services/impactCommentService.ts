@@ -64,6 +64,9 @@ export const getCommentsByStory = async (storyId: string, userId?: string, visit
 
 export const addComment = async (data: any) => {
     try {
+        // Ensure we default to 'Visitor' only if no identity is present
+        const authorName = data.user_name && data.user_name !== 'Visitor' ? data.user_name : (data.user_id ? 'Authenticated User' : 'Visitor');
+
         const result = await query<Comment>(
             `INSERT INTO impact_comments (story_id, parent_comment_id, user_id, user_name, user_avatar, content, visitor_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -72,7 +75,7 @@ export const addComment = async (data: any) => {
                 data.story_id,
                 data.parent_comment_id || null,
                 data.user_id || null,
-                data.user_name || 'Visitor',
+                authorName,
                 data.user_avatar || null,
                 data.content,
                 data.visitor_id || null

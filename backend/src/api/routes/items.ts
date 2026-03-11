@@ -10,10 +10,11 @@ export const itemsRouter = Router();
 // GET /api/v1/items - Public
 itemsRouter.get('/', async (req, res, next) => {
     try {
-        const { activeOnly, _campaignId } = req.query;
+        const { activeOnly, campaignId, search } = req.query;
         const items = await getItems({
-            activeOnly: activeOnly === 'true',
-            campaignId: req.query.campaignId as string,
+            activeOnly: activeOnly === 'true' || activeOnly === 'active',
+            campaignId: campaignId as string,
+            search: search as string,
         });
         res.json({ success: true, data: items });
     } catch (error) {

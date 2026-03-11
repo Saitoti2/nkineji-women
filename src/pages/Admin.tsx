@@ -17,6 +17,7 @@ import { DonationsManager } from '@/components/admin/DonationsManager';
 import { BeneficiariesManager } from '@/components/admin/BeneficiariesManager';
 import { UsersManager } from '@/components/admin/UsersManager';
 import { PaymentSettingsManager } from '@/components/admin/PaymentSettingsManager';
+import { useAuthStore } from '@/stores/authStore';
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
@@ -29,59 +30,40 @@ interface DashboardStats {
 
 export function Admin() {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, accessToken, setAuth, logout } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadDashboardData();
-    }
-  }, [isAuthenticated, activeTab]);
-
-  const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem('mara_bloom_auth_token');
-      if (!token) {
-        navigate('/admin/login');
-        return;
-      }
-
-      // Verify token is valid by making a test request
-      const response = await fetch(`${API_BASE}/admin/dashboard/stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(true);
-      } else {
-        localStorage.removeItem('mara_bloom_auth_token');
-        navigate('/admin/login');
-      }
-    } catch (error) {
-      localStorage.removeItem('mara_bloom_auth_token');
-      navigate('/admin/login');
-    } finally {
+    if (user && accessToken) {
       setLoading(false);
+      loadDashboardData();
+    } else {
+      // ProtectedRoute should handle this, but for extra safety:
+      const checkPersistence = async () => {
+        // Wait a bit for zustand rehydration
+        setTimeout(() => {
+          if (!useAuthStore.getState().isAuthenticated) {
+            navigate('/login');
+          } else {
+            setLoading(false);
+            loadDashboardData();
+          }
+        }, 500);
+      };
+      checkPersistence();
     }
-  };
+  }, [user, activeTab]);
 
   const loadDashboardData = async () => {
-    const token = localStorage.getItem('mara_bloom_auth_token');
-    if (!token) return;
+    if (!accessToken) return;
 
     try {
       if (activeTab === 'dashboard' || activeTab === 'campaigns') {
+        console.log('Fetching dashboard stats with token:', accessToken ? 'Present' : 'Missing');
         const statsRes = await fetch(`${API_BASE}/admin/dashboard/stats`, {
-          headers: { 'Authorization': `Bearer ${token}` },
+          headers: { 'Authorization': `Bearer ${accessToken}` },
         });
 
         if (statsRes.ok) {
@@ -112,10 +94,8 @@ export function Admin() {
 
       const data = await response.json();
 
-      if (response.ok && (data.user?.role === 'admin' || data.user?.role === 'super_admin')) {
-        localStorage.setItem('mara_bloom_auth_token', data.accessToken);
-        localStorage.setItem('mara_bloom_refresh_token', data.refreshToken);
-        setIsAuthenticated(true);
+      if (response.ok && (data.user?.role === 'admin' || data.user?.role === 'super_admin' || data.user?.role === 'chief_admin')) {
+        setAuth(data.user, data.accessToken, data.refreshToken);
         navigate('/admin');
         toast({
           title: 'Success',
@@ -138,10 +118,8 @@ export function Admin() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('mara_bloom_auth_token');
-    localStorage.removeItem('mara_bloom_refresh_token');
-    setIsAuthenticated(false);
-    navigate('/admin/login');
+    logout();
+    navigate('/login');
   };
 
 
@@ -159,8 +137,8 @@ export function Admin() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <AdminLogin onLogin={handleLogin} />;
+  if (!user) {
+    return <div className="p-20 text-center">Redirecting to login...</div>;
   }
 
   return (

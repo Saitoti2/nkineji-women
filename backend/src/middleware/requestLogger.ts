@@ -12,6 +12,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       status: res.statusCode,
       duration: `${duration}ms`,
       ip: req.ip,
+      hasAuth: !!req.headers.authorization,
       userAgent: req.get('user-agent'),
     });
   });

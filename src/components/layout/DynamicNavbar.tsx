@@ -8,7 +8,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useDonationStore } from "@/stores/donationStore";
 import { usePWA } from "@/hooks/usePWA";
-import { LogIn, Download, LogOut, LayoutDashboard } from "lucide-react";
+import { LogIn, Download, LogOut, LayoutDashboard, User } from "lucide-react";
+import { useAuthStore } from "@/stores/authStore";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 const navLinks = [
@@ -46,30 +48,18 @@ export function DynamicNavbar() {
   const { openDonationModal } = useDonationStore();
   const { isInstallable, installApp, isInstalled } = usePWA();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAuthenticated, user, logout: storeLogout } = useAuthStore();
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'chief_admin';
 
   useEffect(() => {
-    const token = localStorage.getItem('mara_bloom_auth_token');
-    const userDataStr = localStorage.getItem('user_data');
-    setIsLoggedIn(!!token);
-
-    if (userDataStr) {
-      try {
-        const user = JSON.parse(userDataStr);
-        setIsAdmin(user.role === 'admin' || user.role === 'super_admin');
-      } catch (e) {
-        console.error("Failed to parse user data", e);
-      }
-    }
+    // Sync state if needed, though useAuthStore handles most of it
   }, [location.pathname]);
 
   const handleLogout = () => {
+    storeLogout();
     localStorage.removeItem('mara_bloom_auth_token');
     localStorage.removeItem('mara_bloom_refresh_token');
     localStorage.removeItem('user_data');
-    setIsLoggedIn(false);
-    setIsAdmin(false);
     navigate('/');
     setIsMobileMenuOpen(false);
   };
@@ -390,14 +380,35 @@ export function DynamicNavbar() {
               isScrolled && !isExpanded ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
             )}
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="hidden sm:flex"
-            >
-              <a href="/login">Login</a>
-            </Button>
+            {!isAuthenticated ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="hidden sm:flex"
+              >
+                <a href="/login">Login</a>
+              </Button>
+            ) : (
+              <div className="hidden sm:flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="gap-2 px-2 hover:bg-primary/5"
+                >
+                  <a href="/profile" className="flex items-center gap-2">
+                    <Avatar className="w-8 h-8 border border-primary/20">
+                      <AvatarImage src={user?.avatar} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden md:inline font-semibold">Profile</span>
+                  </a>
+                </Button>
+              </div>
+            )}
             <Button
               variant="donate"
               size="sm"
@@ -526,7 +537,7 @@ export function DynamicNavbar() {
                       </div>
                     </div>
 
-                    {!isLoggedIn ? (
+                    {!isAuthenticated ? (
                       <Button
                         variant="outline"
                         className="w-full justify-start gap-3 h-12 rounded-xl"
@@ -545,12 +556,25 @@ export function DynamicNavbar() {
                           className="w-full justify-start gap-3 h-12 rounded-xl hover:bg-muted/50"
                           onClick={() => {
                             setIsMobileMenuOpen(false);
-                            navigate(isAdmin ? '/admin' : '/dashboard');
+                            navigate('/profile');
                           }}
                         >
-                          <LayoutDashboard className="w-4 h-4" />
-                          {isAdmin ? 'Admin Dashboard' : 'Dashboard'}
+                          <User className="w-4 h-4" />
+                          My Profile & History
                         </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-3 h-12 rounded-xl hover:bg-muted/50"
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              navigate('/admin');
+                            }}
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            Admin Dashboard
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           className="w-full justify-start gap-3 h-12 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"

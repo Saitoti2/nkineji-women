@@ -39,8 +39,10 @@ export const login = async (credentials: LoginCredentials): Promise<LoginResult>
       role_id: string;
       organisation_id?: string;
       is_active: boolean;
+      role_name: string;
+      permissions: string[];
     }>(
-      `SELECT u.id, u.email, u.password_hash, u.role_id, u.organisation_id, u.is_active, r.name as role_name
+      `SELECT u.id, u.email, u.password_hash, u.role_id, u.organisation_id, u.is_active, r.name as role_name, r.permissions
        FROM users u
        JOIN roles r ON u.role_id = r.id
        WHERE u.email = $1 AND u.is_deleted = FALSE`,
@@ -75,7 +77,8 @@ export const login = async (credentials: LoginCredentials): Promise<LoginResult>
     const authUser: AuthUser = {
       id: user.id,
       email: user.email,
-      role: (user as any).role_name,
+      role: user.role_name,
+      permissions: user.permissions,
       organisationId: user.organisation_id,
     };
 
@@ -84,7 +87,7 @@ export const login = async (credentials: LoginCredentials): Promise<LoginResult>
     // Store refresh token
     await query(
       `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-       VALUES ($1, $2, NOW() + INTERVAL '7 days')`,
+       VALUES ($1, $2, NOW() + INTERVAL '90 days')`,
       [user.id, await bcrypt.hash(tokens.refreshToken, 10)]
     );
 
@@ -101,8 +104,10 @@ export const login = async (credentials: LoginCredentials): Promise<LoginResult>
       role_id: string;
       organisation_id?: string;
       is_active: boolean;
+      role_name: string;
+      permissions: string[];
     }>(
-      `SELECT u.id, u.phone, u.role_id, u.organisation_id, u.is_active, r.name as role_name
+      `SELECT u.id, u.phone, u.role_id, u.organisation_id, u.is_active, r.name as role_name, r.permissions
        FROM users u
        JOIN roles r ON u.role_id = r.id
        WHERE u.phone = $1 AND u.is_deleted = FALSE`,
@@ -128,7 +133,8 @@ export const login = async (credentials: LoginCredentials): Promise<LoginResult>
     const authUser: AuthUser = {
       id: user.id,
       email: `${user.phone}@phone.local`,
-      role: (user as any).role_name,
+      role: user.role_name,
+      permissions: user.permissions,
       organisationId: user.organisation_id,
     };
 
@@ -163,6 +169,8 @@ export const register = async (data: RegisterData): Promise<LoginResult> => {
     organisation_id?: string;
     is_active: boolean;
     name: string;
+    role_name: string;
+    permissions: string[];
   }>(
     `INSERT INTO users (name, email, phone, password_hash, role_id, is_active)
      VALUES ($1, $2, $3, $4, $5, TRUE)
@@ -171,11 +179,15 @@ export const register = async (data: RegisterData): Promise<LoginResult> => {
   );
 
   const user = userResult.rows[0];
+  // Re-fetch roles to get permissions (or join in RETURNING if DB supported, but simpler this way)
+  const roleData = await query<{ name: string, permissions: string[] }>('SELECT name, permissions FROM roles WHERE id = $1', [user.role_id]);
+  const role = roleData.rows[0];
 
   const authUser: AuthUser = {
     id: user.id,
     email: user.email,
-    role: 'community_rep', // Default role
+    role: role.name,
+    permissions: role.permissions,
     organisationId: user.organisation_id,
   };
 
@@ -400,6 +412,7 @@ export const verifyOTP = async (phone: string, otp: string): Promise<LoginResult
     id: user.id,
     email: user.email || `${user.phone}@phone.local`,
     role: user.role_name,
+    permissions: user.permissions,
     organisationId: user.organisation_id,
   };
 
@@ -431,7 +444,7 @@ function generateAccessToken(user: AuthUser): string {
   }
 
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role, organisationId: user.organisationId },
+    { id: user.id, email: user.email, role: user.role, permissions: user.permissions, organisationId: user.organisationId },
     secret,
     { expiresIn: expiresIn as any }
   );
@@ -439,16 +452,141 @@ function generateAccessToken(user: AuthUser): string {
 
 function generateRefreshToken(user: AuthUser): string {
   const secret = process.env.JWT_REFRESH_SECRET;
-  const expiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+  const expiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '90d';
 
   if (!secret) {
     throw new Error('JWT_REFRESH_SECRET not configured');
   }
 
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role: user.role, permissions: user.permissions },
     secret,
     { expiresIn: expiresIn as any }
   );
 }
+
+export const googleLogin = async (
+  idToken?: string,
+  accessToken?: string,
+  directInfo?: { googleId: string; email: string; name?: string; avatar?: string }
+): Promise<LoginResult> => {
+  let payload: { sub: string; email: string; email_verified: boolean; name?: string; picture?: string };
+
+  if (accessToken) {
+    // Verify via Google userinfo endpoint (works with popup/implicit token flow)
+    const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!response.ok) throw new ApiError('Invalid Google access token', 401);
+    payload = await response.json() as any;
+    if (!payload.email) throw new ApiError('Could not retrieve email from Google', 401);
+    // userinfo endpoint doesn't always have email_verified, treat as verified if we got here
+    payload.email_verified = true;
+
+  } else if (idToken) {
+    // Verify via tokeninfo endpoint (legacy GSI id_token flow)
+    const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+    if (!response.ok) throw new ApiError('Invalid Google ID token', 401);
+    payload = await response.json() as any;
+    if (!payload.email_verified) throw new ApiError('Google email not verified', 401);
+
+  } else if (directInfo) {
+    // Dev/fallback: trust provided user info directly
+    payload = {
+      sub: directInfo.googleId,
+      email: directInfo.email,
+      email_verified: true,
+      name: directInfo.name,
+      picture: directInfo.avatar,
+    };
+
+  } else {
+    throw new ApiError('No authentication token provided', 400);
+  }
+
+  // Find or create user by email or google_id
+  let userResult = await query<any>(
+    `SELECT u.id, u.email, u.name, r.name as role_name, r.permissions, u.is_active, u.google_id
+     FROM users u
+     JOIN roles r ON u.role_id = r.id
+     WHERE u.email = $1 OR u.google_id = $2`,
+    [payload.email, payload.sub]
+  );
+
+  let user: any;
+
+  if (userResult.rows.length === 0) {
+    // Specialized roles for specific emails
+    let roleName = 'donor';
+    if (payload.email === 'saitotinjapit2@gmail.com') {
+      roleName = 'super_admin';
+    } else if (payload.email === 'nkinejiwomeninitiative@gmail.com') {
+      roleName = 'chief_admin';
+    }
+
+    const roleResult = await query<{ id: string; name: string; permissions: string[] }>(
+      "SELECT id, name, permissions FROM roles WHERE name = $1",
+      [roleName]
+    );
+    if (!roleResult.rows[0]) throw new ApiError(`Role ${roleName} not found`, 500);
+    const targetRole = roleResult.rows[0];
+
+    const newUser = await query<any>(
+      `INSERT INTO users (name, email, google_id, role_id, is_active)
+       VALUES ($1, $2, $3, $4, TRUE)
+       RETURNING id, email, name`,
+      [payload.name || payload.email.split('@')[0], payload.email, payload.sub, targetRole.id]
+    );
+    user = { ...newUser.rows[0], role_name: targetRole.name, permissions: targetRole.permissions, is_active: true };
+
+  } else {
+    user = userResult.rows[0];
+
+    // Ensure roles are correct even for existing users if their email matches the special ones
+    let forceRole: string | null = null;
+    if (user.email === 'saitotinjapit2@gmail.com' && user.role_name !== 'super_admin') {
+      forceRole = 'super_admin';
+    } else if (user.email === 'nkinejiwomeninitiative@gmail.com' && user.role_name !== 'chief_admin') {
+      forceRole = 'chief_admin';
+    }
+
+    if (forceRole) {
+      const roleResult = await query<{ id: string; name: string; permissions: string[] }>(
+        "SELECT id, name, permissions FROM roles WHERE name = $1",
+        [forceRole]
+      );
+      if (roleResult.rows[0]) {
+        await query('UPDATE users SET role_id = $1 WHERE id = $2', [roleResult.rows[0].id, user.id]);
+        user.role_name = roleResult.rows[0].name;
+        user.permissions = roleResult.rows[0].permissions;
+      }
+    }
+
+    // Update google_id if it wasn't set yet (user registered via email first)
+    if (!user.google_id && payload.sub) {
+      await query('UPDATE users SET google_id = $1 WHERE id = $2', [payload.sub, user.id]);
+    }
+  }
+
+  if (!user.is_active) throw new ApiError('Account is inactive', 403);
+
+  const authUser: AuthUser = {
+    id: user.id,
+    email: user.email,
+    role: user.role_name,
+    permissions: user.permissions || [],
+    name: user.name,
+  } as any;
+
+  const tokens = generateTokens(authUser);
+
+  await query(
+    `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+     VALUES ($1, $2, NOW() + INTERVAL '90 days')`,
+    [user.id, await bcrypt.hash(tokens.refreshToken, 10)]
+  );
+
+  logger.info(`Google login: ${user.email} (role: ${user.role_name})`);
+  return { user: { ...authUser, name: user.name } as any, ...tokens };
+};
 

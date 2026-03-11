@@ -24,6 +24,7 @@ import { impactStoryRouter } from './api/routes/impactStories.js';
 import { impactCommentRouter } from './api/routes/impactComments.js';
 import { uploadRouter } from './api/routes/upload.js';
 import { settingsRouter } from './api/routes/settings.js';
+import { userRouter } from './api/routes/users.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -41,7 +42,8 @@ if (process.env.VERCEL) {
 // Security & Middleware
 app.use(helmet({
     crossOriginResourcePolicy: false,
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false
 }));
 app.use(cors({
     origin: [
@@ -108,7 +110,7 @@ app.get(`${API_PREFIX}/debug-test`, (req, res) => res.status(200).json({ status:
 console.log('Registering upload router at', `${API_PREFIX}/upload`);
 app.use(`${API_PREFIX}/upload`, uploadRouter);
 app.use(`${API_PREFIX}/settings`, settingsRouter);
-// Assuming generic health check or module
+app.use(`${API_PREFIX}/users`, userRouter);
 
 // 404 Handler
 app.use((req, res, next) => {

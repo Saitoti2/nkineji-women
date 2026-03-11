@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/authStore";
 import { Heart, Reply, MoreHorizontal, Send, Trash2, Edit2, X, Check } from "lucide-react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,45 +23,57 @@ function getVisitorId() {
 
 export function CommentSection({ storyId }: { storyId: string }) {
     const queryClient = useQueryClient();
+    const { user, accessToken } = useAuthStore();
     const [newComment, setNewComment] = useState("");
-    const [visitorId, setVisitorId] = useState<string>("");
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState("");
+    const [visitorId, setVisitorId] = useState<string>("");
 
     useEffect(() => {
         setVisitorId(getVisitorId());
     }, []);
 
+    const API_BASE = import.meta.env.VITE_API_URL; // Define API_BASE as it's used in the instruction snippet
+
     const { data: comments = [], isLoading } = useQuery({
-        queryKey: ["comments", storyId],
+        queryKey: ['story-comments', storyId],
         queryFn: async () => {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/impact-comments/story/${storyId}`);
-            const result = await res.json();
-            return result.data;
-        },
-        refetchInterval: 5000,
+            const visitorId = getVisitorId();
+            const url = new URL(`${API_BASE}/impact-comments/story/${storyId}`);
+            if (user?.id) url.searchParams.append('userId', user.id);
+            else url.searchParams.append('visitor_id', visitorId);
+
+            const res = await fetch(url.toString());
+            const data = await res.json();
+            return data.data || [];
+        }
     });
 
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
-    const commentMutation = useMutation({
-        mutationFn: async ({ text, parentId }: { text: string; parentId?: string }) => {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/impact-comments`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+    const addCommentMutation = useMutation({
+        mutationFn: async ({ content, parentId }: { content: string; parentId?: string }) => {
+            const visitorId = getVisitorId();
+            const res = await fetch(`${API_BASE}/impact-comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : { 'x-visitor-id': visitorId })
+                },
                 body: JSON.stringify({
                     story_id: storyId,
-                    content: text,
-                    visitor_id: visitorId,
-                    parent_comment_id: parentId
-                }),
+                    parent_comment_id: parentId,
+                    content,
+                    user_name: user?.name || undefined, // Backend will use req.user.name if token is present
+                    visitor_id: user ? null : visitorId
+                })
             });
             return res.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["comments", storyId] });
+            queryClient.invalidateQueries({ queryKey: ['story-comments', storyId] });
             setNewComment("");
-            setReplyingTo(null);
+            setReplyingTo(null); // Changed from setReplyTo to setReplyingTo for consistency
             toast.success("Comment posted!");
             // Only scroll to bottom if it's a new root comment
             if (!replyingTo) {
@@ -74,26 +87,34 @@ export function CommentSection({ storyId }: { storyId: string }) {
 
     const deleteMutation = useMutation({
         mutationFn: async (commentId: string) => {
-            await fetch(`${import.meta.env.VITE_API_URL}/impact-comments/${commentId}?visitor_id=${visitorId}`, {
+            const visitorId = getVisitorId();
+            await fetch(`${API_BASE}/impact-comments/${commentId}?visitor_id=${user ? '' : visitorId}`, {
                 method: "DELETE",
+                headers: {
+                    ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+                }
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["comments", storyId] });
+            queryClient.invalidateQueries({ queryKey: ['story-comments', storyId] });
             toast.success("Comment deleted");
         },
     });
 
     const editMutation = useMutation({
         mutationFn: async ({ id, text }: { id: string; text: string }) => {
-            await fetch(`${import.meta.env.VITE_API_URL}/impact-comments/${id}`, {
+            const visitorId = getVisitorId();
+            await fetch(`${API_BASE}/impact-comments/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: text, visitor_id: visitorId }),
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {})
+                },
+                body: JSON.stringify({ content: text, visitor_id: user ? null : visitorId }),
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["comments", storyId] });
+            queryClient.invalidateQueries({ queryKey: ['story-comments', storyId] });
             setEditingId(null);
             toast.success("Comment updated");
         },
@@ -101,17 +122,18 @@ export function CommentSection({ storyId }: { storyId: string }) {
 
     const reactionMutation = useMutation({
         mutationFn: async ({ commentId, type }: { commentId: string; type: string }) => {
-            await fetch(`${import.meta.env.VITE_API_URL}/impact-comments/${commentId}/react`, {
+            const visitorId = getVisitorId();
+            await fetch(`${API_BASE}/impact-comments/${commentId}/react`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-visitor-id": visitorId
+                    ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : { "x-visitor-id": visitorId })
                 },
-                body: JSON.stringify({ reaction_type: type, visitor_id: visitorId }),
+                body: JSON.stringify({ reaction_type: type, visitor_id: user ? null : visitorId }),
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["comments", storyId] });
+            queryClient.invalidateQueries({ queryKey: ['story-comments', storyId] });
         }
     });
 
@@ -167,7 +189,7 @@ export function CommentSection({ storyId }: { storyId: string }) {
                                         onReply={(id) => setReplyingTo(id)}
                                         replyingTo={replyingTo}
                                         onCancelReply={() => setReplyingTo(null)}
-                                        onSubmitReply={(text, parentId) => commentMutation.mutate({ text, parentId })}
+                                        onSubmitReply={(content, parentId) => addCommentMutation.mutate({ content, parentId })}
                                         onReact={(id, type) => reactionMutation.mutate({ commentId: id, type })}
                                     />
                                 )}
@@ -186,14 +208,14 @@ export function CommentSection({ storyId }: { storyId: string }) {
                         className="w-full bg-background border border-border/40 rounded-2xl px-5 py-3 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all shadow-sm"
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && newComment.trim() && commentMutation.mutate({ text: newComment })}
+                        onKeyDown={(e) => e.key === "Enter" && newComment.trim() && addCommentMutation.mutate({ content: newComment })}
                     />
                     <button
-                        disabled={!newComment.trim() || commentMutation.isPending}
-                        onClick={() => commentMutation.mutate({ text: newComment })}
+                        disabled={!newComment.trim() || addCommentMutation.isPending}
+                        onClick={() => addCommentMutation.mutate({ content: newComment })}
                         className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center hover:shadow-lg hover:shadow-accent/20 transition-all disabled:opacity-50 disabled:hover:shadow-none"
                     >
-                        {commentMutation.isPending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
+                        {addCommentMutation.isPending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
                     </button>
                 </div>
             </div>
@@ -224,8 +246,9 @@ function CommentItem({
     onSubmitReply: (text: string, parentId: string) => void;
     onReact: (id: string, type: string) => void;
 }) {
-    // Check ownership
-    const isOwner = (comment.visitor_id && comment.visitor_id === visitorId) || (comment.user_id === "me");
+    const { user } = useAuthStore();
+    // Check ownership: Either current visitor ID matches or current user ID matches
+    const isOwner = (comment.visitor_id && comment.visitor_id === visitorId) || (user?.id && comment.user_id === user.id);
     const [replyText, setReplyText] = useState("");
     const isReplying = replyingTo === comment.id;
 
