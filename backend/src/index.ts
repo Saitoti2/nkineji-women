@@ -46,15 +46,26 @@ app.use(helmet({
     crossOriginOpenerPolicy: false
 }));
 app.use(cors({
-    origin: [
-        process.env.FRONTEND_URL || 'http://localhost:5173',
-        'https://nkineji.org',
-        'https://nkineji-initiative.vercel.app',
-        'https://inua-mama-initiative.vercel.app',
-        'https://mara-bloom.vercel.app',
-        'https://nkinejiwomen.com',
-        'https://www.nkinejiwomen.com'
-    ],
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            process.env.FRONTEND_URL || 'http://localhost:5173',
+            'https://nkineji.org',
+            'https://nkineji-initiative.vercel.app',
+            'https://inua-mama-initiative.vercel.app',
+            'https://mara-bloom.vercel.app',
+            'https://nkinejiwomen.com',
+            'https://www.nkinejiwomen.com'
+        ];
+
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(compression());
