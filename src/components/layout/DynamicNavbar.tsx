@@ -11,6 +11,14 @@ import { usePWA } from "@/hooks/usePWA";
 import { LogIn, Download, LogOut, LayoutDashboard, User } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 const navLinks = [
@@ -391,22 +399,40 @@ export function DynamicNavbar() {
               </Button>
             ) : (
               <div className="hidden sm:flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  asChild
-                  className="gap-2 px-2 hover:bg-primary/5"
-                >
-                  <a href="/profile" className="flex items-center gap-2">
-                    <Avatar className="w-8 h-8 border border-primary/20">
-                      <AvatarImage src={user?.avatar} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="hidden md:inline font-semibold">Profile</span>
-                  </a>
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 outline-none group">
+                      <Avatar className="w-8 h-8 border border-primary/20 transition-all group-hover:border-primary/50">
+                        <AvatarImage src={user?.avatar} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="hidden md:inline font-semibold text-sm mr-1">Profile</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 mt-2 rounded-2xl p-2 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <DropdownMenuLabel className="font-display font-bold px-3 py-2">Account Control</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="opacity-50" />
+                    <DropdownMenuItem onClick={() => navigate('/profile')} className="rounded-xl px-3 py-2.5 cursor-pointer gap-3">
+                      <User className="w-4 h-4 text-primary" /> Profile Settings
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="rounded-xl px-3 py-2.5 cursor-pointer gap-3">
+                        <LayoutDashboard className="w-4 h-4 text-primary" /> Admin Dashboard
+                      </DropdownMenuItem>
+                    )}
+                    {isInstallable && !isInstalled && (
+                      <DropdownMenuItem onClick={() => installApp()} className="rounded-xl px-3 py-2.5 cursor-pointer gap-3 text-primary">
+                        <Download className="w-4 h-4" /> Install App
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator className="opacity-50" />
+                    <DropdownMenuItem onClick={handleLogout} className="rounded-xl px-3 py-2.5 cursor-pointer gap-3 text-destructive hover:text-destructive hover:bg-destructive/5 font-medium">
+                      <LogOut className="w-4 h-4" /> Logout Account
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
             <Button

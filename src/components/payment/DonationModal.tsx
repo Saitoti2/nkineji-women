@@ -15,14 +15,14 @@ const BASE_PRESET_AMOUNTS_USD = [10, 25, 50, 100, 250, 500];
 type Currency = 'USD' | 'KES';
 
 export function DonationModal() {
-    const { isOpen, closeDonationModal } = useDonationStore();
+    const { isOpen, closeDonationModal, campaignId, campaignTitle } = useDonationStore();
     const [currency, setCurrency] = useState<Currency>('USD');
     const [amount, setAmount] = useState<number>(50);
     const [customAmount, setCustomAmount] = useState<string>("");
     const [selectedPresetUSD, setSelectedPresetUSD] = useState<number>(50);
     const [frequency, setFrequency] = useState<'once' | 'monthly'>('once');
     const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing'>('idle');
-    const [kesRate, setKesRate] = useState<number>(128); // fallback rate
+    const [kesRate, setKesRate] = useState<number>(128.5); // fallback rate
     const [rateLoading, setRateLoading] = useState(true);
 
     // Fetch live KES rate on mount
@@ -91,6 +91,11 @@ export function DonationModal() {
                     currency: getPayloadCurrency(),
                     paymentMethod: 'pesapal',
                     isRecurring: frequency === 'monthly',
+                    campaignId: campaignId || undefined,
+                    metadata: {
+                        campaignTitle,
+                        source: campaignId ? 'campaign_detail' : 'general_donation'
+                    }
                 })
             });
             const data = await res.json();
@@ -123,9 +128,16 @@ export function DonationModal() {
             <DialogContent className="w-[90vw] max-w-[480px] max-h-[90vh] overflow-y-auto scrollbar-hide p-6 rounded-[2.5rem] bg-background/95 backdrop-blur-xl border border-white/20">
 
                 <div className="space-y-2 text-center pb-2">
-                    <DialogTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-                        <Heart className="w-6 h-6 text-rose-500 fill-rose-500 animate-pulse" />
-                        Support Our Mission
+                    <DialogTitle className="text-2xl font-bold flex flex-col items-center justify-center gap-2">
+                        <div className="flex items-center gap-2">
+                            <Heart className="w-6 h-6 text-rose-500 fill-rose-500 animate-pulse" />
+                            {campaignTitle ? 'Support Campaign' : 'Support Our Mission'}
+                        </div>
+                        {campaignTitle && (
+                            <span className="text-sm font-medium text-primary mt-1 px-3 py-1 bg-primary/5 rounded-full line-clamp-1">
+                                {campaignTitle}
+                            </span>
+                        )}
                     </DialogTitle>
                 </div>
 
@@ -215,12 +227,8 @@ export function DonationModal() {
                     {/* Payment method */}
                     <div className="space-y-2">
                         <Label className="text-muted-foreground uppercase text-xs font-bold tracking-wider">Payment Method</Label>
-                        <div className="p-4 rounded-2xl border-2 border-primary bg-white flex items-center justify-center min-h-[70px] cursor-pointer overflow-hidden shadow-sm">
-                            <img
-                                src="/pesapal-logo.png"
-                                alt="PesaPal"
-                                className="w-full object-contain max-h-[40px] px-4"
-                            />
+                        <div className="flex items-center justify-center w-full group-hover:scale-105 transition-transform">
+                            <img src="/pesapal-logo.png" alt="PesaPal" className="h-12 w-auto object-contain" />
                         </div>
                         <p className="text-xs text-center text-muted-foreground">
                             Accepts M-PESA, Airtel Money, Visa, Mastercard

@@ -44,7 +44,7 @@ export const getItems = async (filters: { activeOnly?: boolean; campaignId?: str
         const result = await query<CampaignItem>(sql, params);
         return result.rows;
     } catch (error) {
-        logger.error('Error fetching items', error);
+        logger.error('Error fetching items: ' + (error instanceof Error ? error.message : String(error)), error);
         throw new ApiError('Failed to fetch items', 500);
     }
 };

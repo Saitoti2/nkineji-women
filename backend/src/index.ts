@@ -47,8 +47,10 @@ app.use(helmet({
 }));
 app.use(cors({
     origin: (origin, callback) => {
+        const envOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [];
         const allowedOrigins = [
-            process.env.FRONTEND_URL || 'http://localhost:5173',
+            ...envOrigins,
+            'http://localhost:5173',
             'https://nkineji.org',
             'https://nkineji-initiative.vercel.app',
             'https://inua-mama-initiative.vercel.app',
@@ -78,7 +80,10 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    max: process.env.NODE_ENV === 'development' ? 10000 : 100, // Relaxed limit for development
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
 app.use(limiter);
 
@@ -117,7 +122,14 @@ app.use(`${API_PREFIX}/items`, itemsRouter);
 app.use(`${API_PREFIX}/health`, healthRouter);
 app.use(`${API_PREFIX}/impact-stories`, impactStoryRouter);
 app.use(`${API_PREFIX}/impact-comments`, impactCommentRouter);
-app.get(`${API_PREFIX}/debug-test`, (req, res) => res.status(200).json({ status: 'alive' }));
+app.get(`${API_PREFIX}/debug-test`, async (req, res) => {
+    try {
+        const result = await getPool().query('SELECT * FROM campaign_items WHERE is_deleted = FALSE AND is_active = $1 ORDER BY created_at DESC', [true]);
+        res.status(200).json({ status: 'alive', data: result.rows });
+    } catch (e: any) {
+        res.status(500).json({ status: 'error', message: e.message, stack: e.stack });
+    }
+});
 console.log('Registering upload router at', `${API_PREFIX}/upload`);
 app.use(`${API_PREFIX}/upload`, uploadRouter);
 app.use(`${API_PREFIX}/settings`, settingsRouter);

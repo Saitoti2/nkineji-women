@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Upload, GripVertical, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
+import { compressImage, getInstantPreview } from "@/lib/image-utils";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useAuthStore } from '@/stores/authStore';
 import { AdvancedFilters } from './AdvancedFilters';
@@ -125,18 +126,20 @@ export function CampaignsManager() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        // Instant preview
+        const previewUrl = getInstantPreview(file);
+        setImagePreview(previewUrl);
 
         if (!accessToken) return;
         setUploading(true);
-        const formDataUpload = new FormData();
-        formDataUpload.append('image', file);
 
         try {
+            // Client-side compression
+            const compressedFile = await compressImage(file);
+
+            const formDataUpload = new FormData();
+            formDataUpload.append('image', compressedFile);
+
             const response = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 headers: {
@@ -151,9 +154,11 @@ export function CampaignsManager() {
                 toast.success("Image uploaded successfully");
             } else {
                 toast.error("Failed to upload image");
+                setImagePreview(null);
             }
         } catch (error) {
             toast.error("Image upload failed");
+            setImagePreview(null);
         } finally {
             setUploading(false);
         }

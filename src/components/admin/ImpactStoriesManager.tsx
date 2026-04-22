@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Eye, ImageIcon, Film, Upload, Activity, GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
+import { compressImage, getInstantPreview } from "@/lib/image-utils";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useAuthStore } from '@/stores/authStore';
 import { AdvancedFilters } from './AdvancedFilters';
@@ -161,18 +162,20 @@ export function ImpactStoriesManager() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        // Instant preview
+        const previewUrl = getInstantPreview(file);
+        setImagePreview(previewUrl);
 
         if (!accessToken) return;
         setUploading(true);
-        const formDataUpload = new FormData();
-        formDataUpload.append('image', file);
 
         try {
+            // Client-side compression
+            const compressedFile = await compressImage(file);
+
+            const formDataUpload = new FormData();
+            formDataUpload.append('image', compressedFile);
+
             const response = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 headers: {
@@ -187,9 +190,11 @@ export function ImpactStoriesManager() {
                 toast.success("Image uploaded successfully");
             } else {
                 toast.error("Failed to upload image");
+                setImagePreview(null);
             }
         } catch (error) {
             toast.error("Image upload failed");
+            setImagePreview(null);
         } finally {
             setUploading(false);
         }
@@ -495,11 +500,21 @@ export function ImpactStoriesManager() {
                                                         className="hidden"
                                                         onChange={async (e) => {
                                                             const file = e.target.files?.[0];
+                                                            if (!file) return;
+
+                                                            // Instant preview for gallery item
+                                                            const localPreview = getInstantPreview(file);
+                                                            const newMediaPreview = [...formData.media];
+                                                            newMediaPreview[index] = { ...newMediaPreview[index], url: localPreview };
+                                                            setFormData({ ...formData, media: newMediaPreview });
+
                                                             try {
                                                                 if (!accessToken) return;
                                                                 setUploading(true);
+
+                                                                const compressedFile = await compressImage(file);
                                                                 const formDataUpload = new FormData();
-                                                                formDataUpload.append('image', file);
+                                                                formDataUpload.append('image', compressedFile);
 
                                                                 const res = await fetch(`${API_BASE}/upload`, {
                                                                     method: 'POST',
@@ -511,7 +526,7 @@ export function ImpactStoriesManager() {
                                                                     const newMedia = [...formData.media];
                                                                     newMedia[index] = { ...newMedia[index], url: data.data.url };
                                                                     setFormData({ ...formData, media: newMedia });
-                                                                    toast.success("Image uploaded");
+                                                                    toast.success("Gallery image uploaded");
                                                                 }
                                                             } catch (err) {
                                                                 toast.error("Upload failed");

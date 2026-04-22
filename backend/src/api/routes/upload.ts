@@ -8,35 +8,13 @@ import crypto from 'crypto';
 
 const router = Router();
 
-// Configure storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = `${Date.now()}-${crypto.randomUUID()}`;
-        cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
-    },
-});
-
-// File filter
-const fileFilter = (req: any, file: any, cb: any) => {
-    const allowedTypes = /jpeg|jpg|png|webp|gif/;
-    const mimetype = allowedTypes.test(file.mimetype);
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-
-    if (mimetype && extname) {
-        return cb(null, true);
-    }
-    cb(new ApiError('Only images (jpeg, jpg, png, webp, gif) are allowed', 400));
-};
+import { storage } from '../../config/cloudinary.js';
 
 const upload = multer({
     storage,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB limit
     },
-    fileFilter,
 });
 
 router.post('/', authenticate, upload.single('image'), (req, res) => {
@@ -44,7 +22,7 @@ router.post('/', authenticate, upload.single('image'), (req, res) => {
         throw new ApiError('No file uploaded', 400);
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const fileUrl = (req.file as any).path;
 
     res.status(200).json({
         success: true,

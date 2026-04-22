@@ -35,8 +35,9 @@ self.addEventListener('fetch', (event) => {
                         cache.put(event.request, networkResponse.clone());
                     }
                     return networkResponse;
-                }).catch(() => {
-                    return cachedResponse;
+                }).catch((error) => {
+                    if (cachedResponse) return cachedResponse;
+                    throw error;
                 });
 
                 // Stale-while-revalidate: return cache immediately, update in background

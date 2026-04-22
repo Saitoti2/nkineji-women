@@ -178,20 +178,29 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
         const callbackUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donations/success?donationId=${donation.id}`;
 
         // PesaPal (Kenya) processes payments in KES. Convert USD → KES if needed.
-        const USD_TO_KES_RATE = 129; // approximate; can be replaced with a live rate API
-        let pesapalAmount = totalAmount;
+        const USD_TO_KES_RATE = 129.5; // average market rate
+        let pesapalAmount = Number(totalAmount);
         let pesapalCurrency = donation.currency || 'KES';
+
         if (pesapalCurrency === 'USD') {
-          pesapalAmount = Math.round(totalAmount * USD_TO_KES_RATE);
+          pesapalAmount = Math.round(totalAmount * USD_TO_KES_RATE * 100) / 100;
           pesapalCurrency = 'KES';
           logger.info(`Converted $${totalAmount} USD → KES ${pesapalAmount} for PesaPal`);
+        } else {
+          // If already in KES, just ensure it's rounded correctly to 2 decimal places
+          pesapalAmount = Math.round(pesapalAmount * 100) / 100;
         }
+
+        const campaignTitle = data.metadata?.campaignTitle;
+        const description = campaignTitle
+          ? `Support for ${campaignTitle}`
+          : (data.campaignTitle || 'Nkineji Women Initiative Donation');
 
         const orderData = {
           id: donation.id,
           currency: pesapalCurrency,
           amount: pesapalAmount,
-          description: `Donation for ${data.campaignTitle || 'Nkineji Women Initiative'}`,
+          description: description.substring(0, 100), // PesaPal limit
           callback_url: callbackUrl,
           notification_id: ipnId,
           billing_address: {
@@ -284,9 +293,28 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
 
 export const getDonations = async (filters: any): Promise<Donation[]> => {
   try {
-    let sql = 'SELECT d.*, c.title as campaign_title FROM donations d LEFT JOIN campaigns c ON d.campaign_id = c.id WHERE d.is_deleted = FALSE';
+    let sql = `
+      SELECT d.*, c.title as campaign_title 
+      FROM donations d 
+      LEFT JOIN campaigns c ON d.campaign_id = c.id
+      LEFT JOIN donors dr ON d.donor_id = dr.id
+      WHERE d.is_deleted = FALSE
+    `;
     const params: any[] = [];
     let paramCount = 1;
+
+    // Strict Privacy: If not an admin, only show donations belonging to the user
+    const adminRoles = ['admin', 'super_admin', 'chief_admin', 'finance_officer'];
+    const isAdmin = filters.role && adminRoles.includes(filters.role);
+
+    if (!isAdmin && filters.userId) {
+      sql += ` AND dr.user_id = $${paramCount++}`;
+      params.push(filters.userId);
+    } else if (isAdmin && filters.userId) {
+      // Admin filtering for a specific user
+      sql += ` AND dr.user_id = $${paramCount++}`;
+      params.push(filters.userId);
+    }
 
     if (filters.campaignId) {
       sql += ` AND d.campaign_id = $${paramCount++}`;
@@ -303,7 +331,7 @@ export const getDonations = async (filters: any): Promise<Donation[]> => {
       params.push(filters.donorId);
     }
 
-    sql += ` ORDER BY d.created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    sql += ` ORDER BY d.created_at DESC LIMIT $${paramCount++} OFFSET $${paramCount++}`;
     params.push(filters.limit || 50, filters.offset || 0);
 
     const result = await query<Donation>(sql, params);

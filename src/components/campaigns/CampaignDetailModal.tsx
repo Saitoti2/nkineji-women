@@ -207,7 +207,7 @@ export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetai
                                             className="w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 group"
                                             onClick={() => {
                                                 onClose();
-                                                openDonationModal();
+                                                openDonationModal(campaign.id, campaign.title);
                                             }}
                                         >
                                             Contribute Now

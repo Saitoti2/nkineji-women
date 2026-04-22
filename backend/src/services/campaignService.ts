@@ -121,9 +121,9 @@ export const createCampaign = async (data: any, userId: string): Promise<Campaig
       [
         data.title,
         data.description,
-        data.goalAmount,
-        data.startDate || null,
-        data.endDate || null,
+        data.goal_amount,
+        data.start_date || null,
+        data.end_date || null,
         data.earmark || null,
         data.status || 'draft',
         data.image_url || null,
@@ -161,17 +161,17 @@ export const updateCampaign = async (id: string, data: any, userId: string): Pro
       updates.push(`description = $${paramCount++}`);
       params.push(data.description);
     }
-    if (data.goalAmount !== undefined) {
+    if (data.goal_amount !== undefined) {
       updates.push(`goal_amount = $${paramCount++}`);
-      params.push(data.goalAmount);
+      params.push(data.goal_amount);
     }
-    if (data.startDate !== undefined) {
+    if (data.start_date !== undefined) {
       updates.push(`start_date = $${paramCount++}`);
-      params.push(data.startDate || null);
+      params.push(data.start_date || null);
     }
-    if (data.endDate !== undefined) {
+    if (data.end_date !== undefined) {
       updates.push(`end_date = $${paramCount++}`);
-      params.push(data.endDate || null);
+      params.push(data.end_date || null);
     }
     if (data.earmark !== undefined) {
       updates.push(`earmark = $${paramCount++}`);

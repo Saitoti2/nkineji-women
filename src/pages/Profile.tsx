@@ -11,6 +11,7 @@ import { User, Mail, Shield, Clock, Camera, Settings, Heart, Calendar, ArrowRigh
 import { BackButton } from "@/components/ui/back-button";
 import { useQuery } from "@tanstack/react-query";
 import { cn, getImageUrl } from "@/lib/utils";
+import { compressImage, getInstantPreview } from "@/lib/image-utils";
 
 interface UserProfile {
     id: string;
@@ -43,6 +44,7 @@ export default function Profile() {
         name: user?.name || '',
         phone: user?.phone || ''
     });
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
     const { data: donations = [], isLoading } = useQuery({
         queryKey: ['my-donations'],
@@ -97,10 +99,17 @@ export default function Profile() {
         const file = e.target.files?.[0];
         if (!file || !accessToken) return;
 
-        const formData = new FormData();
-        formData.append('image', file);
+        // Instant preview
+        const previewUrl = getInstantPreview(file);
+        setAvatarPreview(previewUrl);
 
         try {
+            // Client-side compression
+            const compressedFile = await compressImage(file);
+
+            const formData = new FormData();
+            formData.append('image', compressedFile);
+
             const res = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 headers: {
@@ -114,8 +123,10 @@ export default function Profile() {
 
             // After upload, update profile with new avatar URL
             await handleUpdateProfile(undefined, { avatar: result.data.url });
+            toast.success("Avatar updated successfully");
         } catch (error) {
             toast.error("Avatar upload failed");
+            setAvatarPreview(null); // Reset preview on failure
         }
     };
 
@@ -144,7 +155,7 @@ export default function Profile() {
                             <CardContent className="p-8 text-center space-y-6">
                                 <div className="relative inline-block mx-auto">
                                     <Avatar className="w-32 h-32 border-4 border-primary/20 shadow-lg">
-                                        <AvatarImage src={getImageUrl(user.avatar)} />
+                                        <AvatarImage src={avatarPreview || getImageUrl(user.avatar)} />
                                         <AvatarFallback className="bg-primary/10 text-primary text-4xl font-display">
                                             {user.name?.[0] || user.email[0].toUpperCase()}
                                         </AvatarFallback>
