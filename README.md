@@ -1,4 +1,4 @@
-# Maasai Mara Women Empowerment Initiative
+# Nkineji Women Initiative(CBO)
 
 A modern, responsive web application for the Maasai Mara Women Empowerment Initiative, dedicated to transforming lives and empowering women in Kenya's Maasai Mara region.
 
@@ -65,12 +65,12 @@ src/
 
 ## Features
 
-- 🎨 Beautiful, modern UI with custom design system
-- 📱 Fully responsive design
-- ♿ Accessible components
-- 🚀 Optimized performance
-- 🌍 SEO-friendly structure
-- 💳 Donation integration ready
+-  Beautiful, modern UI with custom design system
+-  Fully responsive design
+-  Accessible components
+-  Optimized performance
+-  SEO-friendly structure
+-  Donation integration ready
 
 ## Customization
 
@@ -81,4 +81,4 @@ The design system uses a warm earth palette inspired by the Maasai Mara:
 
 ## License
 
-Copyright © 2024 Maasai Mara Women Empowerment Initiative. All rights reserved.
+Copyright © 2026 Nkineji Women CBO Initiative. All rights reserved.
