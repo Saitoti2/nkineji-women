@@ -418,17 +418,18 @@ export function EssentialsManager() {
                             {loading ? (
                                 <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                             ) : (
-                                <DragDropContext onDragEnd={handleDragEnd}>
-                                    <Table>
-                                        <TableHeader className="bg-muted/50">
-                                            <TableRow className="border-none hover:bg-transparent">
-                                                <TableHead className="w-[50px] pl-8"></TableHead>
-                                                <TableHead className="py-6 font-bold">Item</TableHead>
-                                                <TableHead className="font-bold">Price</TableHead>
-                                                <TableHead className="font-bold">Status</TableHead>
-                                                <TableHead className="text-right pr-8 font-bold">Manage</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
+                                <div className="overflow-x-auto">
+                                    <DragDropContext onDragEnd={handleDragEnd}>
+                                        <Table>
+                                            <TableHeader className="bg-muted/50">
+                                                <TableRow className="border-none hover:bg-transparent">
+                                                    <TableHead className="w-[50px] pl-4 sm:pl-8"></TableHead>
+                                                    <TableHead className="py-4 sm:py-6 font-bold text-xs sm:text-sm">Item</TableHead>
+                                                    <TableHead className="font-bold text-xs sm:text-sm">Price</TableHead>
+                                                    <TableHead className="font-bold text-xs sm:text-sm">Status</TableHead>
+                                                    <TableHead className="text-right pr-4 sm:pr-8 font-bold text-xs sm:text-sm">Manage</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
                                         <Droppable droppableId="items">
                                             {(provided) => (
                                                 <TableBody
@@ -447,43 +448,43 @@ export function EssentialsManager() {
                                                                     )}
                                                                     style={provided.draggableProps.style}
                                                                 >
-                                                                    <TableCell className="pl-8">
-                                                                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-muted/50 w-fit">
-                                                                            <GripVertical className="w-5 h-5 text-muted-foreground/50" />
+                                                                    <TableCell className="pl-4 sm:pl-8">
+                                                                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1 sm:p-2 rounded hover:bg-muted/50 w-fit">
+                                                                            <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50" />
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="py-6">
-                                                                        <div className="flex items-center gap-4">
-                                                                            <div className="w-14 h-14 rounded-2xl bg-muted overflow-hidden shrink-0">
+                                                                    <TableCell className="py-4 sm:py-6">
+                                                                        <div className="flex items-center gap-2 sm:gap-4">
+                                                                            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-muted overflow-hidden shrink-0">
                                                                                 <img
                                                                                     src={getImageUrl(item.image_url)}
                                                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                                                 />
                                                                             </div>
-                                                                            <div>
-                                                                                <p className="font-bold leading-none mb-1">{item.name}</p>
-                                                                                <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                                                                            <div className="min-w-0">
+                                                                                <p className="font-bold leading-none mb-1 text-xs sm:text-sm truncate">{item.name}</p>
+                                                                                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">{item.description}</p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-lg">${Number(item.unit_price).toFixed(2)}</TableCell>
+                                                                    <TableCell className="font-bold text-base sm:text-lg">${Number(item.unit_price).toFixed(2)}</TableCell>
                                                                     <TableCell>
                                                                         <Badge variant={item.is_active ? "default" : "secondary"} className={cn(
-                                                                            "rounded-full px-3 py-0.5 text-[10px] uppercase font-bold tracking-wider",
+                                                                            "rounded-full px-2 sm:px-3 py-0.5 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider",
                                                                             item.is_active ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"
                                                                         )}>
                                                                             {item.is_active ? 'In Stock' : 'Inactive'}
                                                                         </Badge>
-                                                                        <div className="text-[10px] text-muted-foreground mt-1 font-mono">
+                                                                        <div className="text-[9px] sm:text-[10px] text-muted-foreground mt-1 font-mono">
                                                                             Pri: {item.priority || 0}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="text-right pr-8 space-x-2">
-                                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
-                                                                            <Edit className="h-4 w-4" />
+                                                                    <TableCell className="text-right pr-4 sm:pr-8 space-x-1 sm:space-x-2">
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(item)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
+                                                                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                         </Button>
-                                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
-                                                                            <Trash2 className="h-4 w-4" />
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
+                                                                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                         </Button>
                                                                     </TableCell>
                                                                 </TableRow>
@@ -493,10 +494,10 @@ export function EssentialsManager() {
                                                     {provided.placeholder}
                                                     {items.length === 0 && (
                                                         <TableRow>
-                                                            <TableCell colSpan={5} className="h-64 text-center">
+                                                            <TableCell colSpan={5} className="h-48 sm:h-64 text-center">
                                                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                                    <Package className="w-10 h-10 opacity-20" />
-                                                                    <p className="font-bold">Inventory is empty</p>
+                                                                    <Package className="w-8 h-8 sm:w-10 sm:h-10 opacity-20" />
+                                                                    <p className="font-bold text-sm sm:text-base">Inventory is empty</p>
                                                                 </div>
                                                             </TableCell>
                                                         </TableRow>
@@ -506,6 +507,7 @@ export function EssentialsManager() {
                                         </Droppable>
                                     </Table>
                                 </DragDropContext>
+                                </div>
                             )}
                         </CardContent>
                     </Card>

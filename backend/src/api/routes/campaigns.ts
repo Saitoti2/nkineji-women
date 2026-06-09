@@ -46,7 +46,7 @@ campaignsRouter.get('/:id/impact', async (req, res, next) => {
 campaignsRouter.post(
   '/',
   authenticate,
-  authorize(['admin', 'super_admin']),
+  authorize(['chief_admin', 'super_admin']),
   validateRequest(createCampaignSchema),
   async (req, res, next) => {
     try {
@@ -62,7 +62,7 @@ campaignsRouter.post(
 campaignsRouter.put(
   '/:id',
   authenticate,
-  authorize(['admin', 'super_admin']),
+  authorize(['chief_admin', 'super_admin']),
   validateRequest(updateCampaignSchema),
   async (req, res, next) => {
     try {
@@ -78,7 +78,7 @@ campaignsRouter.put(
 campaignsRouter.delete(
   '/:id',
   authenticate,
-  authorize(['admin', 'super_admin']),
+  authorize(['chief_admin', 'super_admin']),
   async (req, res, next) => {
     try {
       await deleteCampaign(req.params.id as string, req.user!.id);

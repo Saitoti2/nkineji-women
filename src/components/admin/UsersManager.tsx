@@ -305,46 +305,48 @@ export function UsersManager() {
                             {loading ? (
                                 <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                             ) : (
-                                <Table>
-                                    <TableHeader className="bg-muted/50">
-                                        <TableRow className="border-none hover:bg-transparent">
-                                            <TableHead className="py-6 pl-8 font-bold">User</TableHead>
-                                            <TableHead className="font-bold">Role</TableHead>
-                                            <TableHead className="font-bold">Status</TableHead>
-                                            <TableHead className="text-right pr-8 font-bold">Manage</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {users.map((user) => (
-                                            <TableRow key={user.id} className="group hover:bg-muted/30 border-border/40 transition-colors">
-                                                <TableCell className="py-6 pl-8">
-                                                    <div>
-                                                        <p className="font-bold">{user.name}</p>
-                                                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline" className="capitalize">
-                                                        {user.role_name || user.role}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant={user.is_active ? "default" : "secondary"}>
-                                                        {user.is_active ? 'Active' : 'Inactive'}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right pr-8 space-x-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)} className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </TableCell>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-muted/50">
+                                            <TableRow className="border-none hover:bg-transparent">
+                                                <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-xs sm:text-sm">User</TableHead>
+                                                <TableHead className="font-bold text-xs sm:text-sm hidden md:table-cell">Role</TableHead>
+                                                <TableHead className="font-bold text-xs sm:text-sm">Status</TableHead>
+                                                <TableHead className="text-right pr-4 sm:pr-8 font-bold text-xs sm:text-sm">Manage</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {users.map((user) => (
+                                                <TableRow key={user.id} className="group hover:bg-muted/30 border-border/40 transition-colors">
+                                                    <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8">
+                                                        <div>
+                                                            <p className="font-bold text-xs sm:text-sm">{user.name}</p>
+                                                            <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[200px]">{user.email}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        <Badge variant="outline" className="capitalize text-[9px] sm:text-[10px]">
+                                                            {user.role_name || user.role}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={user.is_active ? "default" : "secondary"} className="text-[9px] sm:text-[10px]">
+                                                            {user.is_active ? 'Active' : 'Inactive'}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right pr-4 sm:pr-8 space-x-1 sm:space-x-2">
+                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(user)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
+                                                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
+                                                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             )}
                         </CardContent>
                     </Card>

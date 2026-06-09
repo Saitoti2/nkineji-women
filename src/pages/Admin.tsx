@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import {
   Users, Megaphone, DollarSign, UsersRound,
-  LogOut, TrendingUp, Activity, Eye, EyeOff, Home
+  LogOut, TrendingUp, Activity, Home, Menu, X, Settings
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ImpactStoriesManager } from '@/components/admin/ImpactStoriesManager';
@@ -28,9 +26,20 @@ interface DashboardStats {
   totalRaised: number;
 }
 
+const navItems = [
+  { id: 'dashboard', icon: Activity, label: 'Dashboard' },
+  { id: 'campaigns', icon: Megaphone, label: 'Campaigns' },
+  { id: 'stories', icon: Users, label: 'Impact Stories' },
+  { id: 'donations', icon: DollarSign, label: 'Donations' },
+  { id: 'beneficiaries', icon: UsersRound, label: 'Beneficiaries' },
+  { id: 'essentials', icon: TrendingUp, label: 'Essentials' },
+  { id: 'users', icon: Users, label: 'Users' },
+  { id: 'settings', icon: Settings, label: 'Settings' },
+];
+
 export function Admin() {
   const navigate = useNavigate();
-  const { user, accessToken, setAuth, logout } = useAuthStore();
+  const { user, accessToken, logout } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -40,9 +49,7 @@ export function Admin() {
       setLoading(false);
       loadDashboardData();
     } else {
-      // ProtectedRoute should handle this, but for extra safety:
       const checkPersistence = async () => {
-        // Wait a bit for zustand rehydration
         setTimeout(() => {
           if (!useAuthStore.getState().isAuthenticated) {
             navigate('/login');
@@ -61,7 +68,6 @@ export function Admin() {
 
     try {
       if (activeTab === 'dashboard' || activeTab === 'campaigns') {
-        console.log('Fetching dashboard stats with token:', accessToken ? 'Present' : 'Missing');
         const statsRes = await fetch(`${API_BASE}/admin/dashboard/stats`, {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         });
@@ -70,10 +76,6 @@ export function Admin() {
           const statsData = await statsRes.json();
           setStats(statsData.data);
         }
-      }
-
-      if (activeTab === 'users') {
-        // Users fetched in UsersManager
       }
     } catch (error) {
       toast({
@@ -84,47 +86,10 @@ export function Admin() {
     }
   };
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && (data.user?.role === 'admin' || data.user?.role === 'super_admin' || data.user?.role === 'chief_admin')) {
-        setAuth(data.user, data.accessToken, data.refreshToken);
-        navigate('/admin');
-        toast({
-          title: 'Success',
-          description: 'Logged in successfully',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Invalid credentials or insufficient permissions',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Login failed',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-
-
-
-
 
   if (loading) {
     return (
@@ -143,215 +108,230 @@ export function Admin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/20 to-background">
-      {/* Header */}
+      {/* Header with Title and Actions */}
       <header className="border-b bg-card/90 backdrop-blur-xl sticky top-0 z-50 shadow-float border-b-border/30">
-        <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
-            Admin Dashboard
-          </h1>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate('/')} className="shadow-float hover:shadow-float-lg border-2">
-              <Home className="w-4 h-4 mr-2" />
-              Website
-            </Button>
-            <Button variant="outline" onClick={handleLogout} className="shadow-float hover:shadow-float-lg border-2">
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-display font-bold text-foreground">
+              Admin Dashboard
+            </h1>
+
+            <div className="flex items-center gap-2">
+              {/* Desktop Actions */}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/')}
+                className="hidden sm:flex"
+              >
+                <Home className="w-5 h-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handleLogout}
+                className="hidden sm:flex"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+
+              {/* Mobile Menu Button */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button
+                    className="lg:hidden p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label="Open menu"
+                  >
+                    <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="w-[85vw] max-w-[320px] bg-card/95 backdrop-blur-xl border-l-0 rounded-l-3xl p-0 shadow-float-xl"
+                >
+                  <SheetTitle className="sr-only">Admin Menu</SheetTitle>
+                  <SheetDescription className="sr-only">Admin navigation menu</SheetDescription>
+
+                  <div className="flex flex-col h-full p-6">
+                    {/* Mobile Menu Header */}
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Activity className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h2 className="font-display font-semibold text-foreground">Admin</h2>
+                          <p className="text-xs text-muted-foreground">Control Panel</p>
+                        </div>
+                      </div>
+                      <SheetClose asChild>
+                        <button className="p-2 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                          <X className="w-5 h-5 text-foreground" />
+                        </button>
+                      </SheetClose>
+                    </div>
+
+                    {/* Mobile Navigation */}
+                    <nav className="flex flex-col gap-2 flex-1">
+                      {navItems.map((item) => (
+                        <SheetClose asChild key={item.id}>
+                          <button
+                            onClick={() => setActiveTab(item.id)}
+                            className={`
+                              flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left
+                              ${activeTab === item.id 
+                                ? 'bg-primary text-primary-foreground shadow-sm' 
+                                : 'hover:bg-muted/50 text-foreground'
+                              }
+                            `}
+                          >
+                            <item.icon className="w-5 h-5 shrink-0" />
+                            <span className="font-medium">{item.label}</span>
+                          </button>
+                        </SheetClose>
+                      ))}
+                    </nav>
+
+                    {/* Mobile Actions */}
+                    <div className="pt-6 border-t border-border/50 space-y-2">
+                      <SheetClose asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => navigate('/')}
+                        >
+                          <Home className="w-4 h-4 mr-2" />
+                          Back to Site
+                        </Button>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={handleLogout}
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </Button>
+                      </SheetClose>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Navigation Tabs - Horizontal with rounded edges */}
+        <div className="hidden lg:block border-t border-border/30">
+          <div className="container mx-auto px-6">
+            <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-hide">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`
+                    flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap font-medium text-sm
+                    ${activeTab === item.id 
+                      ? 'bg-primary text-primary-foreground shadow-sm' 
+                      : 'hover:bg-muted/50 text-foreground'
+                    }
+                  `}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 sm:px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full flex overflow-x-auto scrollbar-hide py-1 mb-6 bg-card/90 backdrop-blur-xl border border-white/20 rounded-xl sticky top-[72px] z-40 gap-1 px-1">
-            <TabsTrigger value="dashboard" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Dashboard</TabsTrigger>
-            <TabsTrigger value="campaigns" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Campaigns</TabsTrigger>
-            <TabsTrigger value="stories" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Impact Stories</TabsTrigger>
-            <TabsTrigger value="donations" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Donations</TabsTrigger>
-            <TabsTrigger value="beneficiaries" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Beneficiaries</TabsTrigger>
-            <TabsTrigger value="essentials" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Essentials</TabsTrigger>
-            <TabsTrigger value="users" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Users</TabsTrigger>
-            <TabsTrigger value="settings" className="flex-shrink-0 min-w-auto px-4 py-2 transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg">Settings</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="dashboard" className="space-y-6">
-            {stats && (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
-                  {/* ... stats cards ... */}
-                  <div className="float-card p-4 sm:p-5 md:p-6 lg:p-8">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 sm:mb-4">
-                      <Megaphone className="w-5 h-5 sm:w-6 sm:h-7" />
-                    </div>
-                    <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">
-                      {stats.totalCampaigns}
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Total Campaigns</h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">Active fundraising campaigns</p>
-                  </div>
-
-                  <div className="float-card p-4 sm:p-5 md:p-6 lg:p-8">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-3 sm:mb-4">
-                      <DollarSign className="w-5 h-5 sm:w-6 sm:h-7" />
-                    </div>
-                    <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">
-                      ${stats.totalRaised.toLocaleString()}
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Total Raised</h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">Funds collected across all campaigns</p>
-                  </div>
-
-                  <div className="float-card p-4 sm:p-5 md:p-6 lg:p-8">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-3 sm:mb-4">
-                      <TrendingUp className="w-5 h-5 sm:w-6 sm:h-7" />
-                    </div>
-                    <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">
-                      {stats.totalDonations}
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Total Donations</h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">Individual contributions received</p>
-                  </div>
-
-                  <div className="float-card p-4 sm:p-5 md:p-6 lg:p-8">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 sm:mb-4">
-                      <UsersRound className="w-5 h-5 sm:w-6 sm:h-7" />
-                    </div>
-                    <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">
-                      {stats.totalBeneficiaries}
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Beneficiaries</h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">Women and girls supported</p>
-                  </div>
+      {/* Main Content */}
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+        {activeTab === 'dashboard' && stats && (
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+              <div className="float-card p-4 sm:p-5 lg:p-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2 sm:mb-3">
+                  <Megaphone className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-
-                <div className="mt-12">
-                  <h2 className="text-2xl font-bold font-display mb-6">Advanced Management Control Center</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card className="group hover:border-primary/50 transition-all cursor-pointer border-2 shadow-float hover:shadow-float-lg bg-card/80 backdrop-blur" onClick={() => setActiveTab('campaigns')}>
-                      <CardHeader>
-                        <Megaphone className="w-8 h-8 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                        <CardTitle>Campaign Command</CardTitle>
-                        <CardDescription>Full CRUD & detailed settings for all initiatives</CardDescription>
-                      </CardHeader>
-                    </Card>
-
-                    <Card className="group hover:border-accent/50 transition-all cursor-pointer border-2 shadow-float hover:shadow-float-lg bg-card/80 backdrop-blur" onClick={() => setActiveTab('stories')}>
-                      <CardHeader>
-                        <Users className="w-8 h-8 text-accent mb-2 group-hover:scale-110 transition-transform" />
-                        <CardTitle>Impact Story Lab</CardTitle>
-                        <CardDescription>Manage stories, media gallery & testimonials</CardDescription>
-                      </CardHeader>
-                    </Card>
-
-                    <Card className="group hover:border-secondary/50 transition-all cursor-pointer border-2 shadow-float hover:shadow-float-lg bg-card/80 backdrop-blur" onClick={() => setActiveTab('essentials')}>
-                      <CardHeader>
-                        <DollarSign className="w-8 h-8 text-secondary mb-2 group-hover:scale-110 transition-transform" />
-                        <CardTitle>Essentials Boutique</CardTitle>
-                        <CardDescription>Update prices & descriptions for provision items</CardDescription>
-                      </CardHeader>
-                    </Card>
-                  </div>
+                <div className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                  {stats.totalCampaigns}
                 </div>
-              </>
-            )}
-          </TabsContent>
+                <h3 className="font-semibold text-foreground text-xs sm:text-sm mt-1">Campaigns</h3>
+              </div>
 
-          <TabsContent value="campaigns" className="space-y-6">
-            <CampaignsManager />
-          </TabsContent>
+              <div className="float-card p-4 sm:p-5 lg:p-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-2 sm:mb-3">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                  ${stats.totalRaised.toLocaleString()}
+                </div>
+                <h3 className="font-semibold text-foreground text-xs sm:text-sm mt-1">Raised</h3>
+              </div>
 
-          <TabsContent value="donations" className="space-y-6">
-            <DonationsManager />
-          </TabsContent>
+              <div className="float-card p-4 sm:p-5 lg:p-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-2 sm:mb-3">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                  {stats.totalDonations}
+                </div>
+                <h3 className="font-semibold text-foreground text-xs sm:text-sm mt-1">Donations</h3>
+              </div>
 
-          <TabsContent value="beneficiaries" className="space-y-6">
-            <BeneficiariesManager />
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
-            <UsersManager />
-          </TabsContent>
-
-          <TabsContent value="stories" className="space-y-6">
-            <ImpactStoriesManager />
-          </TabsContent>
-
-          <TabsContent value="essentials" className="space-y-6">
-            <EssentialsManager />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <PaymentSettingsManager />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
-}
-
-function AdminLogin({ onLogin }: { onLogin: (email: string, password: string) => void }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background via-muted/20 to-background p-4">
-      <div className="float-card w-full max-w-md p-8 bg-card/90 backdrop-blur-xl">
-        <div className="mb-6">
-          <div className="flex justify-center mb-4">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-              Admin Access
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-2 text-center">
-            Admin Login
-          </h1>
-          <p className="text-muted-foreground text-center text-sm sm:text-base">Enter your credentials to access the admin dashboard</p>
-        </div>
-        <div className="space-y-6">
-          <div>
-            <Label className="mb-2 block text-foreground">Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
-              className="shadow-sm border-2"
-            />
-          </div>
-          <div>
-            <Label className="mb-2 block text-foreground">Password</Label>
-            <div className="relative">
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="shadow-sm border-2 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+              <div className="float-card p-4 sm:p-5 lg:p-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2 sm:mb-3">
+                  <UsersRound className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                  {stats.totalBeneficiaries}
+                </div>
+                <h3 className="font-semibold text-foreground text-xs sm:text-sm mt-1">Beneficiaries</h3>
+              </div>
             </div>
-          </div>
-          <Button
-            onClick={() => onLogin(email, password)}
-            className="w-full shadow-float hover:shadow-float-lg"
-            variant="default"
-            size="lg"
-          >
-            Login
-          </Button>
-        </div>
-      </div>
+
+            <div className="mt-8">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold font-display mb-4">Quick Actions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <Card className="group hover:border-primary/50 transition-all cursor-pointer border-2 shadow-float hover:shadow-float-lg bg-card/80 backdrop-blur" onClick={() => setActiveTab('campaigns')}>
+                  <CardHeader className="p-4 sm:p-6">
+                    <Megaphone className="w-6 h-6 sm:w-8 sm:h-8 text-primary mb-2 group-hover:scale-110 transition-transform" />
+                    <CardTitle className="text-sm sm:text-base lg:text-lg">Campaigns</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">Manage initiatives</CardDescription>
+                  </CardHeader>
+                </Card>
+
+                <Card className="group hover:border-accent/50 transition-all cursor-pointer border-2 shadow-float hover:shadow-float-lg bg-card/80 backdrop-blur" onClick={() => setActiveTab('stories')}>
+                  <CardHeader className="p-4 sm:p-6">
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-accent mb-2 group-hover:scale-110 transition-transform" />
+                    <CardTitle className="text-sm sm:text-base lg:text-lg">Stories</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">Impact narratives</CardDescription>
+                  </CardHeader>
+                </Card>
+
+                <Card className="group hover:border-secondary/50 transition-all cursor-pointer border-2 shadow-float hover:shadow-float-lg bg-card/80 backdrop-blur" onClick={() => setActiveTab('essentials')}>
+                  <CardHeader className="p-4 sm:p-6">
+                    <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-secondary mb-2 group-hover:scale-110 transition-transform" />
+                    <CardTitle className="text-sm sm:text-base lg:text-lg">Essentials</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">Provision items</CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'campaigns' && <CampaignsManager />}
+        {activeTab === 'donations' && <DonationsManager />}
+        {activeTab === 'beneficiaries' && <BeneficiariesManager />}
+        {activeTab === 'users' && <UsersManager />}
+        {activeTab === 'stories' && <ImpactStoriesManager />}
+        {activeTab === 'essentials' && <EssentialsManager />}
+        {activeTab === 'settings' && <PaymentSettingsManager />}
+      </main>
     </div>
   );
 }
-
-
-

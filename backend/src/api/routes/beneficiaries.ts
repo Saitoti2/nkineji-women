@@ -39,7 +39,7 @@ beneficiariesRouter.get('/:id', async (req, res, next) => {
 // POST /api/v1/beneficiaries - Field Officer, Education Officer, Health Officer
 beneficiariesRouter.post(
   '/',
-  authorize(['field_officer', 'education_officer', 'health_officer', 'admin', 'super_admin']),
+  authorize(['field_officer', 'education_officer', 'health_officer', 'chief_admin', 'super_admin']),
   validateRequest(createBeneficiarySchema),
   async (req, res, next) => {
     try {
@@ -54,7 +54,7 @@ beneficiariesRouter.post(
 // PUT /api/v1/beneficiaries/:id
 beneficiariesRouter.put(
   '/:id',
-  authorize(['field_officer', 'education_officer', 'health_officer', 'admin', 'super_admin']),
+  authorize(['field_officer', 'education_officer', 'health_officer', 'chief_admin', 'super_admin']),
   validateRequest(updateBeneficiarySchema),
   async (req, res, next) => {
     try {
@@ -69,7 +69,7 @@ beneficiariesRouter.put(
 // DELETE /api/v1/beneficiaries/:id - Admin only, with redaction
 beneficiariesRouter.delete(
   '/:id',
-  authorize(['admin', 'super_admin']),
+  authorize(['chief_admin', 'super_admin']),
   async (req, res, next) => {
     try {
       await deleteBeneficiary(req.params.id as string, req.user!.id);

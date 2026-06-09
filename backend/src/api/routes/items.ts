@@ -32,7 +32,7 @@ itemsRouter.get('/', async (req, res, next) => {
 itemsRouter.post(
     '/',
     authenticate,
-    authorize(['admin', 'super_admin']),
+    authorize(['chief_admin', 'super_admin']),
     validateRequest(createItemSchema),
     async (req, res, next) => {
         try {
@@ -48,7 +48,7 @@ itemsRouter.post(
 itemsRouter.put(
     '/:id',
     authenticate,
-    authorize(['admin', 'super_admin']),
+    authorize(['chief_admin', 'super_admin']),
     validateRequest(updateItemSchema),
     async (req, res, next) => {
         try {
@@ -64,7 +64,7 @@ itemsRouter.put(
 itemsRouter.delete(
     '/:id',
     authenticate,
-    authorize(['admin', 'super_admin']),
+    authorize(['chief_admin', 'super_admin']),
     async (req, res, next) => {
         try {
             await deleteItem(req.params.id as string);

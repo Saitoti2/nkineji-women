@@ -656,58 +656,60 @@ export function ImpactStoriesManager() {
                     </Card>
                 </div>
 
-                <div className="space-y-8">
+                <div className="lg:col-span-2 space-y-6 sm:space-y-8">
                     {loading ? (
                         <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                     ) : (
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 gap-4 sm:gap-6">
                             {stories.map(story => (
-                                <Card key={story.id} className="border-none shadow-lg bg-card rounded-[2rem] hover:shadow-xl transition-shadow group overflow-hidden">
+                                <Card key={story.id} className="border-none shadow-lg bg-card rounded-2xl sm:rounded-[2rem] hover:shadow-xl transition-shadow group overflow-hidden">
                                     <CardContent className="p-0">
                                         <div className="flex flex-col sm:flex-row h-full">
-                                            <div className="w-full sm:w-48 h-48 sm:h-auto relative">
+                                            <div className="w-full sm:w-40 lg:w-48 h-40 sm:h-auto relative">
                                                 <img
                                                     src={getImageUrl(story.profile_image_url)}
                                                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                                                 />
-                                                <div className="absolute top-4 left-4">
+                                                <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
                                                     <Badge className={cn(
-                                                        "rounded-full p-1 w-6 h-6 flex items-center justify-center border-none",
+                                                        "rounded-full p-1 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center border-none",
                                                         story.status === 'published' ? "bg-green-500" : story.status === 'draft' ? "bg-yellow-500" : "bg-muted text-muted-foreground"
                                                     )} />
                                                 </div>
                                             </div>
-                                            <div className="flex-1 p-6 flex flex-col justify-between">
+                                            <div className="flex-1 p-4 sm:p-6 flex flex-col justify-between">
                                                 <div>
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors">{story.title}</h3>
-                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
-                                                            <Activity className="w-3.5 h-3.5" /> Prio: {story.priority || 0}
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
-                                                            <Eye className="w-3.5 h-3.5" /> {story.views_count}
+                                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
+                                                        <h3 className="text-base sm:text-xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">{story.title}</h3>
+                                                        <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                                                            <div className="flex items-center gap-1 sm:gap-1.5 font-bold text-muted-foreground">
+                                                                <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {story.priority || 0}
+                                                            </div>
+                                                            <div className="flex items-center gap-1 sm:gap-1.5 font-bold text-muted-foreground">
+                                                                <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {story.views_count}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4">{story.beneficiary_name}</p>
-                                                    <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
+                                                    <p className="text-xs sm:text-sm font-medium text-primary uppercase tracking-widest mb-3 sm:mb-4">{story.beneficiary_name}</p>
+                                                    <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 leading-relaxed">
                                                         {story.content}
                                                     </p>
                                                 </div>
 
-                                                <div className="flex justify-between items-center mt-6 pt-4 border-t border-border/50">
-                                                    <div className="flex gap-2">
+                                                <div className="flex justify-between items-center mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-border/50">
+                                                    <div className="flex gap-1.5 sm:gap-2">
                                                         {story.media && story.media.map((m, i) => (
-                                                            <div key={i} className="w-6 h-6 rounded-md bg-muted flex items-center justify-center">
-                                                                {m.media_type === 'image' ? <ImageIcon className="w-3 h-3 text-muted-foreground" /> : <Film className="w-3 h-3 text-muted-foreground" />}
+                                                            <div key={i} className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-muted flex items-center justify-center">
+                                                                {m.media_type === 'image' ? <ImageIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" /> : <Film className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-muted-foreground" />}
                                                             </div>
                                                         ))}
                                                     </div>
                                                     <div className="flex gap-1">
-                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(story)} className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary">
-                                                            <Edit className="h-4 w-4" />
+                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(story)} className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl hover:bg-primary/10 hover:text-primary">
+                                                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                         </Button>
-                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(story.id)} className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive">
-                                                            <Trash2 className="h-4 w-4" />
+                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(story.id)} className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive">
+                                                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                                         </Button>
                                                     </div>
                                                 </div>
@@ -717,8 +719,8 @@ export function ImpactStoriesManager() {
                                 </Card>
                             ))}
                             {stories.length === 0 && (
-                                <div className="text-center py-20 bg-muted/20 rounded-[3rem] border-2 border-dashed border-border">
-                                    <p className="font-bold text-muted-foreground">No stories shared yet. Be the first!</p>
+                                <div className="text-center py-16 sm:py-20 bg-muted/20 rounded-2xl sm:rounded-[3rem] border-2 border-dashed border-border">
+                                    <p className="font-bold text-muted-foreground text-sm sm:text-base">No stories shared yet. Be the first!</p>
                                 </div>
                             )}
                         </div>

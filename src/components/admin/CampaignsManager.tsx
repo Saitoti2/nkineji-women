@@ -510,18 +510,19 @@ export function CampaignsManager() {
                             {loading ? (
                                 <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                             ) : (
-                                <DragDropContext onDragEnd={handleDragEnd}>
-                                    <Table>
-                                        <TableHeader className="bg-muted/50">
-                                            <TableRow className="border-none hover:bg-transparent">
-                                                <TableHead className="w-[50px] pl-8"></TableHead>
-                                                <TableHead className="py-6 font-bold">Campaign</TableHead>
-                                                <TableHead className="font-bold">Progress</TableHead>
-                                                <TableHead className="font-bold">Dates</TableHead>
-                                                <TableHead className="font-bold">Status</TableHead>
-                                                <TableHead className="text-right pr-8 font-bold">Manage</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
+                                <div className="overflow-x-auto">
+                                    <DragDropContext onDragEnd={handleDragEnd}>
+                                        <Table>
+                                            <TableHeader className="bg-muted/50">
+                                                <TableRow className="border-none hover:bg-transparent">
+                                                    <TableHead className="w-[50px] pl-4 sm:pl-8"></TableHead>
+                                                    <TableHead className="py-4 sm:py-6 font-bold text-xs sm:text-sm">Campaign</TableHead>
+                                                    <TableHead className="font-bold text-xs sm:text-sm hidden md:table-cell">Progress</TableHead>
+                                                    <TableHead className="font-bold text-xs sm:text-sm hidden lg:table-cell">Dates</TableHead>
+                                                    <TableHead className="font-bold text-xs sm:text-sm">Status</TableHead>
+                                                    <TableHead className="text-right pr-4 sm:pr-8 font-bold text-xs sm:text-sm">Manage</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
                                         <Droppable droppableId="campaigns">
                                             {(provided) => (
                                                 <TableBody
@@ -540,14 +541,14 @@ export function CampaignsManager() {
                                                                     )}
                                                                     style={provided.draggableProps.style}
                                                                 >
-                                                                    <TableCell className="pl-8">
-                                                                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-muted/50 w-fit">
-                                                                            <GripVertical className="w-5 h-5 text-muted-foreground/50" />
+                                                                    <TableCell className="pl-4 sm:pl-8">
+                                                                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1 sm:p-2 rounded hover:bg-muted/50 w-fit">
+                                                                            <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50" />
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="py-6">
-                                                                        <div className="flex items-center gap-4">
-                                                                            <div className="w-16 h-12 rounded-lg bg-muted overflow-hidden shrink-0">
+                                                                    <TableCell className="py-4 sm:py-6">
+                                                                        <div className="flex items-center gap-2 sm:gap-4">
+                                                                            <div className="w-12 h-9 sm:w-16 sm:h-12 rounded-lg bg-muted overflow-hidden shrink-0">
                                                                                 {campaign.image_url ? (
                                                                                     <img
                                                                                         src={getImageUrl(campaign.image_url)}
@@ -555,20 +556,20 @@ export function CampaignsManager() {
                                                                                     />
                                                                                 ) : (
                                                                                     <div className="flex items-center justify-center h-full text-muted-foreground bg-muted/50">
-                                                                                        <Megaphone className="w-5 h-5 opacity-20" />
+                                                                                        <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 opacity-20" />
                                                                                     </div>
                                                                                 )}
                                                                             </div>
-                                                                            <div>
-                                                                                <p className="font-bold leading-none mb-1">{campaign.title}</p>
-                                                                                <p className="text-xs text-muted-foreground line-clamp-1">{campaign.category}</p>
+                                                                            <div className="min-w-0">
+                                                                                <p className="font-bold leading-none mb-1 text-xs sm:text-sm truncate">{campaign.title}</p>
+                                                                                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">{campaign.category}</p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
+                                                                    <TableCell className="hidden md:table-cell">
                                                                         <div className="flex flex-col gap-1">
-                                                                            <div className="text-sm font-bold">${(campaign.raised_amount || 0).toLocaleString()} <span className="text-muted-foreground font-normal">of ${(campaign.goal_amount || 0).toLocaleString()}</span></div>
-                                                                            <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                                            <div className="text-xs sm:text-sm font-bold">${(campaign.raised_amount || 0).toLocaleString()} <span className="text-muted-foreground font-normal text-[10px] sm:text-xs">of ${(campaign.goal_amount || 0).toLocaleString()}</span></div>
+                                                                            <div className="w-20 sm:w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                                                                                 <div
                                                                                     className="h-full bg-primary"
                                                                                     style={{ width: `${Math.min(100, ((campaign.raised_amount || 0) / (campaign.goal_amount || 1)) * 100)}%` }}
@@ -576,8 +577,8 @@ export function CampaignsManager() {
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="text-xs text-muted-foreground">
+                                                                    <TableCell className="hidden lg:table-cell">
+                                                                        <div className="text-[10px] sm:text-xs text-muted-foreground">
                                                                             {campaign.start_date && (
                                                                                 <div className="flex items-center gap-1">
                                                                                     <span className="font-bold">Start:</span> {new Date(campaign.start_date).toLocaleDateString()}
@@ -595,7 +596,7 @@ export function CampaignsManager() {
                                                                             campaign.status === 'active' ? "default" :
                                                                                 campaign.status === 'completed' ? "secondary" : "outline"
                                                                         } className={cn(
-                                                                            "rounded-full px-3 py-0.5 text-[10px] uppercase font-bold tracking-wider",
+                                                                            "rounded-full px-2 sm:px-3 py-0.5 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider",
                                                                             campaign.status === 'active' && "bg-green-100 text-green-700 hover:bg-green-100",
                                                                             campaign.status === 'draft' && "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
                                                                             campaign.status === 'paused' && "bg-orange-100 text-orange-700 hover:bg-orange-100",
@@ -603,16 +604,16 @@ export function CampaignsManager() {
                                                                         )}>
                                                                             {campaign.status}
                                                                         </Badge>
-                                                                        <div className="text-[10px] text-muted-foreground mt-1 text-center font-mono">
+                                                                        <div className="text-[9px] sm:text-[10px] text-muted-foreground mt-1 text-center font-mono">
                                                                             Pri: {campaign.priority || 0}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="text-right pr-8 space-x-2">
-                                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(campaign)} className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
-                                                                            <Edit className="h-4 w-4" />
+                                                                    <TableCell className="text-right pr-4 sm:pr-8 space-x-1 sm:space-x-2">
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(campaign)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-primary/10 hover:text-primary">
+                                                                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                         </Button>
-                                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(campaign.id)} className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
-                                                                            <Trash2 className="h-4 w-4" />
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(campaign.id)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
+                                                                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                         </Button>
                                                                     </TableCell>
                                                                 </TableRow>
@@ -622,10 +623,10 @@ export function CampaignsManager() {
                                                     {provided.placeholder}
                                                     {campaigns.length === 0 && (
                                                         <TableRow>
-                                                            <TableCell colSpan={6} className="h-64 text-center">
+                                                            <TableCell colSpan={6} className="h-48 sm:h-64 text-center">
                                                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                                    <Megaphone className="w-10 h-10 opacity-20" />
-                                                                    <p className="font-bold">No campaigns found</p>
+                                                                    <Megaphone className="w-8 h-8 sm:w-10 sm:h-10 opacity-20" />
+                                                                    <p className="font-bold text-sm sm:text-base">No campaigns found</p>
                                                                 </div>
                                                             </TableCell>
                                                         </TableRow>
@@ -635,6 +636,7 @@ export function CampaignsManager() {
                                         </Droppable>
                                     </Table>
                                 </DragDropContext>
+                                </div>
                             )}
                         </CardContent>
                     </Card>

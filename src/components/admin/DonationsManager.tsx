@@ -296,56 +296,60 @@ export function DonationsManager() {
                     {loading ? (
                         <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                     ) : (
-                        <Table>
-                            <TableHeader className="bg-muted/50">
-                                <TableRow className="border-none hover:bg-transparent">
-                                    <TableHead className="py-6 pl-8 font-bold">Amount</TableHead>
-                                    <TableHead className="font-bold">Campaign</TableHead>
-                                    <TableHead className="font-bold">Donor</TableHead>
-                                    <TableHead className="font-bold">Status</TableHead>
-                                    <TableHead className="font-bold">Date</TableHead>
-                                    <TableHead className="text-right pr-8 font-bold">Manage</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {donations.map((donation) => (
-                                    <TableRow key={donation.id} className="hover:bg-muted/30 border-border/40 transition-colors">
-                                        <TableCell className="py-6 pl-8 font-bold text-lg">
-                                            ${parseFloat(donation.amount || '0').toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{donation.currency}</span>
-                                        </TableCell>
-                                        <TableCell>{donation.campaign_title || 'General'}</TableCell>
-                                        <TableCell>
-                                            {donation.donor_name || (donation.donor_contact ? JSON.parse(donation.donor_contact || '{}').name : 'Anonymous')}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={donation.status === 'succeeded' ? 'default' : 'secondary'} className={
-                                                donation.status === 'succeeded' ? "bg-green-100 text-green-700 hover:bg-green-100" : ""
-                                            }>
-                                                {donation.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {new Date(donation.created_at).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell className="text-right pr-8">
-                                            <Button variant="ghost" size="icon" onClick={() => handleDelete(donation.id)} className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                {donations.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-64 text-center">
-                                            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                <DollarSign className="w-10 h-10 opacity-20" />
-                                                <p className="font-bold">No donations found</p>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                        <div className="overflow-x-auto -mx-4 sm:mx-0">
+                            <div className="inline-block min-w-full align-middle">
+                                <Table>
+                                    <TableHeader className="bg-muted/50">
+                                        <TableRow className="border-none hover:bg-transparent">
+                                            <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-xs sm:text-sm whitespace-nowrap">Amount</TableHead>
+                                            <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Campaign</TableHead>
+                                            <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Donor</TableHead>
+                                            <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Status</TableHead>
+                                            <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">Date</TableHead>
+                                            <TableHead className="text-right pr-4 sm:pr-8 font-bold text-xs sm:text-sm whitespace-nowrap">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {donations.map((donation) => (
+                                            <TableRow key={donation.id} className="hover:bg-muted/30 border-border/40 transition-colors">
+                                                <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-base sm:text-lg whitespace-nowrap">
+                                                    ${parseFloat(donation.amount || '0').toLocaleString()} <span className="text-xs sm:text-sm font-normal text-muted-foreground">{donation.currency}</span>
+                                                </TableCell>
+                                                <TableCell className="text-xs sm:text-sm max-w-[150px] truncate">{donation.campaign_title || 'General'}</TableCell>
+                                                <TableCell className="text-xs sm:text-sm hidden md:table-cell max-w-[150px] truncate">
+                                                    {donation.donor_name || (donation.donor_contact ? JSON.parse(donation.donor_contact || '{}').name : 'Anonymous')}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={donation.status === 'succeeded' ? 'default' : 'secondary'} className={`text-xs ${
+                                                        donation.status === 'succeeded' ? "bg-green-100 text-green-700 hover:bg-green-100" : ""
+                                                    }`}>
+                                                        {donation.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground text-xs sm:text-sm hidden sm:table-cell whitespace-nowrap">
+                                                    {new Date(donation.created_at).toLocaleDateString()}
+                                                </TableCell>
+                                                <TableCell className="text-right pr-4 sm:pr-8">
+                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(donation.id)} className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive">
+                                                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        {donations.length === 0 && (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="h-64 text-center">
+                                                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                                        <DollarSign className="w-10 h-10 opacity-20" />
+                                                        <p className="font-bold">No donations found</p>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

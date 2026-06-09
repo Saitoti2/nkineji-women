@@ -35,7 +35,7 @@ impactStoryRouter.get('/:id', async (req, res, next) => {
 impactStoryRouter.post(
     '/',
     authenticate,
-    authorize(['admin', 'super_admin']),
+    authorize(['chief_admin', 'super_admin']),
     async (req, res, next) => {
         try {
             const story = await createStory(req.body);
@@ -50,7 +50,7 @@ impactStoryRouter.post(
 impactStoryRouter.put(
     '/:id',
     authenticate,
-    authorize(['admin', 'super_admin']),
+    authorize(['chief_admin', 'super_admin']),
     async (req, res, next) => {
         try {
             const story = await updateStory(req.params.id as string, req.body);
@@ -65,7 +65,7 @@ impactStoryRouter.put(
 impactStoryRouter.delete(
     '/:id',
     authenticate,
-    authorize(['admin', 'super_admin']),
+    authorize(['chief_admin', 'super_admin']),
     async (req, res, next) => {
         try {
             await deleteStory(req.params.id as string);
