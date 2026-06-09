@@ -149,11 +149,15 @@ export const createStory = async (data: any) => {
         // Add media
         if (media && Array.isArray(media)) {
             for (const item of media) {
-                await query(
-                    `INSERT INTO story_media (story_id, media_type, media_url, thumbnail_url, caption, display_order)
+                // Support both 'url' and 'media_url' field names
+                const mediaUrl = item.media_url || item.url;
+                if (mediaUrl) {
+                    await query(
+                        `INSERT INTO story_media (story_id, media_type, media_url, thumbnail_url, caption, display_order)
            VALUES ($1, $2, $3, $4, $5, $6)`,
-                    [story.id, item.media_type, item.media_url, item.thumbnail_url, item.caption, item.display_order || 0]
-                );
+                        [story.id, item.media_type, mediaUrl, item.thumbnail_url, item.caption, item.display_order || 0]
+                    );
+                }
             }
         }
 
@@ -199,11 +203,15 @@ export const updateStory = async (id: string, data: any) => {
             // Transactional-like cleanup and re-insert for simplicity
             await query('DELETE FROM story_media WHERE story_id = $1', [id]);
             for (const item of media) {
-                await query(
-                    `INSERT INTO story_media (story_id, media_type, media_url, thumbnail_url, caption, display_order)
+                // Support both 'url' and 'media_url' field names
+                const mediaUrl = item.media_url || item.url;
+                if (mediaUrl) {
+                    await query(
+                        `INSERT INTO story_media (story_id, media_type, media_url, thumbnail_url, caption, display_order)
            VALUES ($1, $2, $3, $4, $5, $6)`,
-                    [id, item.media_type, item.media_url, item.thumbnail_url, item.caption, item.display_order || 0]
-                );
+                        [id, item.media_type, mediaUrl, item.thumbnail_url, item.caption, item.display_order || 0]
+                    );
+                }
             }
         }
 
