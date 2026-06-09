@@ -213,7 +213,7 @@ export function ImpactStoriesManager() {
             title: formData.title,
             content: formData.content,
             impact_summary: formData.impact_summary || undefined,
-            campaign_id: formData.campaign_id || undefined,
+            campaign_id: formData.campaign_id && formData.campaign_id !== 'none' ? formData.campaign_id : undefined,
             status: formData.status,
             media: formData.media.map((m, idx) => ({
                 ...m,

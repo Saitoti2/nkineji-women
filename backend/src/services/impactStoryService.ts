@@ -123,6 +123,11 @@ export const createStory = async (data: any) => {
     try {
         const { media, ...storyData } = data;
 
+        // Sanitize campaign_id: convert "none" string or empty string to null
+        const campaignId = storyData.campaign_id && storyData.campaign_id !== 'none' && storyData.campaign_id !== '' 
+            ? storyData.campaign_id 
+            : null;
+
         const result = await query<ImpactStory>(
             `INSERT INTO impact_stories 
        (beneficiary_name, beneficiary_age, location, profile_image_url, short_bio, title, content, impact_summary, campaign_id, beneficiary_id, status, priority)
@@ -137,7 +142,7 @@ export const createStory = async (data: any) => {
                 storyData.title,
                 storyData.content,
                 storyData.impact_summary,
-                storyData.campaign_id,
+                campaignId,
                 storyData.beneficiary_id,
                 storyData.status || 'published',
                 storyData.priority || 0
@@ -175,6 +180,11 @@ export const updateStory = async (id: string, data: any) => {
         // Verify existence
         await getStoryById(id);
 
+        // Sanitize campaign_id: convert "none" string or empty string to null
+        const campaignId = storyData.campaign_id && storyData.campaign_id !== 'none' && storyData.campaign_id !== '' 
+            ? storyData.campaign_id 
+            : null;
+
         await query(
             `UPDATE impact_stories 
        SET beneficiary_name = $1, beneficiary_age = $2, location = $3, 
@@ -191,7 +201,7 @@ export const updateStory = async (id: string, data: any) => {
                 storyData.title,
                 storyData.content,
                 storyData.impact_summary,
-                storyData.campaign_id,
+                campaignId,
                 storyData.status,
                 id,
                 storyData.priority // $12
