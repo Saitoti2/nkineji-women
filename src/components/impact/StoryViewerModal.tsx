@@ -253,7 +253,7 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                 id: story.id,
                 title: story.title,
                 description: story.content?.slice(0, 160),
-                image_url: story.profile_image_url || story.media?.[0]?.media_url,
+                image_url: getImageUrl(story.profile_image_url || story.media?.[0]?.media_url),
                 meta: story.location ? `📍 ${story.location}` : undefined,
                 tags: ["#NkinejiWomen", "#ImpactStory", "#MaasaiMara"],
             }}
