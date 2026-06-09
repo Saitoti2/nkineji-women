@@ -2,11 +2,11 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { X, Heart, Users, Calendar, Target, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { X, Heart, Users, Calendar, Target, Share2 } from "lucide-react";
 import { useState } from "react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { useDonationStore } from "@/stores/donationStore";
-import { toast } from "@/hooks/use-toast";
+import { ShareCard } from "@/components/ui/ShareCard";
 
 interface Campaign {
     id: string;
@@ -42,31 +42,8 @@ function calculateDaysLeft(endDate?: string): number | null {
 
 export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetailModalProps) {
     const [donationAmount, setDonationAmount] = useState('');
+    const [shareOpen, setShareOpen] = useState(false);
     const { openDonationModal } = useDonationStore();
-
-    const handleShare = async () => {
-        if (!campaign) return;
-
-        const shareData = {
-            title: campaign.title,
-            text: `Support this campaign: ${campaign.title}`,
-            url: `${window.location.origin}/campaigns/${campaign.id}`,
-        };
-
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch (err) {
-                console.error("Error sharing:", err);
-            }
-        } else {
-            navigator.clipboard.writeText(shareData.url);
-            toast({
-                title: "Link copied",
-                description: "Campaign link copied to clipboard",
-            });
-        }
-    };
 
     if (!campaign) return null;
 
@@ -74,6 +51,7 @@ export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetai
     const daysLeft = calculateDaysLeft(campaign.end_date);
 
     return (
+        <>
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-[900px] w-[95vw] h-[85vh] p-0 overflow-hidden bg-card border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem]">
                 <div className="sr-only">
@@ -216,7 +194,7 @@ export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetai
                                         <Button
                                             variant="ghost"
                                             className="w-full h-12 rounded-xl text-muted-foreground hover:text-foreground"
-                                            onClick={handleShare}
+                                            onClick={() => setShareOpen(true)}
                                         >
                                             <Share2 className="w-4 h-4 mr-2" />
                                             Share Campaign
@@ -229,5 +207,20 @@ export function CampaignDetailModal({ isOpen, onClose, campaign }: CampaignDetai
                 </div>
             </DialogContent>
         </Dialog>
+
+        <ShareCard
+            isOpen={shareOpen}
+            onClose={() => setShareOpen(false)}
+            data={{
+                type: "campaign",
+                id: campaign.id,
+                title: campaign.title,
+                description: campaign.description,
+                image_url: campaign.image_url,
+                meta: `${formatCurrency(campaign.goal_amount)} goal · ${Math.round(progress)}% funded`,
+                tags: campaign.category ? [`#${campaign.category.replace(/\s+/g, '')}`] : ["#NkinejiWomen", "#Impact"],
+            }}
+        />
+    </>
     );
 }

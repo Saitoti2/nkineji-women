@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag, Share2 } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
+import { useState } from "react";
+import { ShareCard } from "@/components/ui/ShareCard";
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
@@ -24,6 +26,7 @@ const fetchEssentials = async (): Promise<Item[]> => {
 
 export function EssentialsSection() {
     const navigate = useNavigate();
+    const [shareItem, setShareItem] = useState<Item | null>(null);
 
     const { data: items = [], isLoading } = useQuery({
         queryKey: ['landing-essentials'],
@@ -60,10 +63,12 @@ export function EssentialsSection() {
                         <div
                             key={item.id}
                             className="group relative bg-card rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 cursor-pointer"
-                            onClick={() => navigate('/essentials')}
                             style={{ animationDelay: `${idx * 150}ms` }}
                         >
-                            <div className="aspect-square relative overflow-hidden">
+                            <div
+                                className="aspect-square relative overflow-hidden"
+                                onClick={() => navigate('/essentials')}
+                            >
                                 <img
                                     src={getImageUrl(item.image_url)}
                                     alt={item.name}
@@ -76,23 +81,57 @@ export function EssentialsSection() {
                             </div>
 
                             <div className="p-8">
-                                <h3 className="font-display text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
+                                <h3
+                                    className="font-display text-2xl font-bold mb-3 group-hover:text-primary transition-colors cursor-pointer"
+                                    onClick={() => navigate('/essentials')}
+                                >
                                     {item.name}
                                 </h3>
-                                <p className="text-muted-foreground line-clamp-2 mb-6">
+                                <p
+                                    className="text-muted-foreground line-clamp-2 mb-6 cursor-pointer"
+                                    onClick={() => navigate('/essentials')}
+                                >
                                     {item.description}
                                 </p>
                                 <div className="flex items-center justify-between">
-                                    <div className="flex items-center text-primary font-medium text-sm">
+                                    <div
+                                        className="flex items-center text-primary font-medium text-sm cursor-pointer"
+                                        onClick={() => navigate('/essentials')}
+                                    >
                                         <ShoppingBag className="w-4 h-4 mr-2" />
                                         Give this item
                                     </div>
-                                    <span className="text-[9px] text-muted-foreground/40 uppercase font-bold">NKCI Brand</span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShareItem(item);
+                                        }}
+                                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-muted/50"
+                                    >
+                                        <Share2 className="w-3.5 h-3.5" />
+                                        Share
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
+
+                {shareItem && (
+                    <ShareCard
+                        isOpen={!!shareItem}
+                        onClose={() => setShareItem(null)}
+                        data={{
+                            type: "item",
+                            id: shareItem.id,
+                            title: shareItem.name,
+                            description: shareItem.description,
+                            image_url: shareItem.image_url,
+                            meta: `$${shareItem.unit_price} per item`,
+                            tags: ["#NkinejiWomen", "#Essentials", "#GiveDirectly"],
+                        }}
+                    />
+                )}
             </div>
         </section>
     );

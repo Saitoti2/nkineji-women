@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, ShoppingBag, Plus, Minus, Loader2 } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Loader2, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "@/lib/utils";
+import { ShareCard } from "@/components/ui/ShareCard";
 
 interface Item {
     id: string;
@@ -25,6 +26,7 @@ export default function EssentialsDonation() {
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState<Record<string, number>>({});
     const [submitting, setSubmitting] = useState(false);
+    const [shareItem, setShareItem] = useState<Item | null>(null);
 
     useEffect(() => {
         fetchItems();
@@ -140,6 +142,13 @@ export default function EssentialsDonation() {
                                     <div className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm px-3 py-1 rounded-full font-bold text-primary shadow-sm">
                                         ${Number(item.unit_price).toFixed(2)}
                                     </div>
+                                    {/* Share button on image */}
+                                    <button
+                                        onClick={() => setShareItem(item)}
+                                        className="absolute top-2 left-2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors shadow-sm"
+                                    >
+                                        <Share2 className="w-3.5 h-3.5 text-foreground" />
+                                    </button>
                                 </div>
 
                                 <CardHeader className="pb-3">
@@ -206,6 +215,22 @@ export default function EssentialsDonation() {
             </main>
 
             <Footer />
+
+            {shareItem && (
+                <ShareCard
+                    isOpen={!!shareItem}
+                    onClose={() => setShareItem(null)}
+                    data={{
+                        type: "item",
+                        id: shareItem.id,
+                        title: shareItem.name,
+                        description: shareItem.description,
+                        image_url: shareItem.image_url,
+                        meta: `$${Number(shareItem.unit_price).toFixed(2)} per item`,
+                        tags: ["#NkinejiWomen", "#Essentials", "#GiveDirectly"],
+                    }}
+                />
+            )}
         </div>
     );
 }

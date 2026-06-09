@@ -1,16 +1,72 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { X, Heart, MessageCircle, Share2, MapPin, Calendar, Play, Pause, Volume2, Maximize, ChevronLeft, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { X, Heart, MessageCircle, Share2, MapPin, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn, getImageUrl } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { CommentSection } from "./CommentSection";
-import { toast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/authStore";
+import { ShareCard } from "@/components/ui/ShareCard";
+
+const API_BASE = import.meta.env.VITE_API_URL;
+
+function getVisitorId() {
+    let id = localStorage.getItem("visitor_id");
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem("visitor_id", id); }
+    return id;
+}
 
 export function StoryViewerModal({ isOpen, onClose, story }: any) {
+    const queryClient = useQueryClient();
+    const { user, accessToken } = useAuthStore();
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
+
+    // Local optimistic state for story-level likes
+    const [localLikes, setLocalLikes] = useState<number | null>(null);
+    const [localHasLiked, setLocalHasLiked] = useState<boolean | null>(null);
+
+    const likesCount = localLikes !== null ? localLikes : (Number(story?.likes_count) || 0);
+    const hasLiked = localHasLiked !== null ? localHasLiked : !!story?.user_has_liked;
+    const commentsCount = Number(story?.comments_count) || 0;
+
+    const storyReactionMutation = useMutation({
+        mutationFn: async () => {
+            const visitorId = getVisitorId();
+            const res = await fetch(`${API_BASE}/impact-stories/${story.id}/react`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : { "x-visitor-id": visitorId }),
+                },
+                body: JSON.stringify({
+                    reaction_type: "like",
+                    visitor_id: user ? null : visitorId,
+                }),
+            });
+            return res.json();
+        },
+        onMutate: () => {
+            // Optimistic update
+            const currentLikes = likesCount;
+            const currentHasLiked = hasLiked;
+            setLocalHasLiked(!currentHasLiked);
+            setLocalLikes(currentHasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1);
+        },
+        onError: () => {
+            // Revert
+            setLocalHasLiked(null);
+            setLocalLikes(null);
+        },
+        onSuccess: (data) => {
+            if (data?.data) {
+                setLocalLikes(Number(data.data.likes_count));
+                setLocalHasLiked(data.data.user_has_liked);
+            }
+            queryClient.invalidateQueries({ queryKey: ["impact-stories"] });
+        },
+    });
 
     const media = story.media || [];
     const currentMedia = media[currentMediaIndex];
@@ -23,29 +79,8 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
         }
     };
 
-    const handleShare = async () => {
-        const shareData = {
-            title: story.title,
-            text: `Check out this impact story: ${story.title}`,
-            url: `${window.location.origin}/impact/${story.id}`,
-        };
-
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch (err) {
-                console.error("Error sharing:", err);
-            }
-        } else {
-            navigator.clipboard.writeText(shareData.url);
-            toast({
-                title: "Link copied",
-                description: "Story link copied to clipboard",
-            });
-        }
-    };
-
     return (
+        <>
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-[1000px] w-[95vw] sm:w-full h-[85dvh] sm:h-[90vh] p-0 overflow-hidden bg-card border-none shadow-2xl rounded-2xl sm:rounded-[2rem] flex flex-col">
                 <DialogTitle className="sr-only">{story?.title || "Story Details"}</DialogTitle>
@@ -173,10 +208,16 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
 
                             {/* Interaction Stats */}
                             <div className="px-6 md:px-6 py-4 md:py-4 flex items-center justify-between border-y border-border/40 bg-muted/20 sticky top-0 md:relative z-10 backdrop-blur-md md:backdrop-filter-none">
-                                <div className="flex gap-6">
-                                    <div className="flex flex-col items-center gap-1 group/stat cursor-pointer">
-                                        <Heart className="w-5 h-5 md:w-5 md:h-5 text-accent hover:fill-current" />
-                                        <span className="text-[11px] md:text-[11px] font-bold text-muted-foreground">42</span>
+                            <div className="flex gap-6">
+                                    <div
+                                        className="flex flex-col items-center gap-1 group/stat cursor-pointer"
+                                        onClick={() => storyReactionMutation.mutate()}
+                                    >
+                                        <Heart className={cn(
+                                            "w-5 h-5 md:w-5 md:h-5 transition-colors",
+                                            hasLiked ? "text-red-500 fill-red-500" : "text-accent hover:text-red-500"
+                                        )} />
+                                        <span className="text-[11px] md:text-[11px] font-bold text-muted-foreground">{likesCount}</span>
                                     </div>
                                     <div
                                         className="flex flex-col items-center gap-1 group/stat cursor-pointer"
@@ -184,13 +225,13 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                                     >
                                         <MessageCircle className="w-5 h-5 md:w-5 md:h-5 text-blue-500 hover:fill-current transition-transform group-hover/stat:scale-110" />
                                         <span className="text-[11px] md:text-[11px] font-bold text-muted-foreground">
-                                            {story.comments_count || 12}
+                                            {commentsCount}
                                         </span>
                                     </div>
                                 </div>
                                 <Share2
                                     className="w-5 h-5 md:w-5 md:h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                                    onClick={handleShare}
+                                    onClick={() => setShareOpen(true)}
                                 />
                             </div>
 
@@ -203,5 +244,20 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                 </div>
             </DialogContent>
         </Dialog>
+
+        <ShareCard
+            isOpen={shareOpen}
+            onClose={() => setShareOpen(false)}
+            data={{
+                type: "story",
+                id: story.id,
+                title: story.title,
+                description: story.content?.slice(0, 160),
+                image_url: story.profile_image_url || story.media?.[0]?.media_url,
+                meta: story.location ? `📍 ${story.location}` : undefined,
+                tags: ["#NkinejiWomen", "#ImpactStory", "#MaasaiMara"],
+            }}
+        />
+    </>
     );
 }
