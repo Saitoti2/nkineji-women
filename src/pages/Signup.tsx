@@ -108,7 +108,8 @@ export default function Signup() {
                 <CardHeader className="space-y-1">
                     <div className="flex justify-center mb-4">
                         <Link to="/">
-                            <img src="/logo.png" alt="Nkineji Initiative" className="h-12 w-auto object-contain" />
+                            <img src="/logo-light.png" alt="Nkineji Initiative" className="h-12 w-auto object-contain dark:hidden" />
+                            <img src="/logo-dark.png" alt="Nkineji Initiative" className="h-12 w-auto object-contain hidden dark:block" />
                         </Link>
                     </div>
                     <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>

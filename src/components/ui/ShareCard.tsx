@@ -162,11 +162,15 @@ export function ShareCard({ isOpen, onClose, data }: ShareCardProps) {
                                 />
                                 {/* OG overlay gradient */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                                {/* Type badge */}
-                                <div className="absolute top-3 left-3">
+                                {/* Type badge & Brand Logo */}
+                                <div className="absolute top-3 left-3 flex items-center gap-2">
                                     <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary/90 text-white backdrop-blur-sm">
                                         {typeLabel}
                                     </span>
+                                </div>
+                                <div className="absolute top-3 right-3 flex items-center bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                                    <img src="/logo-dark.png" alt="Nkineji" className="w-5 h-5 object-contain" />
+                                    <span className="text-[10px] font-bold text-white ml-1.5">Nkineji</span>
                                 </div>
                                 {/* Title overlay */}
                                 <div className="absolute bottom-3 left-3 right-3">
@@ -179,9 +183,13 @@ export function ShareCard({ isOpen, onClose, data }: ShareCardProps) {
                         {/* Card body */}
                         <div className="p-4 space-y-1.5">
                             {!imageUrl && (
-                                <p className="font-display font-bold text-base leading-tight line-clamp-2">
-                                    {data.title}
-                                </p>
+                                <div className="flex items-center justify-between mb-1">
+                                    <p className="font-display font-bold text-base leading-tight line-clamp-2">
+                                        {data.title}
+                                    </p>
+                                    <img src="/logo-light.png" alt="Logo" className="w-6 h-6 object-contain dark:hidden shrink-0" />
+                                    <img src="/logo-dark.png" alt="Logo" className="w-6 h-6 object-contain hidden dark:block shrink-0" />
+                                </div>
                             )}
                             {data.description && (
                                 <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
@@ -192,9 +200,13 @@ export function ShareCard({ isOpen, onClose, data }: ShareCardProps) {
                                 {data.meta && (
                                     <span className="text-xs font-bold text-primary">{data.meta}</span>
                                 )}
-                                <span className="text-[10px] text-muted-foreground/60 ml-auto font-mono">
-                                    nkineji.org
-                                </span>
+                                <div className="flex items-center gap-1.5 ml-auto">
+                                    <img src="/logo-light.png" alt="Logo" className="w-3.5 h-3.5 object-contain dark:hidden" />
+                                    <img src="/logo-dark.png" alt="Logo" className="w-3.5 h-3.5 object-contain hidden dark:block" />
+                                    <span className="text-[10px] text-muted-foreground/80 font-semibold">
+                                        nkinejiwomen.com
+                                    </span>
+                                </div>
                             </div>
                             {data.tags && data.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-1 pt-1">

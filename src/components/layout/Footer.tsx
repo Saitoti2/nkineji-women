@@ -46,9 +46,14 @@ export function Footer() {
         >
           <div className="flex items-center gap-3">
             <img
-              src="/logo.png"
+              src="/logo-light.png"
               alt="Nkineji Community Initiative"
-              className="w-8 h-8 rounded-lg object-contain"
+              className="w-8 h-8 rounded-lg object-contain dark:hidden"
+            />
+            <img
+              src="/logo-dark.png"
+              alt="Nkineji Community Initiative"
+              className="w-8 h-8 rounded-lg object-contain hidden dark:block"
             />
             <div className="text-left">
               <p className="text-xs font-semibold text-foreground">Nkineji Community</p>
@@ -153,9 +158,14 @@ export function Footer() {
             {/* Brand */}
             <div className="flex items-center gap-3">
               <img
-                src="/logo.png"
+                src="/logo-light.png"
                 alt="Nkineji Community Initiative"
-                className="w-10 h-10 rounded-xl object-contain"
+                className="w-10 h-10 rounded-xl object-contain dark:hidden"
+              />
+              <img
+                src="/logo-dark.png"
+                alt="Nkineji Community Initiative"
+                className="w-10 h-10 rounded-xl object-contain hidden dark:block"
               />
               <div>
                 <h3 className="font-display font-semibold text-foreground text-sm sm:text-base">Nkineji Community</h3>

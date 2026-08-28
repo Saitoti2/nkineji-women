@@ -79,10 +79,10 @@ export default function handler(request) {
                             }}
                         >
                             <img
-                                src="https://nkinejiwomen.com/logo.png"
-                                width="32"
-                                height="32"
-                                style={{ borderRadius: '50%', marginRight: '10px' }}
+                                src="https://nkinejiwomen.com/logo-light.png"
+                                width="36"
+                                height="36"
+                                style={{ objectFit: 'contain', marginRight: '10px' }}
                             />
                             <span style={{ fontSize: 20, fontWeight: 700, color: '#e11d48' }}>
                                 Nkineji Initiative

@@ -165,7 +165,8 @@ export default function Login() {
                 <CardHeader className="space-y-1 pb-4 pt-8">
                     <div className="flex justify-center mb-3">
                         <Link to="/">
-                            <img src="/logo.png" alt="Nkineji Initiative" className="h-10 w-auto object-contain" />
+                            <img src="/logo-light.png" alt="Nkineji Initiative" className="h-10 w-auto object-contain dark:hidden" />
+                            <img src="/logo-dark.png" alt="Nkineji Initiative" className="h-10 w-auto object-contain hidden dark:block" />
                         </Link>
                     </div>
                     <CardTitle className="text-2xl font-display font-bold text-center">Welcome back</CardTitle>

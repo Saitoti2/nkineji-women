@@ -35,9 +35,14 @@ export function Header() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
             <img
-              src="/logo.png"
+              src="/logo-light.png"
               alt="Nkineji Community Development Initiative"
-              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0 dark:hidden"
+            />
+            <img
+              src="/logo-dark.png"
+              alt="Nkineji Community Development Initiative"
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg sm:rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 flex-shrink-0 hidden dark:block"
             />
             <div className="hidden min-[375px]:block min-w-0">
               <h1 className="font-display font-semibold text-sm sm:text-base md:text-lg text-foreground leading-tight truncate">Nkineji</h1>
@@ -88,9 +93,14 @@ export function Header() {
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
                       <img
-                        src="/logo.png"
+                        src="/logo-light.png"
                         alt="Nkineji Community Initiative"
-                        className="w-10 h-10 rounded-xl object-contain"
+                        className="w-10 h-10 rounded-xl object-contain dark:hidden"
+                      />
+                      <img
+                        src="/logo-dark.png"
+                        alt="Nkineji Community Initiative"
+                        className="w-10 h-10 rounded-xl object-contain hidden dark:block"
                       />
                       <div>
                         <h2 className="font-display font-semibold text-foreground">Menu</h2>

@@ -303,10 +303,21 @@ export function DynamicNavbar() {
             )}
           >
             <img
-              src="/logo.png"
+              src="/logo-light.png"
               alt="Nkineji Initiative"
               className={cn(
-                "rounded-lg object-contain transition-all duration-700 flex-shrink-0",
+                "rounded-lg object-contain transition-all duration-700 flex-shrink-0 dark:hidden",
+                isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
+              )}
+              style={{
+                display: isScrolled && !isExpanded ? "none" : "block",
+              }}
+            />
+            <img
+              src="/logo-dark.png"
+              alt="Nkineji Initiative"
+              className={cn(
+                "rounded-lg object-contain transition-all duration-700 flex-shrink-0 hidden dark:block",
                 isScrolled && isExpanded ? "h-8 w-auto" : isScrolled ? "h-0 w-0" : "h-10 w-auto"
               )}
               style={{
@@ -474,9 +485,14 @@ export function DynamicNavbar() {
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
                       <img
-                        src="/logo.png"
+                        src="/logo-light.png"
                         alt="Nkineji Community Initiative"
-                        className="h-10 w-auto rounded-xl object-contain"
+                        className="h-10 w-auto rounded-xl object-contain dark:hidden"
+                      />
+                      <img
+                        src="/logo-dark.png"
+                        alt="Nkineji Community Initiative"
+                        className="h-10 w-auto rounded-xl object-contain hidden dark:block"
                       />
                       <div>
                         <h2 className="font-display font-semibold text-foreground">Menu</h2>
