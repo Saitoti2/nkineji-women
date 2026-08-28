@@ -112,6 +112,74 @@ app.get('/', (req, res) => {
     });
 });
 
+// Public stats endpoint — no auth required
+app.get(`${API_PREFIX}/public/stats`, async (req, res, next) => {
+    try {
+        const [
+            beneficiariesResult,
+            raisedResult,
+            donorsResult,
+            storiesResult,
+            campaignsResult,
+        ] = await Promise.all([
+            getPool().query(`SELECT COUNT(*) as count FROM beneficiaries WHERE is_deleted = FALSE`),
+            getPool().query(`SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE status = 'succeeded' AND is_deleted = FALSE`),
+            getPool().query(`SELECT COUNT(DISTINCT email) as count FROM donations WHERE status = 'succeeded' AND is_deleted = FALSE`),
+            getPool().query(`SELECT COUNT(*) as count FROM impact_stories WHERE status = 'published'`),
+            getPool().query(`SELECT COUNT(*) as count FROM campaigns WHERE status = 'active' AND is_deleted = FALSE`),
+        ]);
+
+        res.json({
+            success: true,
+            data: {
+                beneficiariesCount: parseInt(beneficiariesResult.rows[0]?.count || '0'),
+                totalRaised: parseFloat(raisedResult.rows[0]?.total || '0'),
+                uniqueDonors: parseInt(donorsResult.rows[0]?.count || '0'),
+                storiesCount: parseInt(storiesResult.rows[0]?.count || '0'),
+                activeCampaigns: parseInt(campaignsResult.rows[0]?.count || '0'),
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+// Public Stats Endpoint — no auth required, cached-friendly
+app.get(`${API_PREFIX}/stats`, async (req, res, next) => {
+    try {
+        const [
+            campaignsResult,
+            beneficiariesResult,
+            donationsResult,
+            raisedResult,
+            storiesResult,
+            commentsResult,
+        ] = await Promise.all([
+            getPool().query(`SELECT COUNT(*) as count FROM campaigns WHERE is_deleted = FALSE AND status = 'active'`),
+            getPool().query(`SELECT COUNT(*) as count FROM beneficiaries WHERE is_deleted = FALSE`),
+            getPool().query(`SELECT COUNT(*) as count FROM donations WHERE is_deleted = FALSE AND status = 'succeeded'`),
+            getPool().query(`SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE status = 'succeeded' AND is_deleted = FALSE`),
+            getPool().query(`SELECT COUNT(*) as count FROM impact_stories WHERE status = 'published'`),
+            getPool().query(`SELECT COUNT(*) as count FROM impact_comments WHERE status = 'approved'`),
+        ]);
+
+        res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+        res.json({
+            success: true,
+            data: {
+                activeCampaigns: parseInt(campaignsResult.rows[0]?.count || '0'),
+                beneficiaries: parseInt(beneficiariesResult.rows[0]?.count || '0'),
+                donations: parseInt(donationsResult.rows[0]?.count || '0'),
+                totalRaised: parseFloat(raisedResult.rows[0]?.total || '0'),
+                impactStories: parseInt(storiesResult.rows[0]?.count || '0'),
+                communityComments: parseInt(commentsResult.rows[0]?.count || '0'),
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+});
 
 app.use(`${API_PREFIX}/auth`, authRouter);
 app.use(`${API_PREFIX}/admin`, adminRouter);

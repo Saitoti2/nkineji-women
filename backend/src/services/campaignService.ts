@@ -47,10 +47,12 @@ export const getCampaigns = async (filters: CampaignFilters): Promise<Campaign[]
   }
 };
 
-export const getCampaign = async (id: string): Promise<Campaign> => {
+export const getCampaign = async (id: string): Promise<Campaign & { donors_count: number }> => {
   try {
     const result = await query<Campaign>(
-      'SELECT * FROM campaigns WHERE id = $1 AND is_deleted = FALSE',
+      `SELECT c.*,
+        (SELECT COUNT(DISTINCT email) FROM donations WHERE campaign_id = c.id AND status = 'succeeded' AND is_deleted = FALSE) as donors_count
+       FROM campaigns c WHERE c.id = $1 AND c.is_deleted = FALSE`,
       [id]
     );
 
@@ -58,7 +60,7 @@ export const getCampaign = async (id: string): Promise<Campaign> => {
       throw new ApiError('Campaign not found', 404);
     }
 
-    return result.rows[0];
+    return result.rows[0] as Campaign & { donors_count: number };
   } catch (error) {
     if (error instanceof ApiError) throw error;
     logger.error('Error fetching campaign', error);

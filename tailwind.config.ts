@@ -82,10 +82,15 @@ export default {
         "3xl": "2rem",
       },
       boxShadow: {
-        'float': '0 8px 32px -8px hsl(20 20% 15% / 0.12), 0 4px 16px -4px hsl(20 20% 15% / 0.08)',
-        'float-lg': '0 16px 48px -12px hsl(20 20% 15% / 0.18), 0 8px 24px -8px hsl(20 20% 15% / 0.1)',
-        'float-xl': '0 24px 64px -16px hsl(20 20% 15% / 0.2), 0 12px 32px -12px hsl(20 20% 15% / 0.12)',
-        'glow': '0 0 40px hsl(16 65% 45% / 0.2)',
+        'neu': 'none',
+        'neu-sm': 'none',
+        'neu-lg': 'none',
+        'neu-inset': 'none',
+        'neu-inset-sm': 'none',
+        'float': 'none',
+        'float-lg': 'none',
+        'float-xl': 'none',
+        'none': 'none',
       },
       keyframes: {
         "accordion-down": {

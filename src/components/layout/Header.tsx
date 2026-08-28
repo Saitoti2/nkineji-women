@@ -26,7 +26,7 @@ export function Header() {
   return (
     <header
       className={`fixed top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 z-50 transition-all duration-500 rounded-xl sm:rounded-2xl ${scrolled
-        ? "bg-card/95 backdrop-blur-xl shadow-float border border-border/50"
+        ? "bg-card/95 backdrop-blur-xl border border-border/50"
         : "bg-card/80 backdrop-blur-lg border border-border/30"
         }`}
     >

@@ -5,26 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-bold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-float hover:shadow-float-lg hover:-translate-y-0.5",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-float hover:shadow-float-lg",
-        outline: "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-float hover:shadow-float-lg hover:-translate-y-0.5",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 active:scale-100",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-foreground/30 bg-transparent text-foreground hover:bg-foreground/5 hover:border-foreground/50",
+        secondary: "bg-card border border-border text-foreground hover:bg-muted hover:scale-105 active:scale-100",
         ghost: "text-foreground hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        donate: "bg-accent text-accent-foreground shadow-float hover:shadow-float-lg hover:scale-105 font-bold",
-        hero: "bg-card text-primary hover:bg-card/90 shadow-float-lg hover:shadow-float-xl hover:-translate-y-1",
-        "hero-outline": "border-2 border-card/30 text-card hover:bg-card/10 backdrop-blur-sm",
+        donate: "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 font-bold active:scale-100",
+        hero: "bg-background text-primary border border-border hover:bg-muted hover:scale-105 active:scale-100",
+        "hero-outline": "border border-white/30 text-white hover:bg-white/10",
       },
       size: {
-        default: "h-11 min-h-[44px] px-6 py-2",
-        sm: "h-9 min-h-[44px] rounded-lg px-4",
-        lg: "h-14 min-h-[48px] sm:min-h-[56px] rounded-2xl px-8 sm:px-10 text-sm sm:text-base",
-        xl: "h-16 min-h-[52px] sm:min-h-[64px] rounded-2xl px-10 sm:px-12 text-base sm:text-lg",
-        icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
+        default: "h-9 px-4 py-1.5",
+        sm: "h-7 px-3 text-xs",
+        lg: "h-9 px-5 text-sm font-semibold",
+        xl: "h-10 px-6 text-sm font-bold",
+        icon: "h-8 w-8 min-h-[32px] min-w-[32px]",
       },
     },
     defaultVariants: {

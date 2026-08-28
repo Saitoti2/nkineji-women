@@ -12,7 +12,7 @@ import { DonateSection } from "@/components/sections/DonateSection";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <DynamicNavbar />
       <main>
         <HeroSection />

@@ -38,19 +38,18 @@ export function EssentialsSection() {
 
     return (
         <section id="essentials" className="py-24 bg-background relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-primary/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
 
             <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
                     <div className="max-w-2xl">
-                        <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/30 text-secondary-foreground text-sm font-medium mb-4">
+                        <span className="inline-block px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-3">
                             Essentials Boutique
                         </span>
-                        <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground leading-tight">
+                        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
                             Shop for <span className="text-primary italic">Impact</span>
                         </h2>
-                        <p className="text-muted-foreground text-lg mt-4 max-w-xl">
-                            Purchase essential items that go directly to women and girls in the Mara. Tangible support, immediate difference.
+                        <p className="text-foreground/90 font-medium text-base sm:text-lg mt-3 max-w-xl">
+                            Purchase essential items sent directly to women and girls in the Mara.
                         </p>
                     </div>
                     <Button onClick={() => navigate('/essentials')} variant="outline" className="hidden md:flex group">
@@ -62,7 +61,7 @@ export function EssentialsSection() {
                     {items.map((item, idx) => (
                         <div
                             key={item.id}
-                            className="group relative bg-card rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                            className="group relative bg-card rounded-[2.5rem] overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                             style={{ animationDelay: `${idx * 150}ms` }}
                         >
                             <div
@@ -74,8 +73,8 @@ export function EssentialsSection() {
                                     alt={item.name}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                                <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-md text-foreground font-bold px-4 py-2 rounded-full shadow-lg">
+                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all" />
+                                <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-md text-foreground font-bold px-4 py-2 rounded-full border border-border/50">
                                     ${item.unit_price}
                                 </div>
                             </div>

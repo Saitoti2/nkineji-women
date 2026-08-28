@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { authenticate } from '../../middleware/authenticate.js';
+import { authenticate, authenticateOptional } from '../../middleware/authenticate.js';
 import { authorize } from '../../middleware/authorize.js';
 import { getAllStories, getStoryById, createStory, updateStory, deleteStory } from '../../services/impactStoryService.js';
+import { query } from '../../db/connection.js';
 
 export const impactStoryRouter = Router();
 

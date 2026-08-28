@@ -46,18 +46,18 @@ export function CampaignsSection() {
 
   return (
     <>
-      <section id="campaigns" className="py-24 bg-gradient-to-b from-background via-muted/20 to-background">
+      <section id="campaigns" className="py-24">
         <div className="container mx-auto px-4 sm:px-6">
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-3">
               Active Campaigns
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-3 leading-tight">
               Choose Your <span className="text-primary italic">Impact</span>
             </h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              Direct your donation to causes that matter most to you. Every campaign is fully transparent with real-time progress tracking.
+            <p className="text-foreground/90 font-medium text-base sm:text-lg">
+              Direct your donation to causes that matter most. Every campaign is 100% transparent.
             </p>
           </div>
 
@@ -121,7 +121,7 @@ function CampaignItem({ campaign, index, onClick }: { campaign: Campaign; index:
   return (
     <div
       onClick={onClick}
-      className="group cursor-pointer bg-card rounded-[3rem] overflow-hidden border border-border/50 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-8 fill-mode-both"
+      className="group cursor-pointer bg-card rounded-[3rem] overflow-hidden border border-border/50 hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-8 fill-mode-both"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex flex-col sm:flex-row h-full">
@@ -131,7 +131,7 @@ function CampaignItem({ campaign, index, onClick }: { campaign: Campaign; index:
             alt={campaign.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent sm:bg-gradient-to-r" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="flex-1 p-8 sm:p-10 flex flex-col justify-between">
           <div className="space-y-4">

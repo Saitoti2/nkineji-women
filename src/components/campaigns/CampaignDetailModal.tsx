@@ -4,9 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { X, Heart, Users, Calendar, Target, Share2 } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { cn, getImageUrl } from "@/lib/utils";
 import { useDonationStore } from "@/stores/donationStore";
 import { ShareCard } from "@/components/ui/ShareCard";
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 interface Campaign {
     id: string;

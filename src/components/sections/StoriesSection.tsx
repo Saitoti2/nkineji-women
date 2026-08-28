@@ -22,18 +22,18 @@ export function StoriesSection() {
   });
 
   return (
-    <section id="stories" className="py-24 bg-gradient-to-b from-background via-muted/20 to-background">
+    <section id="stories" className="py-24">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+          <span className="inline-block px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-3">
             Impact Stories
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-3 leading-tight">
             Voices of <span className="text-primary italic">Transformation</span>
           </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            Real stories from women whose lives have been transformed through your generosity. Names changed for privacy; shared with consent.
+          <p className="text-foreground/90 font-medium text-base sm:text-lg">
+            Real stories from women transformed through your generosity.
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export function StoriesSection() {
           {stories.map((story: any, idx: number) => (
             <div
               key={story.id}
-              className="group relative bg-card p-10 rounded-[3rem] border border-border/50 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-8 fill-mode-both cursor-pointer"
+              className="group relative bg-card p-10 rounded-[3rem] border border-border/50 hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-8 fill-mode-both cursor-pointer"
               style={{ animationDelay: `${idx * 100}ms` }}
               onClick={() => navigate(`/impact?storyId=${story.id}`)}
             >

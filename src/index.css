@@ -4,163 +4,112 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Logo visibility and blending for brown logo on different backgrounds */
+/* Logo styling for clean transparent rendering */
 img[src*="logo"] {
-  /* Base styling - ensure good visibility and crisp rendering */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
   background: transparent !important;
   opacity: 1;
-  background-blend-mode: normal;
-  transition: filter 0.3s ease;
-}
-
-/* For white/light backgrounds - remove background completely */
-/* For white/light backgrounds - remove background completely */
-header img[src*="logo"],
-.bg-card img[src*="logo"],
-.bg-background img[src*="logo"],
-.bg-white img[src*="logo"],
-[class*="bg-card"] img[src*="logo"],
-[class*="bg-background"] img[src*="logo"],
-[class*="bg-white"] img[src*="logo"] {
-  /* Remove white background on light sections */
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05)) contrast(1.15) brightness(0.95) saturate(1.1);
-  /* Use CSS to make white transparent */
-  background: transparent;
-}
-
-/* Hover states for better interactivity */
-a:hover img[src*="logo"],
-button:hover img[src*="logo"],
-.group:hover img[src*="logo"] {
-  filter: brightness(1.1) contrast(1.1) saturate(1.15);
 }
 
 @layer base {
   :root {
-    /* Warm Earth & Trust Palette */
-    --background: 30 25% 97%;
-    --foreground: 20 20% 15%;
+    /* Minimalist Palette — White, Black, Red */
+    --background: 0 0% 98%;        /* Pure clean off-white */
+    --foreground: 0 0% 5%;         /* #0d0d0d — deep pure black */
 
-    --card: 0 0% 100%;
-    --card-foreground: 20 20% 15%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 5%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 20% 15%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 5%;
 
-    /* Terracotta - Warmth, African Heritage */
-    --primary: 16 65% 45%;
-    --primary-foreground: 30 25% 98%;
+    /* Red — primary action color */
+    --primary: 4 75% 45%;          /* #c0392b */
+    --primary-foreground: 0 0% 100%;
 
-    /* Forest Green - Conservation, Trust, Growth */
-    --secondary: 150 35% 30%;
-    --secondary-foreground: 30 25% 98%;
+    /* Muted & Text */
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 15%;  /* #262626 — deep dark black-grey */
 
-    /* Warm Cream */
-    --muted: 35 30% 92%;
-    --muted-foreground: 20 15% 45%;
-
-    /* Gold Accent - Hope, Prosperity - Darker/Richer */
-    --accent: 30 80% 50%;
-    --accent-foreground: 20 20% 15%;
+    /* Accent — same red for consistency */
+    --accent: 4 70% 48%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 88%;
-    --ring: 16 65% 45%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 4 70% 48%;
 
     --radius: 1rem;
 
-    /* Custom Design Tokens */
-    --shadow-float: 0 12px 40px -8px hsl(20 20% 15% / 0.15), 0 6px 20px -4px hsl(20 20% 15% / 0.1);
-    --shadow-float-lg: 0 24px 60px -12px hsl(20 20% 15% / 0.2), 0 12px 32px -8px hsl(20 20% 15% / 0.15);
-    --shadow-glow: 0 0 60px hsl(16 65% 45% / 0.25);
-    --shadow-card-hover: 0 20px 50px -12px hsl(20 20% 15% / 0.2), 0 10px 30px -6px hsl(20 20% 15% / 0.15);
-
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(16 65% 45%) 0%, hsl(150 35% 30%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(38 80% 55%) 0%, hsl(28 75% 50%) 100%);
-    --gradient-earth: linear-gradient(180deg, hsl(30 25% 97%) 0%, hsl(35 30% 92%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(35 25% 98%) 100%);
+    /* Neumorphic / Flat Shadow Tokens - Clean & Minimal (No heavy drop shadows) */
+    --neu-shadow: none;
+    --neu-shadow-sm: none;
+    --neu-shadow-lg: none;
+    --neu-shadow-inset: none;
+    --neu-shadow-inset-sm: none;
 
     /* Typography */
     --font-display: 'Playfair Display', serif;
     --font-body: 'Source Sans 3', sans-serif;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-foreground: 0 0% 25%;
+    --sidebar-primary: 4 70% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 90%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 4 70% 48%;
   }
 
   .dark {
-    /* Deeper, more neutral backgrounds */
-    --background: 222 20% 8%;
-    --foreground: 210 20% 98%;
+    /* Pure Black Dark Mode */
+    --background: 0 0% 0%;         /* #000000 pure black */
+    --foreground: 0 0% 95%;        /* #f2f2f2 */
 
-    /* Darker card surfaces with less saturation */
-    --card: 222 18% 11%;
-    --card-foreground: 210 20% 98%;
+    --card: 0 0% 3%;               /* #080808 near pure black */
+    --card-foreground: 0 0% 95%;
 
-    /* Popovers and elevated surfaces */
-    --popover: 222 16% 14%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Toned down primary - less vibrant in dark mode to reduce glow */
-    --primary: 16 40% 45%;
-    /* Further reduced saturation and lightness */
-    --primary-foreground: 210 20% 98%;
+    /* Red stays vibrant */
+    --primary: 4 75% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Toned down secondary green - deeply muted for dark mode */
-    --secondary: 150 15% 20%;
-    /* Very dark, subtle green */
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 90%;
 
-    /* Muted with better contrast */
-    --muted: 222 15% 15%;
-    --muted-foreground: 215 10% 65%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
 
-    /* Toned down accent gold - Darker/Richer */
-    --accent: 30 70% 45%;
-    --accent-foreground: 222 20% 12%;
+    --accent: 4 75% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 60% 50%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* More subtle borders */
-    --border: 222 10% 20%;
-    --input: 222 10% 20%;
-    --ring: 16 50% 50%;
+    --border: 0 0% 15%;            /* Crisp subtle dark border */
+    --input: 0 0% 15%;
+    --ring: 4 75% 50%;
 
-    /* Neutralized shadows - removed colored glows, using standard black shadows */
-    --shadow-float: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-    --shadow-float-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
-    --shadow-glow: none;
-    /* Removed glow effect */
-    --shadow-card-hover: 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+    /* Dark Shadows - None */
+    --neu-shadow: none;
+    --neu-shadow-sm: none;
+    --neu-shadow-lg: none;
+    --neu-shadow-inset: none;
+    --neu-shadow-inset-sm: none;
 
-    /* Darker gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(16 50% 40%) 0%, hsl(150 20% 30%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(38 60% 50%) 0%, hsl(28 60% 45%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(222 18% 14%) 0%, hsl(222 18% 11%) 100%);
-
-    /* Sidebar with consistent cool tones */
-    --sidebar-background: 222 20% 8%;
-    --sidebar-foreground: 210 18% 90%;
-    --sidebar-primary: 16 50% 50%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 222 15% 14%;
-    --sidebar-accent-foreground: 210 18% 90%;
-    --sidebar-border: 222 10% 18%;
-    --sidebar-ring: 16 50% 50%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 4 75% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 4 75% 50%;
   }
 }
 
@@ -189,19 +138,12 @@ button:hover img[src*="logo"],
   /* Dark mode specific enhancements */
   .dark {
 
-    /* Improved card appearance in dark mode */
-    .bg-card {
-      background: hsl(var(--card));
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
-      /* Neutral shadow */
-    }
-
     /* Enhanced borders for better visibility */
     .border {
       border-color: hsl(var(--border));
     }
 
-    /* Subtle glow on hover for interactive elements */
+    /* Subtle hover for interactive elements */
     button:hover,
     a:hover {
       transition: all 0.3s ease;
@@ -212,7 +154,6 @@ button:hover img[src*="logo"],
     textarea,
     select {
       background: hsl(var(--input) / 0.3);
-      /* Reduced opacity */
       border-color: hsl(var(--border));
     }
 
@@ -222,31 +163,13 @@ button:hover img[src*="logo"],
       background: hsl(var(--input) / 0.5);
       border-color: hsl(var(--primary) / 0.4);
       box-shadow: none;
-      /* Removed focus glow */
     }
 
     /* Better modal/dialog appearance */
     [role="dialog"] {
       background: hsl(var(--popover));
       border: 1px solid hsl(var(--border));
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-      /* Deep neutral shadow */
-    }
-
-    /* Navbar backdrop blur enhancement - darker for better contrast */
-    nav {
-      background: rgba(10, 10, 12, 0.9);
-      /* Very dark, almost black */
-      backdrop-filter: blur(12px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      /* Subtle border */
-    }
-
-    /* Footer with subtle gradient */
-    footer {
-      background: #050505;
-      /* Black footer */
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--neu-shadow-lg);
     }
 
     /* Remove logo glow in dark mode */
@@ -268,49 +191,62 @@ button:hover img[src*="logo"],
 }
 
 @layer components {
+  /* Minimalist clean card */
   .float-card {
-    @apply bg-card rounded-2xl shadow-float transition-all duration-500;
-    background: var(--gradient-card);
-    border: 1px solid hsl(var(--border) / 0.5);
-    backdrop-filter: blur(10px);
+    @apply bg-card rounded-2xl border border-border/80 transition-all duration-300;
+    box-shadow: none;
   }
 
   .float-card:hover {
-    box-shadow: var(--shadow-card-hover), var(--shadow-glow);
-    transform: translateY(-4px) scale(1.01);
-    border-color: hsl(var(--border));
+    @apply border-primary/40;
+    transform: translateY(-2px);
+    box-shadow: none;
   }
 
+  /* Minimalist static card */
   .float-card-static {
-    @apply bg-card rounded-2xl shadow-float;
-    background: var(--gradient-card);
-    border: 1px solid hsl(var(--border) / 0.5);
-    backdrop-filter: blur(10px);
-  }
-
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
-
-  .gradient-gold {
-    background: var(--gradient-gold);
+    @apply bg-card rounded-2xl border border-border/80;
+    box-shadow: none;
   }
 
   .text-gradient {
-    @apply text-accent;
+    @apply text-primary;
   }
 
   .btn-donate {
-    @apply bg-accent text-accent-foreground font-semibold px-6 py-3 rounded-xl shadow-float transition-all duration-300 hover:shadow-float-lg hover:scale-105;
-    background: var(--gradient-gold);
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-xl transition-all duration-300;
+    box-shadow: none;
+  }
+
+  .btn-donate:hover {
+    @apply bg-primary/90;
+    transform: translateY(-1px);
+    box-shadow: none;
+  }
+
+  .btn-donate:active {
+    transform: translateY(0);
   }
 
   .progress-bar {
-    @apply h-2 rounded-full bg-muted overflow-hidden;
+    @apply h-2 rounded-full bg-muted overflow-hidden border border-border/50;
+    box-shadow: none;
   }
 
   .progress-bar-fill {
-    @apply h-full rounded-full bg-secondary transition-all duration-500;
+    @apply h-full rounded-full bg-primary transition-all duration-500;
+  }
+
+  .neu-inset {
+    box-shadow: none;
+  }
+
+  .neu-raised {
+    box-shadow: none;
+  }
+
+  .neu-raised-lg {
+    box-shadow: none;
   }
 }
 
@@ -399,149 +335,15 @@ button:hover img[src*="logo"],
     }
   }
 
-  @keyframes parallaxSlow {
-
-    0%,
-    100% {
-      transform: scale(1) translateY(0);
-    }
-
-    50% {
-      transform: scale(1.05) translateY(-10px);
-    }
-  }
-
-  @keyframes gradientShift {
-
-    0%,
-    100% {
-      opacity: 0.3;
-      transform: translateX(-50%) translateY(-50%);
-    }
-
-    50% {
-      opacity: 0.5;
-      transform: translateX(50%) translateY(50%);
-    }
-  }
-
-  @keyframes floatGlow {
-
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.3;
-    }
-
-    33% {
-      transform: translate(30px, -30px) scale(1.1);
-      opacity: 0.5;
-    }
-
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-      opacity: 0.4;
-    }
-  }
-
-  @keyframes floatGlowDelayed {
-
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.2;
-    }
-
-    33% {
-      transform: translate(-30px, 30px) scale(1.15);
-      opacity: 0.4;
-    }
-
-    66% {
-      transform: translate(20px, -20px) scale(0.85);
-      opacity: 0.3;
-    }
-  }
-
   @keyframes heroEntrance {
     from {
       opacity: 0;
-      transform: translateY(30px) scale(0.95);
+      transform: translateY(40px) scale(0.96);
     }
 
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
-    }
-  }
-
-  @keyframes borderGlow {
-
-    0%,
-    100% {
-      opacity: 0;
-    }
-
-    50% {
-      opacity: 0.6;
-    }
-  }
-
-  @keyframes badgeGlow {
-
-    0%,
-    100% {
-      box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
-    }
-
-    50% {
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.6), 0 0 30px hsl(var(--accent) / 0.4);
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  @keyframes shimmerBg {
-    0% {
-      background-position: -200% 0;
-    }
-
-    100% {
-      background-position: 200% 0;
-    }
-  }
-
-  @keyframes textReveal {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-      clip-path: inset(0 0 100% 0);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-      clip-path: inset(0 0 0 0);
-    }
-  }
-
-  @keyframes gradientText {
-
-    0%,
-    100% {
-      background-position: 0% 50%;
-    }
-
-    50% {
-      background-position: 100% 50%;
     }
   }
 
@@ -625,6 +427,20 @@ button:hover img[src*="logo"],
     }
   }
 
+  @keyframes textReveal {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+      clip-path: inset(0 0 100% 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
   .stagger-1 {
     animation-delay: 0.1s;
   }
@@ -647,44 +463,6 @@ button:hover img[src*="logo"],
 
   .stagger-6 {
     animation-delay: 0.6s;
-  }
-
-  @keyframes float {
-
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-12px);
-    }
-  }
-
-  @keyframes parallaxSlow {
-
-    0%,
-    100% {
-      transform: scale(1.05) translateY(0);
-    }
-
-    50% {
-      transform: scale(1.1) translateY(-15px);
-    }
-  }
-
-  /* ... other animations ... */
-
-  @keyframes heroEntrance {
-    from {
-      opacity: 0;
-      transform: translateY(40px) scale(0.96);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
   }
 
   /* Mobile-specific improvements */
@@ -747,39 +525,6 @@ button:hover img[src*="logo"],
     *:focus-visible {
       outline: 2px solid hsl(var(--primary));
       outline-offset: 2px;
-    }
-  }
-
-  /* Liquid Glass Morphism Effects for Dynamic Island */
-  @keyframes liquid-morph {
-
-    0%,
-    100% {
-      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-      transform: scale(1);
-    }
-
-    25% {
-      border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
-    }
-
-    50% {
-      border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
-      transform: scale(1.02);
-    }
-
-    75% {
-      border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
-    }
-  }
-
-  @keyframes glass-shimmer {
-    0% {
-      background-position: -200% center;
-    }
-
-    100% {
-      background-position: 200% center;
     }
   }
 

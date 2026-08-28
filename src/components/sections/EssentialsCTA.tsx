@@ -6,7 +6,7 @@ export function EssentialsCTA() {
     const navigate = useNavigate();
 
     return (
-        <section className="py-12 bg-muted/30">
+        <section className="py-12">
             <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                     <Button

@@ -29,30 +29,30 @@ export function DonateSection() {
   };
 
   return (
-    <section id="donate" className="py-20 bg-secondary">
+    <section id="donate" className="py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Floating Card */}
-          <div className="float-card-static p-8 sm:p-12 shadow-float-xl">
+          {/* Clean Card */}
+          <div className="float-card-static p-8 sm:p-12">
             {/* Header */}
             <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-4">
-                <Heart className="w-8 h-8 text-accent" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+                <Heart className="w-8 h-8 text-primary" />
               </div>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
                 Make Your Impact Today
               </h2>
-              <p className="text-muted-foreground">
-                100% of your donation goes directly to supporting Maasai women and girls.
+              <p className="text-foreground/90 font-medium text-base">
+                100% of your donation goes directly to supporting women and girls.
               </p>
             </div>
 
             {/* Donation Type Toggle */}
             <div className="flex justify-center mb-8">
-              <div className="inline-flex rounded-2xl bg-muted p-1.5">
+              <div className="inline-flex rounded-2xl bg-muted p-1.5 border border-border/50">
                 <button
                   className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${!isRecurring
-                    ? "bg-card text-foreground shadow-float"
+                    ? "bg-card text-foreground border border-border/80"
                     : "text-muted-foreground hover:text-foreground"
                     }`}
                   onClick={() => setIsRecurring(false)}
@@ -61,7 +61,7 @@ export function DonateSection() {
                 </button>
                 <button
                   className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${isRecurring
-                    ? "bg-card text-foreground shadow-float"
+                    ? "bg-card text-foreground border border-border/80"
                     : "text-muted-foreground hover:text-foreground"
                     }`}
                   onClick={() => setIsRecurring(true)}
@@ -77,8 +77,8 @@ export function DonateSection() {
                 <button
                   key={amount}
                   className={`py-4 rounded-xl font-semibold transition-all ${selectedAmount === amount && !customAmount
-                    ? "bg-primary text-primary-foreground shadow-float"
-                    : "bg-muted text-foreground hover:bg-muted/80"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-foreground hover:bg-muted/80 border border-border/50"
                     }`}
                   onClick={() => {
                     setSelectedAmount(amount);
@@ -105,10 +105,10 @@ export function DonateSection() {
             </div>
 
             {/* Impact Preview */}
-            <div className="mb-8 p-4 rounded-xl bg-accent/10 border border-accent/20">
+            <div className="mb-8 p-4 rounded-xl bg-primary/10 border border-primary/20">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-4 h-4 text-accent-foreground" />
+                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div>
                   <div className="font-semibold text-foreground">
