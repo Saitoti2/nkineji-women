@@ -118,6 +118,28 @@ export function HeroSection() {
           ))}
         </div>
       </div>
+
+      {/* ── Founder Badge (Bottom Left) ─────────────────────────────────── */}
+      <div
+        style={{ position: "absolute", bottom: "1.25rem", left: "1.25rem", zIndex: 10 }}
+        className="flex items-center gap-3 bg-background/85 backdrop-blur-md px-3.5 py-2 rounded-full border border-border/60 shadow-lg transition-transform hover:scale-105"
+      >
+        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex-shrink-0">
+          <img
+            src="/Founder-Nkineji.png"
+            alt="Veronicah .S. Nchorira - Founder"
+            className="w-full h-full object-cover rounded-full"
+          />
+        </div>
+        <div className="text-left pr-1.5">
+          <p className="font-display font-bold text-xs sm:text-sm text-foreground leading-tight">
+            Veronicah .S. Nchorira
+          </p>
+          <p className="text-[10px] sm:text-xs font-semibold text-primary">
+            Founder
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

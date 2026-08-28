@@ -168,9 +168,9 @@ export function ShareCard({ isOpen, onClose, data }: ShareCardProps) {
                                         {typeLabel}
                                     </span>
                                 </div>
-                                <div className="absolute top-3 right-3 flex items-center bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
-                                    <img src="/logo-dark.png" alt="Nkineji" className="w-5 h-5 object-contain" />
-                                    <span className="text-[10px] font-bold text-white ml-1.5">Nkineji</span>
+                                <div className="absolute top-3 right-3 flex items-center bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-black/10 shadow-sm">
+                                    <img src="/logo-light.png" alt="Nkineji" className="w-5 h-5 object-contain" />
+                                    <span className="text-[10px] font-bold text-foreground ml-1.5">Nkineji</span>
                                 </div>
                                 {/* Title overlay */}
                                 <div className="absolute bottom-3 left-3 right-3">
@@ -187,8 +187,7 @@ export function ShareCard({ isOpen, onClose, data }: ShareCardProps) {
                                     <p className="font-display font-bold text-base leading-tight line-clamp-2">
                                         {data.title}
                                     </p>
-                                    <img src="/logo-light.png" alt="Logo" className="w-6 h-6 object-contain dark:hidden shrink-0" />
-                                    <img src="/logo-dark.png" alt="Logo" className="w-6 h-6 object-contain hidden dark:block shrink-0" />
+                                    <img src="/logo-light.png" alt="Logo" className="w-6 h-6 object-contain shrink-0" />
                                 </div>
                             )}
                             {data.description && (
@@ -201,8 +200,7 @@ export function ShareCard({ isOpen, onClose, data }: ShareCardProps) {
                                     <span className="text-xs font-bold text-primary">{data.meta}</span>
                                 )}
                                 <div className="flex items-center gap-1.5 ml-auto">
-                                    <img src="/logo-light.png" alt="Logo" className="w-3.5 h-3.5 object-contain dark:hidden" />
-                                    <img src="/logo-dark.png" alt="Logo" className="w-3.5 h-3.5 object-contain hidden dark:block" />
+                                    <img src="/logo-light.png" alt="Logo" className="w-3.5 h-3.5 object-contain" />
                                     <span className="text-[10px] text-muted-foreground/80 font-semibold">
                                         nkinejiwomen.com
                                     </span>
