@@ -9,7 +9,7 @@ export function HeroSection() {
     <section
       id="hero"
       style={{ position: "relative", minHeight: "92vh", overflow: "hidden" }}
-      className="flex flex-col justify-between pt-32 pb-16 px-4 sm:px-6 md:px-12"
+      className="flex flex-col justify-between pt-28 sm:pt-32 pb-16 px-4 sm:px-6 md:px-12 max-w-full overflow-x-hidden"
     >
       {/* ── Video Layer ─────────────────────────────────────────── */}
       <video
@@ -120,22 +120,45 @@ export function HeroSection() {
       </div>
 
       {/* ── Founder Badge (Bottom Left) ─────────────────────────────────── */}
+      {/* Mobile view: compact horizontal pill */}
       <div
-        style={{ position: "absolute", bottom: "1.25rem", left: "1.25rem", zIndex: 10 }}
-        className="flex items-center gap-3 bg-background/85 backdrop-blur-md px-3.5 py-2 rounded-full border border-border/60 shadow-lg transition-transform hover:scale-105"
+        style={{ zIndex: 10 }}
+        className="md:hidden absolute bottom-3 left-3 flex items-center gap-2.5 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/60 shadow-lg"
       >
-        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden flex-shrink-0">
+        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
           <img
             src="/Founder-Nkineji.png"
             alt="Veronicah .S. Nchorira - Founder"
             className="w-full h-full object-cover rounded-full"
           />
         </div>
-        <div className="text-left pr-1.5">
-          <p className="font-display font-bold text-xs sm:text-sm text-foreground leading-tight">
+        <div className="text-left pr-1">
+          <p className="font-display font-bold text-xs text-foreground leading-tight">
             Veronicah .S. Nchorira
           </p>
-          <p className="text-[10px] sm:text-xs font-semibold text-primary">
+          <p className="text-[10px] font-semibold text-primary">
+            Founder
+          </p>
+        </div>
+      </div>
+
+      {/* Desktop view: prominent large circle with name & role below */}
+      <div
+        style={{ zIndex: 10 }}
+        className="hidden md:flex absolute bottom-6 left-8 flex-col items-center text-center group"
+      >
+        <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden flex-shrink-0 shadow-2xl border-2 border-primary/20 bg-background transition-transform duration-300 group-hover:scale-105">
+          <img
+            src="/Founder-Nkineji.png"
+            alt="Veronicah .S. Nchorira - Founder"
+            className="w-full h-full object-cover rounded-full"
+          />
+        </div>
+        <div className="mt-2.5 bg-background/90 backdrop-blur-md px-4 py-1.5 rounded-2xl border border-border/50 shadow-md">
+          <p className="font-display font-bold text-sm lg:text-base text-foreground leading-tight whitespace-nowrap">
+            Veronicah .S. Nchorira
+          </p>
+          <p className="text-xs font-bold text-primary tracking-wide uppercase mt-0.5">
             Founder
           </p>
         </div>

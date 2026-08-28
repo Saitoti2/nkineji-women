@@ -34,15 +34,28 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isHydrated: false,
 
-            setAuth: (user, accessToken, refreshToken) =>
-                set({ user, accessToken, refreshToken, isAuthenticated: true }),
+            setAuth: (user, accessToken, refreshToken) => {
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('mara_bloom_auth_token', accessToken);
+                    localStorage.setItem('mara_bloom_refresh_token', refreshToken);
+                }
+                set({ user, accessToken, refreshToken, isAuthenticated: true });
+            },
 
             logout: () => {
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('mara_bloom_auth_token');
+                    localStorage.removeItem('mara_bloom_refresh_token');
+                }
                 set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
             },
 
-            refreshAccessToken: (newToken) =>
-                set({ accessToken: newToken }),
+            refreshAccessToken: (newToken) => {
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('mara_bloom_auth_token', newToken);
+                }
+                set({ accessToken: newToken });
+            },
 
             setHydrated: (state) => set({ isHydrated: state }),
         }),
@@ -51,6 +64,13 @@ export const useAuthStore = create<AuthState>()(
             storage: createJSONStorage(() => localStorage),
             onRehydrateStorage: () => (state) => {
                 state?.setHydrated(true);
+                // Sync localStorage tokens on rehydration
+                if (state?.accessToken && typeof window !== 'undefined') {
+                    localStorage.setItem('mara_bloom_auth_token', state.accessToken);
+                }
+                if (state?.refreshToken && typeof window !== 'undefined') {
+                    localStorage.setItem('mara_bloom_refresh_token', state.refreshToken);
+                }
             },
         }
     )

@@ -43,8 +43,12 @@ export const getAllStories = async (filters: {
     try {
         let sql = `
       SELECT s.*, c.title as campaign_title,
-             (SELECT COUNT(*) FROM impact_comments WHERE story_id = s.id AND status = 'approved') as comments_count,
-             (SELECT COUNT(*) FROM story_reactions WHERE story_id = s.id AND reaction_type = 'like') as likes_count
+             CASE WHEN to_regclass('impact_comments') IS NOT NULL 
+                  THEN (SELECT COUNT(*) FROM impact_comments WHERE story_id = s.id AND status = 'approved') 
+                  ELSE 0 END as comments_count,
+             CASE WHEN to_regclass('story_reactions') IS NOT NULL 
+                  THEN (SELECT COUNT(*) FROM story_reactions WHERE story_id = s.id AND reaction_type = 'like') 
+                  ELSE 0 END as likes_count
       FROM impact_stories s
       LEFT JOIN campaigns c ON s.campaign_id = c.id
       WHERE 1=1
@@ -89,8 +93,12 @@ export const getStoryById = async (id: string) => {
     try {
         const result = await query<ImpactStory>(
             `SELECT s.*, c.title as campaign_title,
-              (SELECT COUNT(*) FROM impact_comments WHERE story_id = s.id AND status = 'approved') as comments_count,
-              (SELECT COUNT(*) FROM story_reactions WHERE story_id = s.id AND reaction_type = 'like') as likes_count
+              CASE WHEN to_regclass('impact_comments') IS NOT NULL 
+                   THEN (SELECT COUNT(*) FROM impact_comments WHERE story_id = s.id AND status = 'approved') 
+                   ELSE 0 END as comments_count,
+              CASE WHEN to_regclass('story_reactions') IS NOT NULL 
+                   THEN (SELECT COUNT(*) FROM story_reactions WHERE story_id = s.id AND reaction_type = 'like') 
+                   ELSE 0 END as likes_count
        FROM impact_stories s
        LEFT JOIN campaigns c ON s.campaign_id = c.id
        WHERE s.id = $1`,
