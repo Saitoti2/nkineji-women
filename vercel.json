@@ -1,6 +1,13 @@
 {
   "headers": [
     {
+      "source": "/google31288fe10e87702e.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, must-revalidate" },
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    },
+    {
       "source": "/favicon.ico",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, must-revalidate" },
@@ -42,6 +49,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/google31288fe10e87702e.html",
+      "destination": "/google31288fe10e87702e.html"
+    },
     {
       "source": "/favicon.ico",
       "destination": "/favicon.ico"
