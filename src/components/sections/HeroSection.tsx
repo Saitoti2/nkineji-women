@@ -8,82 +8,82 @@ export function HeroSection() {
   return (
     <section
       id="hero"
-      style={{ position: "relative", minHeight: "92vh", overflow: "hidden" }}
-      className="flex flex-col justify-between pt-28 sm:pt-32 pb-16 px-4 sm:px-6 md:px-12 max-w-full overflow-x-hidden"
+      className="relative flex flex-col justify-between overflow-hidden bg-background"
+      style={{ minHeight: "100svh" }}
     >
-      {/* ── Video Layer ─────────────────────────────────────────── */}
+      {/* ── Video Background ─────────────────────────────────────────────── */}
       <video
         src="/vid1.mp4"
         autoPlay
         loop
         muted
         playsInline
+        disablePictureInPicture
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover"
         style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
           zIndex: 0,
-          opacity: 0.45,
+          opacity: 0.48,
+          objectPosition: "center center",
+          /* ensure video fills on iOS Safari */
+          minWidth: "100%",
+          minHeight: "100%",
         }}
       />
 
-      {/* ── Gradient Overlay: fades to white at bottom ──────────── */}
+      {/* ── Light-mode gradient overlay ──────────────────────────────────── */}
       <div
+        className="absolute inset-0 dark:hidden pointer-events-none"
         style={{
-          position: "absolute",
-          inset: 0,
           zIndex: 1,
           background:
-            "linear-gradient(to bottom, rgba(250,250,250,0.15) 0%, rgba(250,250,250,0.5) 60%, rgba(250,250,250,1) 100%)",
+            "linear-gradient(to bottom, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.45) 55%, rgba(255,255,255,0.98) 100%)",
         }}
-        className="dark:hidden"
       />
-      {/* Dark mode overlay */}
+      {/* ── Dark-mode gradient overlay ───────────────────────────────────── */}
       <div
+        className="absolute inset-0 hidden dark:block pointer-events-none"
         style={{
-          position: "absolute",
-          inset: 0,
           zIndex: 1,
           background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,1) 100%)",
+            "linear-gradient(to bottom, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.50) 55%, rgba(0,0,0,0.98) 100%)",
         }}
-        className="hidden dark:block"
       />
 
-      {/* ── Content ─────────────────────────────────────────────── */}
+      {/* ── Main content ─────────────────────────────────────────────────── */}
       <div
-        style={{ position: "relative", zIndex: 2 }}
-        className="flex-1 flex flex-col items-center justify-center my-auto max-w-4xl mx-auto w-full text-center"
+        className="relative flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 md:px-12 pt-28 sm:pt-36 pb-10"
+        style={{ zIndex: 2 }}
       >
         {/* Badge */}
-        <div className="mb-6 animate-slide-down">
+        <div className="mb-5 animate-slide-down">
           <span className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold tracking-wide uppercase">
             Nkineji Community Initiative
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
-          Empowering the Heart <br />
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-5 leading-[1.1] tracking-tight max-w-4xl">
+          Empowering the Heart{" "}
+          <br className="hidden sm:block" />
           <span className="text-primary">of the Maasai Woman</span>
         </h1>
 
         {/* Sub-headline */}
-        <p className="text-base sm:text-lg text-foreground/80 font-medium max-w-xl mx-auto mb-10 leading-relaxed">
-          GirlChild Education &amp; Maternal Healthcare for marginalized women and girls in Kenya.
+        <p className="text-base sm:text-lg text-foreground/80 font-medium max-w-xl mx-auto mb-9 leading-relaxed">
+          GirlChild Education &amp; Maternal Healthcare for marginalized women
+          and girls in Kenya.
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button
             variant="donate"
             size="lg"
             className="px-7 rounded-full"
             onClick={() => (window.location.href = "/campaigns")}
           >
-            <Heart className="w-4 h-4" />
+            <Heart className="w-4 h-4 mr-1" />
             Support a Woman Today
           </Button>
           <Button
@@ -93,14 +93,17 @@ export function HeroSection() {
             onClick={() => (window.location.href = "/impact")}
           >
             Explore Our Impact
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
       </div>
 
-      {/* ── Stats Row ───────────────────────────────────────────── */}
-      <div style={{ position: "relative", zIndex: 2 }} className="max-w-5xl mx-auto w-full pt-8 border-t border-border/50">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      {/* ── Stats Row ────────────────────────────────────────────────────── */}
+      <div
+        className="relative px-4 sm:px-6 md:px-12 py-6 border-t border-border/40"
+        style={{ zIndex: 2 }}
+      >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center max-w-5xl mx-auto">
           {[
             { value: fmtStat(stats?.beneficiaries), label: "Women Empowered" },
             { value: fmtMoney(stats?.totalRaised), label: "Funds Raised" },
@@ -119,39 +122,40 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* ── Founder Badge (Bottom Left) ─────────────────────────────────── */}
-      {/* Mobile view: compact horizontal pill */}
+      {/* ── Founder Badge — Mobile: compact pill ─────────────────────────── */}
       <div
+        className="md:hidden absolute bottom-[5.5rem] left-3"
         style={{ zIndex: 10 }}
-        className="md:hidden absolute bottom-3 left-3 flex items-center gap-2.5 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/60 shadow-lg"
       >
-        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-          <img
-            src="/Founder-Nkineji.png"
-            alt="Veronicah .S. Nchorira - Founder"
-            className="w-full h-full object-cover rounded-full"
-          />
-        </div>
-        <div className="text-left pr-1">
-          <p className="font-display font-bold text-xs text-foreground leading-tight">
-            Veronicah .S. Nchorira
-          </p>
-          <p className="text-[10px] font-semibold text-primary">
-            Founder
-          </p>
+        <div className="flex items-center gap-2.5 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-border/60 shadow-lg">
+          <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+            <img
+              src="/Founder-Nkineji.png"
+              alt="Veronicah .S. Nchorira - Founder"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="text-left pr-1">
+            <p className="font-display font-bold text-[11px] text-foreground leading-tight">
+              Veronicah .S. Nchorira
+            </p>
+            <p className="text-[10px] font-bold text-primary tracking-wide uppercase">
+              Founder
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Desktop view: prominent large circle with name & role below */}
+      {/* ── Founder Badge — Desktop: prominent circle ─────────────────────── */}
       <div
+        className="hidden md:flex absolute bottom-8 left-8 flex-col items-center text-center group"
         style={{ zIndex: 10 }}
-        className="hidden md:flex absolute bottom-6 left-8 flex-col items-center text-center group"
       >
-        <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden flex-shrink-0 shadow-2xl border-2 border-primary/20 bg-background transition-transform duration-300 group-hover:scale-105">
+        <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden shadow-2xl border-2 border-primary/20 bg-background transition-transform duration-300 group-hover:scale-105">
           <img
             src="/Founder-Nkineji.png"
             alt="Veronicah .S. Nchorira - Founder"
-            className="w-full h-full object-cover rounded-full"
+            className="w-full h-full object-cover"
           />
         </div>
         <div className="mt-2.5 bg-background/90 backdrop-blur-md px-4 py-1.5 rounded-2xl border border-border/50 shadow-md">
