@@ -5,9 +5,9 @@
 const BOT_UA_REGEX =
   /whatsapp|facebookexternalhit|twitterbot|telegrambot|linkedinbot|slackbot|discordbot|googlebot|bingbot|applebot|pinterest|slack-imgproxy|vkshare|w3c_validator|curl|wget/i;
 
-const SITE_URL = 'https://nkineji.org';
-const BACKEND_URL = process.env.VITE_API_URL || 'https://nkineji-api.vercel.app/api/v1';
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
+const SITE_URL = 'https://nkinejiwomen.com';
+const BACKEND_URL = process.env.VITE_API_URL || 'https://mara-bloom.vercel.app/api/v1';
+const DEFAULT_IMAGE = `${SITE_URL}/og-image-1200x630.png`;
 
 function buildOGPage({ title, description, image, url, type }) {
   const escaped = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
