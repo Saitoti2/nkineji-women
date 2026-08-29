@@ -103,7 +103,14 @@ if (process.env.VERCEL !== '1') {
 // Routes
 const API_PREFIX = '/api/v1';
 
-// Root route to avoid 404 on base deployment URL
+// Root & Favicon routes to ensure 200 OK for search crawlers
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'favicon.ico'));
+});
+app.get('/favicon-48x48.png', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'favicon-48x48.png'));
+});
+
 app.get('/', (req, res) => {
     res.json({
         message: 'Nkineji Community Development API is running',
