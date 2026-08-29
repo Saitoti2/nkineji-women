@@ -1,15 +1,35 @@
 {
-  "name": "Nkineji Community Development Initiative",
+  "name": "Nkineji Community Initiative",
   "short_name": "Nkineji",
-  "description": "Empowering the marginalized heart of the Maasai Mara through GirlChild Education and Maternal Health.",
+  "description": "Empowering Maasai women and girls through GirlChild education, maternal healthcare, and economic independence in Kenya.",
   "id": "/?source=pwa",
   "start_url": "/?source=pwa",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#c0392b",
+  "orientation": "portrait-primary",
   "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
@@ -35,9 +55,15 @@
       "purpose": "maskable"
     }
   ],
-  "categories": [
-    "social",
-    "charity",
-    "education"
-  ]
+  "screenshots": [
+    {
+      "src": "/og-image-1200x630.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "label": "Nkineji Community Initiative Home"
+    }
+  ],
+  "categories": ["social", "education", "health"],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
