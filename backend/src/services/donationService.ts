@@ -3,7 +3,8 @@ import Stripe from 'stripe';
 import { ApiError } from '../middleware/errorHandler.js';
 import { logger } from '../utils/logger.js';
 import { query } from '../db/connection.js';
-import { PesapalService } from './pesapalService.js';
+import { PesapalService, mapPesapalOutcome } from './pesapalService.js';
+import { getFrontendBaseUrl } from '../utils/publicUrls.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2025-02-24.acacia',
@@ -157,25 +158,17 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
       }
     } else if (data.paymentMethod === 'pesapal') {
       try {
-        let ipnId = process.env.PESAPAL_IPN_ID;
-
-        if (!ipnId || ipnId === 'your_registered_ipn_id' || ipnId === '') {
-          // Try to fetch an existing IPN if not configured
-          try {
-            const ipns = await PesapalService.listIPNs();
-            if (ipns && ipns.length > 0) {
-              ipnId = ipns[0].ipn_id;
-              logger.info(`Using existing PesaPal IPN: ${ipnId}`);
-            } else {
-              throw new Error('No PesaPal IPN registered. Please register one first.');
-            }
-          } catch (listError: any) {
-            logger.error('Failed to auto-fetch PesaPal IPN', listError);
-            throw new ApiError('PesaPal is not fully configured (Missing IPN ID)', 500);
-          }
+        // Resolves (and registers if needed) the IPN pointing at this API host,
+        // so PesaPal's confirmation actually reaches us.
+        let ipnId: string;
+        try {
+          ipnId = await PesapalService.ensureIPN();
+        } catch (ipnError: any) {
+          logger.error('Failed to resolve PesaPal IPN', ipnError);
+          throw new ApiError('PesaPal is not fully configured (IPN unavailable)', 500);
         }
 
-        const callbackUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/donations/success?donationId=${donation.id}`;
+        const callbackUrl = `${getFrontendBaseUrl()}/donations/success?donationId=${donation.id}`;
 
         // PesaPal (Kenya) processes payments in KES. Convert USD → KES if needed.
         const USD_TO_KES_RATE = 129.5; // average market rate
@@ -375,6 +368,19 @@ export const getDonation = async (id: string, userId: string, role: string): Pro
 
 export const updateDonationStatus = async (id: string, status: string, paymentProviderId?: string): Promise<Donation> => {
   try {
+    // The previous status decides whether the campaign total moves, so that a
+    // repeated notification for the same outcome cannot double-count it.
+    const existing = await query<{ status: string }>(
+      'SELECT status FROM donations WHERE id = $1 AND is_deleted = FALSE',
+      [id]
+    );
+
+    if (existing.rows.length === 0) {
+      throw new ApiError('Donation not found', 404);
+    }
+
+    const previousStatus = existing.rows[0].status;
+
     const updates: string[] = ['status = $1', 'updated_at = NOW()'];
     const params: any[] = [status, id];
 
@@ -402,14 +408,22 @@ export const updateDonationStatus = async (id: string, status: string, paymentPr
 
     const updatedDonation = result.rows[0];
 
-    // If status changed to succeeded, update campaign raised amount
-    if (status === 'succeeded' && updatedDonation.campaign_id) {
-      await query(
-        `UPDATE campaigns 
-          SET raised_amount = raised_amount + $1 
-          WHERE id = $2`,
-        [updatedDonation.amount, updatedDonation.campaign_id]
-      );
+    // Only a transition in or out of 'succeeded' changes what the campaign has
+    // actually raised: count it on the way in, back it out on a reversal.
+    if (updatedDonation.campaign_id && status !== previousStatus) {
+      const delta =
+        status === 'succeeded' ? Number(updatedDonation.amount)
+          : previousStatus === 'succeeded' ? -Number(updatedDonation.amount)
+            : 0;
+
+      if (delta !== 0) {
+        await query(
+          `UPDATE campaigns 
+            SET raised_amount = GREATEST(COALESCE(raised_amount, 0) + $1, 0)
+            WHERE id = $2`,
+          [delta, updatedDonation.campaign_id]
+        );
+      }
     }
 
     return updatedDonation;
@@ -481,40 +495,67 @@ export const handleMpesaWebhook = async (req: Request): Promise<void> => {
     throw new ApiError('Failed to process webhook', 500);
   }
 };
-export const handlePesapalIPN = async (req: Request): Promise<void> => {
+export interface PesapalIPNResult {
+  handled: boolean;
+  donationId?: string;
+  status?: string;
+  reason?: string;
+}
+
+export const handlePesapalIPN = async (req: Request): Promise<PesapalIPNResult> => {
   try {
-    const { OrderTrackingId, OrderNotificationType } = req.query;
+    const orderTrackingId = (req.query.OrderTrackingId ?? req.query.orderTrackingId) as string | undefined;
 
-    if (OrderNotificationType === 'IPNCHANGE' && OrderTrackingId) {
-      const statusResponse = await PesapalService.getTransactionStatus(OrderTrackingId as string);
-
-      // Find donation by order tracking ID
-      const result = await query(
-        `SELECT id FROM donations WHERE payment_provider_id = $1`,
-        [OrderTrackingId]
-      );
-
-      if (result.rows.length > 0) {
-        const donationId = result.rows[0].id;
-        let status: 'succeeded' | 'failed' | 'pending' = 'pending';
-
-        // PesaPal statuses: COMPLETED, FAILED, INVALID, CANCELLED, REVERSED
-        if (statusResponse.status_code === 1) { // 1 = COMPLETED in PesaPal v3 usually, but let's check string if possible
-          // According to PesaPal v3 docs, we should check status_code or payment_status_description
-        }
-
-        if (statusResponse.payment_status_description === 'Completed') {
-          status = 'succeeded';
-        } else if (['Failed', 'Invalid', 'Cancelled'].includes(statusResponse.payment_status_description)) {
-          status = 'failed';
-        }
-
-        if (status !== 'pending') {
-          await updateDonationStatus(donationId, status);
-          logger.info(`PesaPal donation ${donationId} status updated to ${status}`);
-        }
-      }
+    if (!orderTrackingId) {
+      logger.warn('PesaPal IPN received without an OrderTrackingId', { query: req.query });
+      return { handled: false, reason: 'missing_tracking_id' };
     }
+
+    // PesaPal sends OrderNotificationType=IPNCHANGE, but it is not worth
+    // gating on: the handler re-reads the authoritative status either way,
+    // so acting on any notification for a known order is safe and idempotent.
+    const statusResponse = await PesapalService.getTransactionStatus(orderTrackingId);
+
+    // Find donation by order tracking ID
+    const result = await query(
+      `SELECT id, status FROM donations WHERE payment_provider_id = $1 AND is_deleted = FALSE`,
+      [orderTrackingId]
+    );
+
+    if (result.rows.length === 0) {
+      logger.warn('PesaPal IPN for an unknown order tracking id', { orderTrackingId });
+      return { handled: false, reason: 'unknown_order' };
+    }
+
+    const { id: donationId, status: currentStatus } = result.rows[0];
+    const outcome = mapPesapalOutcome(statusResponse);
+
+    // 'invalid' means PesaPal has no final outcome yet, so leave it pending.
+    const nextStatus =
+      outcome === 'completed' ? 'succeeded'
+        : outcome === 'failed' ? 'failed'
+          : outcome === 'reversed' ? 'refunded'
+            : null;
+
+    if (!nextStatus) {
+      logger.info('PesaPal IPN carried no final outcome; leaving donation pending', {
+        donationId,
+        orderTrackingId,
+        outcome,
+        statusCode: statusResponse?.status_code,
+        description: statusResponse?.payment_status_description,
+      });
+      return { handled: true, donationId, status: currentStatus };
+    }
+
+    if (nextStatus === currentStatus) {
+      return { handled: true, donationId, status: currentStatus };
+    }
+
+    await updateDonationStatus(donationId, nextStatus);
+    logger.info('PesaPal donation status updated', { donationId, orderTrackingId, from: currentStatus, to: nextStatus });
+
+    return { handled: true, donationId, status: nextStatus };
   } catch (error) {
     logger.error('Error handling PesaPal IPN', error);
     throw new ApiError('Failed to process PesaPal IPN', 500);

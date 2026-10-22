@@ -20,6 +20,7 @@ interface BankSettings {
     accountName: string;
     accountNumber: string;
     swiftCode: string;
+    date: string;
     instructions: string;
 }
 
@@ -39,6 +40,7 @@ export function PaymentSettingsManager() {
         accountName: "",
         accountNumber: "",
         swiftCode: "",
+        date: "",
         instructions: ""
     });
 
@@ -118,11 +120,11 @@ export function PaymentSettingsManager() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Paybill / Business Number</Label>
-                                    <Input value={mpesa.paybill} onChange={e => setMpesa({ ...mpesa, paybill: e.target.value })} placeholder="e.g. 247247" />
+                                    <Input value={mpesa.paybill} onChange={e => setMpesa({ ...mpesa, paybill: e.target.value })} placeholder="e.g. 522533" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Account Number</Label>
-                                    <Input value={mpesa.accountNumber} onChange={e => setMpesa({ ...mpesa, accountNumber: e.target.value })} placeholder="e.g. Donation" />
+                                    <Input value={mpesa.accountNumber} onChange={e => setMpesa({ ...mpesa, accountNumber: e.target.value })} placeholder="e.g. 8142935" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Phone Number (Optional)</Label>
@@ -158,16 +160,20 @@ export function PaymentSettingsManager() {
                                     <Input value={bank.bankName} onChange={e => setBank({ ...bank, bankName: e.target.value })} placeholder="e.g. Equity Bank" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Account Name</Label>
-                                    <Input value={bank.accountName} onChange={e => setBank({ ...bank, accountName: e.target.value })} placeholder="e.g. Mara Bloom Foundation" />
+                                    <Label>Account Title</Label>
+                                    <Input value={bank.accountName} onChange={e => setBank({ ...bank, accountName: e.target.value })} placeholder="e.g. Nkineji CBO" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Account Number</Label>
-                                    <Input value={bank.accountNumber} onChange={e => setBank({ ...bank, accountNumber: e.target.value })} />
+                                    <Input value={bank.accountNumber} onChange={e => setBank({ ...bank, accountNumber: e.target.value })} placeholder="e.g. 1356633358" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Swift/Sort Code</Label>
                                     <Input value={bank.swiftCode} onChange={e => setBank({ ...bank, swiftCode: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Date</Label>
+                                    <Input value={bank.date} onChange={e => setBank({ ...bank, date: e.target.value })} placeholder="e.g. 25/09/2026" />
                                 </div>
                             </div>
                             <div className="space-y-2">
