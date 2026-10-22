@@ -1,7 +1,7 @@
 import { Quote, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { getImageUrl } from "@/lib/utils";
+import { getAvatarUrl, handleAvatarError } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
@@ -59,7 +59,8 @@ export function StoriesSection() {
               {/* Author */}
               <div className="flex items-center gap-5 pt-8 border-t border-border/50">
                 <img
-                  src={getImageUrl(story.profile_image_url)}
+                  src={getAvatarUrl(story.profile_image_url)}
+                  onError={handleAvatarError}
                   alt={story.beneficiary_name}
                   className="w-16 h-16 rounded-2xl object-cover flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500"
                 />

@@ -2,7 +2,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, MessageCircle, Share2, MapPin, Calendar, Users, ArrowRight, Play, Image as ImageIcon, Filter } from "lucide-react";
 import { useState, useEffect } from "react";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl, PLACEHOLDER_AVATAR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -181,7 +181,16 @@ function ImpactStoryCard({ story, onClick }: { story: any; onClick: () => void }
                         onError={() => setImageError(true)}
                     />
                 ) : (
-                    <div className={cn("w-full h-full bg-gradient-to-br opacity-80 group-hover:scale-110 transition-transform duration-700", cardGradient)} />
+                    // No photo (or it failed to load): keep the gradient card, but
+                    // show a silhouette so the tile still reads as a person.
+                    <div className={cn("w-full h-full bg-gradient-to-br opacity-80 group-hover:scale-110 transition-transform duration-700 flex items-center justify-center", cardGradient)}>
+                        <img
+                            src={PLACEHOLDER_AVATAR}
+                            alt=""
+                            aria-hidden="true"
+                            className="w-2/5 max-w-[120px] opacity-40 mix-blend-luminosity"
+                        />
+                    </div>
                 )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-700" />

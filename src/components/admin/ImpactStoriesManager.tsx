@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Eye, ImageIcon, Film, Upload, Activity, GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl, getAvatarUrl, handleAvatarError } from "@/lib/utils";
 import { compressImage, getInstantPreview } from "@/lib/image-utils";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useAuthStore } from '@/stores/authStore';
@@ -415,7 +415,8 @@ export function ImpactStoriesManager() {
                                         {formData.profile_image_url || imagePreview ? (
                                             <div className="relative w-full aspect-square rounded-full overflow-hidden border-2 border-border group shadow-float mx-auto max-w-[200px]">
                                                 <img
-                                                    src={imagePreview || getImageUrl(formData.profile_image_url)}
+                                                    src={imagePreview || getAvatarUrl(formData.profile_image_url)}
+                                                    onError={handleAvatarError}
                                                     alt="Preview"
                                                     className="w-full h-full object-cover"
                                                 />
@@ -667,7 +668,8 @@ export function ImpactStoriesManager() {
                                         <div className="flex flex-col sm:flex-row h-full">
                                             <div className="w-full sm:w-40 lg:w-48 h-40 sm:h-auto relative">
                                                 <img
-                                                    src={getImageUrl(story.profile_image_url)}
+                                                    src={getAvatarUrl(story.profile_image_url)}
+                                                    onError={handleAvatarError}
                                                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                                                 />
                                                 <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
