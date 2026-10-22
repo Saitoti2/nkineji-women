@@ -1,35 +1,35 @@
 import dotenv from 'dotenv';
 import { PesapalService } from '../services/pesapalService.js';
-import { logger } from '../utils/logger.js';
+import { getPesapalIpnUrl } from '../utils/publicUrls.js';
 
 dotenv.config();
 
-async function registerIPN() {
-    const callbackUrl = process.argv[2];
+/**
+ * Ensures PesaPal has an IPN registered for THIS service's own host and prints
+ * the id to use. The URL is derived from BACKEND_PUBLIC_URL rather than typed
+ * by hand, so callbacks cannot be pointed at the frontend domain or a stale
+ * host — either of which leaves every donation stuck pending.
+ */
+async function main() {
+    const callbackUrl = getPesapalIpnUrl();
 
-    if (!callbackUrl) {
-        console.error('Usage: tsx src/scripts/register-pesapal-ipn.ts <YOUR_PUBLIC_IPN_URL>');
-        console.error('Example: tsx src/scripts/register-pesapal-ipn.ts https://api.nkineji.org/api/v1/donations/webhooks/pesapal');
-        process.exit(1);
-    }
-
-    console.log(`--- Registering PesaPal IPN: ${callbackUrl} ---`);
+    console.log(`--- Ensuring PesaPal IPN: ${callbackUrl} ---`);
     console.log('Base URL:', process.env.PESAPAL_BASE_URL);
 
-    try {
-        const ipnId = await PesapalService.registerIPN(callbackUrl);
-        console.log('\n✅ IPN Registration Successful!');
-        console.log('IPN ID:', ipnId);
-        console.log('\n👉 PLEASE UPDATE YOUR .env FILE:');
-        console.log(`PESAPAL_IPN_ID="${ipnId}"`);
+    const ipnId = await PesapalService.ensureIPN();
 
-    } catch (error: any) {
-        console.error('❌ IPN Registration Failed:');
-        console.error(error.message);
-        if (error.response) {
-            console.error('Response Data:', error.response.data);
-        }
+    console.log('\n✅ IPN active for this host.');
+    console.log(`PESAPAL_IPN_ID="${ipnId}"`);
+
+    const ipns = await PesapalService.listIPNs();
+    console.log('\nAll registered IPNs:');
+    for (const ipn of ipns) {
+        const marker = ipn.ipn_id === ipnId ? '→' : ' ';
+        console.log(`${marker} [${ipn.ipn_status_decription}] ${ipn.ipn_id}  ${ipn.url}`);
     }
 }
 
-registerIPN();
+main().catch((error) => {
+    console.error('❌ Failed to register PesaPal IPN:', error.message);
+    process.exit(1);
+});

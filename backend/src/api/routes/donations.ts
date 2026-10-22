@@ -1,7 +1,8 @@
-import { Router } from 'express';
-import { authenticate } from '../../middleware/authenticate.js';
+import { Router, type Request, type Response, type NextFunction } from 'express';
+import { authenticate, requireAdmin } from '../../middleware/authenticate.js';
 import { createDonation, getDonation, getDonations, deleteDonation, handleStripeWebhook, handleMpesaWebhook, handlePesapalIPN } from '../../services/donationService.js';
 import { PesapalService } from '../../services/pesapalService.js';
+import { getPesapalIpnUrl } from '../../utils/publicUrls.js';
 import { validateRequest } from '../../middleware/validateRequest.js';
 import { createDonationSchema } from '../../types/schemas/donationSchemas.js';
 import { raw } from 'express';
@@ -36,23 +37,36 @@ donationsRouter.get('/', authenticate, async (req, res, next) => {
   }
 });
 
-// Temporary debug route — MUST be before /:id to avoid route collision
-donationsRouter.get('/debug/pesapal', async (req, res) => {
+// Diagnostics — admin only, and MUST be before /:id to avoid route collision.
+// These expose and mutate payment provider configuration, so they are not public.
+donationsRouter.get('/debug/pesapal', authenticate, requireAdmin, async (req, res) => {
   try {
+    const expectedUrl = getPesapalIpnUrl();
     const ipns = await PesapalService.listIPNs();
-    res.json({ success: true, message: 'PesaPal connection OK', ipns });
+    const registered = ipns.find(
+      ipn => ipn.url.trim().replace(/\/+$/, '').toLowerCase() === expectedUrl.replace(/\/+$/, '').toLowerCase()
+    );
+
+    res.json({
+      success: true,
+      message: 'PesaPal connection OK',
+      expectedIpnUrl: expectedUrl,
+      ipnRegisteredForThisHost: Boolean(registered),
+      activeIpnId: registered?.ipn_id ?? null,
+      ipns,
+    });
   } catch (error: any) {
     console.error('DEBUG PESAPAL ERROR:', error);
     res.status(500).json({ success: false, message: error.message, details: error.response?.data });
   }
 });
 
-// Temporary debug route to register IPN — MUST be before /:id
-donationsRouter.get('/debug/register-ipn', async (req, res) => {
+// Registers (or confirms) the IPN for THIS host. Never takes a URL from the
+// caller, so it cannot be used to point callbacks somewhere else.
+donationsRouter.post('/debug/register-ipn', authenticate, requireAdmin, async (req, res) => {
   try {
-    const url = 'https://nkineji.org/api/v1/donations/webhooks/pesapal';
-    const ipnId = await PesapalService.registerIPN(url);
-    res.json({ success: true, message: 'IPN Registered successfully', ipnId });
+    const ipnId = await PesapalService.ensureIPN();
+    res.json({ success: true, message: 'IPN registered for this host', url: getPesapalIpnUrl(), ipnId });
   } catch (error: any) {
     console.error('DEBUG REGISTER IPN ERROR:', error);
     res.status(500).json({ success: false, message: error.message, details: error.response?.data });
@@ -94,15 +108,29 @@ donationsRouter.post('/webhooks/mpesa', async (req, res, next) => {
   }
 });
 
-// GET /api/v1/donations/webhooks/pesapal
-donationsRouter.get('/webhooks/pesapal', async (req, res, next) => {
+// PesaPal IPN. Registered as GET, but accept POST too so the endpoint keeps
+// working if the registration's notification type is ever changed.
+const pesapalIpnHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await handlePesapalIPN(req);
-    res.json({ success: true });
+    const result = await handlePesapalIPN(req);
+
+    // Echo the notification back, as PesaPal's own samples do. A non-2xx reply
+    // makes PesaPal retry, so anything we cannot act on (an unknown order)
+    // still acknowledges — only genuine server errors fall through to 500.
+    res.status(200).json({
+      orderNotificationType: req.query.OrderNotificationType ?? 'IPNCHANGE',
+      orderTrackingId: req.query.OrderTrackingId ?? null,
+      orderMerchantReference: req.query.OrderMerchantReference ?? null,
+      status: 200,
+      handled: result.handled,
+    });
   } catch (error) {
     next(error);
   }
-});
+};
+
+donationsRouter.get('/webhooks/pesapal', pesapalIpnHandler);
+donationsRouter.post('/webhooks/pesapal', pesapalIpnHandler);
 
 
 // DELETE /api/v1/donations/:id - Admin only
