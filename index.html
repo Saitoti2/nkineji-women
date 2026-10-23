@@ -192,6 +192,49 @@
 
 <body>
   <div id="root"></div>
+  <script>
+    // Recovery guard for browsers left holding a cached bundle that no longer
+    // exists on the server. A missing /assets/*.js falls through the SPA
+    // rewrite and comes back as HTML, which the browser refuses to execute, so
+    // the page renders blank with nothing to fix itself. Catch that failure,
+    // clear the worker and its caches, and reload once.
+    (function () {
+      var RECOVERY_FLAG = 'mb_sw_recovery';
+
+      window.addEventListener('error', function (event) {
+        var target = event.target;
+        if (!target || target.tagName !== 'SCRIPT' || !target.src) return;
+        if (target.src.indexOf('/assets/') === -1) return;
+
+        // Guard against a reload loop: attempt the repair at most once.
+        try {
+          if (sessionStorage.getItem(RECOVERY_FLAG)) return;
+          sessionStorage.setItem(RECOVERY_FLAG, '1');
+        } catch (e) { return; }
+
+        var done = function () { window.location.reload(); };
+
+        var jobs = [];
+        if ('serviceWorker' in navigator) {
+          jobs.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (r) { return r.unregister(); }));
+          }).catch(function () { }));
+        }
+        if (window.caches && caches.keys) {
+          jobs.push(caches.keys().then(function (names) {
+            return Promise.all(names.map(function (n) { return caches.delete(n); }));
+          }).catch(function () { }));
+        }
+
+        Promise.all(jobs).then(done, done);
+      }, true);
+
+      // The app booted, so whatever went wrong before is resolved.
+      window.addEventListener('load', function () {
+        try { sessionStorage.removeItem(RECOVERY_FLAG); } catch (e) { }
+      });
+    })();
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

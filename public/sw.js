@@ -1,23 +1,38 @@
 // Bumped so the previous cache — which held stale HTML — is dropped on activate.
-const CACHE_NAME = 'mara-bloom-v4';
+const CACHE_NAME = 'mara-bloom-v5';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
+/**
+ * Recovers clients stranded by the old cache-everything worker.
+ *
+ * A browser that already holds stale HTML keeps booting the previous bundle,
+ * so no fix shipped inside the app can reach it. The service worker script is
+ * the one thing a browser always revalidates on navigation, so the repair has
+ * to happen here: drop every cache this origin holds, take control, and
+ * reload any page still showing the stale build.
+ */
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-    self.clients.claim();
+    event.waitUntil((async () => {
+        const cacheNames = await caches.keys();
+        const stale = cacheNames.filter((name) => name !== CACHE_NAME);
+        await Promise.all(stale.map((name) => caches.delete(name)));
+
+        await self.clients.claim();
+
+        // Only reload when something was actually purged, so a healthy client
+        // never reloads and no loop is possible.
+        if (stale.length > 0) {
+            const clients = await self.clients.matchAll({ type: 'window' });
+            for (const client of clients) {
+                if ('navigate' in client) {
+                    client.navigate(client.url).catch(() => { });
+                }
+            }
+        }
+    })());
 });
 
 /**
