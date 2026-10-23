@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { ScrollToTop } from "@/components/ui/scroll-to-top-automatic";
 import Index from "./pages/Index";
-import TestPage from "./pages/TestPage";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";

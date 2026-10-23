@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,8 @@ interface DashboardStats {
   totalDonations: number;
   totalBeneficiaries: number;
   totalRaised: number;
+  totalRaisedCurrency?: string | null;
+  raisedByCurrency?: Array<{ currency: string; total: number }>;
 }
 
 const navItems = [
@@ -267,7 +270,9 @@ export function Admin() {
                   <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
-                  ${stats.totalRaised.toLocaleString()}
+                  {stats.raisedByCurrency && stats.raisedByCurrency.length > 1
+                    ? stats.raisedByCurrency.map(r => formatMoney(r.total, r.currency)).join(' · ')
+                    : formatMoney(stats.totalRaised, stats.totalRaisedCurrency ?? stats.raisedByCurrency?.[0]?.currency)}
                 </div>
                 <h3 className="font-semibold text-foreground text-xs sm:text-sm mt-1">Raised</h3>
               </div>

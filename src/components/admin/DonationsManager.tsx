@@ -313,7 +313,7 @@ export function DonationsManager() {
                                         {donations.map((donation) => (
                                             <TableRow key={donation.id} className="hover:bg-muted/30 border-border/40 transition-colors">
                                                 <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-base sm:text-lg whitespace-nowrap">
-                                                    ${parseFloat(donation.amount || '0').toLocaleString()} <span className="text-xs sm:text-sm font-normal text-muted-foreground">{donation.currency}</span>
+                                                    {Number(donation.amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-xs sm:text-sm font-normal text-muted-foreground">{donation.currency}</span>
                                                 </TableCell>
                                                 <TableCell className="text-xs sm:text-sm max-w-[150px] truncate">{donation.campaign_title || 'General'}</TableCell>
                                                 <TableCell className="text-xs sm:text-sm hidden md:table-cell max-w-[150px] truncate">

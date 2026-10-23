@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { User, Mail, Shield, Clock, Camera, Settings, Heart, Calendar, ArrowRight } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { useQuery } from "@tanstack/react-query";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl , formatMoney } from "@/lib/utils";
 import { compressImage, getInstantPreview } from "@/lib/image-utils";
 
 interface UserProfile {
@@ -132,11 +132,16 @@ export default function Profile() {
 
     if (!user) return null;
 
-    const totalDonated = donations
-        .filter(d => d.status === 'succeeded')
-        .reduce((sum, d) => sum + Number(d.amount), 0);
+    const successfulDonations = donations.filter(d => d.status === 'succeeded');
 
-    const successfulDonationsCount = donations.filter(d => d.status === 'succeeded').length;
+    const totalDonated = successfulDonations.reduce((sum, d) => sum + Number(d.amount), 0);
+
+    const successfulDonationsCount = successfulDonations.length;
+
+    // Adding KES to USD would produce a meaningless figure, so the total is
+    // only labelled with a currency when every gift used the same one.
+    const currenciesUsed = new Set(successfulDonations.map(d => d.currency).filter(Boolean));
+    const donationCurrency = currenciesUsed.size === 1 ? [...currenciesUsed][0] : undefined;
 
     return (
         <div className="min-h-screen bg-muted/30 p-4 sm:p-8 font-body">
@@ -205,7 +210,7 @@ export default function Profile() {
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-muted-foreground">Total Contributed</span>
-                                    <span className="font-bold text-primary">${totalDonated.toLocaleString()}</span>
+                                    <span className="font-bold text-primary">{formatMoney(totalDonated, donationCurrency)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-muted-foreground">Joined At</span>
@@ -261,7 +266,7 @@ export default function Profile() {
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="font-display font-bold text-base text-foreground">
-                                                        ${Number(donation.amount).toLocaleString()}
+                                                        {formatMoney(donation.amount, donation.currency)}
                                                     </p>
                                                     <Badge variant="outline" className={cn(
                                                         "text-[10px] py-0 px-2 rounded-full",

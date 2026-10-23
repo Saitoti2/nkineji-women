@@ -8,6 +8,31 @@ export function cn(...inputs: ClassValue[]) {
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const SERVER_URL = API_BASE.replace('/api/v1', '');
 
+/**
+ * Symbol for a currency code. Amounts carry their own currency, so a hardcoded
+ * "$" in front of one renders KES 35,000 as "$35,000 KES" — which reads as
+ * dollars or shillings depending on which half you believe.
+ */
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$",
+  KES: "KSh\u00a0",
+  EUR: "\u20ac",
+  GBP: "\u00a3",
+};
+
+export function getCurrencySymbol(currency?: string | null): string {
+  const code = currency?.trim().toUpperCase();
+  if (!code) return "";
+  return CURRENCY_SYMBOLS[code] ?? `${code}\u00a0`;
+}
+
+/** Formats an amount with the symbol belonging to its own currency. */
+export function formatMoney(amount: number | string | null | undefined, currency?: string | null): string {
+  const value = typeof amount === "string" ? parseFloat(amount) : amount;
+  const safe = Number.isFinite(value as number) ? (value as number) : 0;
+  return `${getCurrencySymbol(currency)}${safe.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+}
+
 /** Neutral profile silhouette, for a person with no photo of their own. */
 export const PLACEHOLDER_AVATAR = "/placeholder-avatar.svg";
 

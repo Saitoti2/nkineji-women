@@ -23,8 +23,22 @@ adminRouter.get('/dashboard/stats', async (req, res, next) => {
       query('SELECT COUNT(*) as count FROM campaigns WHERE is_deleted = FALSE'),
       query('SELECT COUNT(*) as count FROM donations WHERE is_deleted = FALSE AND status = $1', ['succeeded']),
       query('SELECT COUNT(*) as count FROM beneficiaries WHERE is_deleted = FALSE'),
-      query('SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE status = $1 AND is_deleted = FALSE', ['succeeded']),
+      // Grouped by currency: adding KES to USD gives a figure that means
+      // nothing, and the dashboard was labelling the sum with a "$".
+      query(
+        `SELECT currency, COALESCE(SUM(amount), 0) AS total
+         FROM donations
+         WHERE status = $1 AND is_deleted = FALSE
+         GROUP BY currency
+         ORDER BY total DESC`,
+        ['succeeded']
+      ),
     ]);
+
+    const raisedByCurrency = totalRaisedResult.rows.map((row: any) => ({
+      currency: row.currency || 'USD',
+      total: parseFloat(row.total || '0'),
+    }));
 
     res.json({
       success: true,
@@ -32,7 +46,10 @@ adminRouter.get('/dashboard/stats', async (req, res, next) => {
         totalCampaigns: parseInt(campaignsResult.rows[0]?.count || '0'),
         totalDonations: parseInt(donationsResult.rows[0]?.count || '0'),
         totalBeneficiaries: parseInt(beneficiariesResult.rows[0]?.count || '0'),
-        totalRaised: parseFloat(totalRaisedResult.rows[0]?.total || '0'),
+        raisedByCurrency,
+        // Retained for older clients; only meaningful when one currency is in use.
+        totalRaised: raisedByCurrency.reduce((sum, r) => sum + r.total, 0),
+        totalRaisedCurrency: raisedByCurrency.length === 1 ? raisedByCurrency[0].currency : null,
       },
     });
   } catch (error) {
