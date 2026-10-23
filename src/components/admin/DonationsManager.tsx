@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuthStore } from '@/stores/authStore';
@@ -64,6 +67,8 @@ export function DonationsManager() {
             console.error("Failed to load campaigns", error);
         }
     };
+
+    const bulk = useBulkSelection(donations);
 
     const fetchDonations = async () => {
         if (!accessToken) return;
@@ -291,6 +296,15 @@ export function DonationsManager() {
                 className="mb-8"
             />
 
+            <BulkActionsBar
+                resource="donations"
+                label="donation"
+                selectedIds={bulk.selectedIds}
+                totalCount={donations.length}
+                onClear={bulk.clear}
+                onDone={fetchDonations}
+            />
+
             <div className="float-card p-0 overflow-hidden bg-card rounded-[2.5rem] shadow-2xl">
                 <div className="p-4 sm:p-5 md:p-6">
                     {loading ? (
@@ -301,7 +315,14 @@ export function DonationsManager() {
                                 <Table>
                                     <TableHeader className="bg-muted/50">
                                         <TableRow className="border-none hover:bg-transparent">
-                                            <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-xs sm:text-sm whitespace-nowrap">Amount</TableHead>
+                                            <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 w-10">
+                                                <Checkbox
+                                                    checked={bulk.allSelected ? true : bulk.someSelected ? "indeterminate" : false}
+                                                    onCheckedChange={bulk.toggleAll}
+                                                    aria-label="Select all donations"
+                                                />
+                                            </TableHead>
+                                            <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Amount</TableHead>
                                             <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Campaign</TableHead>
                                             <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Donor</TableHead>
                                             <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Status</TableHead>
@@ -311,8 +332,15 @@ export function DonationsManager() {
                                     </TableHeader>
                                     <TableBody>
                                         {donations.map((donation) => (
-                                            <TableRow key={donation.id} className="hover:bg-muted/30 border-border/40 transition-colors">
-                                                <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-base sm:text-lg whitespace-nowrap">
+                                            <TableRow key={donation.id} data-state={bulk.isSelected(donation.id) ? "selected" : undefined} className="hover:bg-muted/30 border-border/40 transition-colors data-[state=selected]:bg-primary/5">
+                                                <TableCell className="pl-4 sm:pl-8 w-10">
+                                                    <Checkbox
+                                                        checked={bulk.isSelected(donation.id)}
+                                                        onCheckedChange={() => bulk.toggle(donation.id)}
+                                                        aria-label="Select donation"
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="py-4 sm:py-6 font-bold text-base sm:text-lg whitespace-nowrap">
                                                     {Number(donation.amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-xs sm:text-sm font-normal text-muted-foreground">{donation.currency}</span>
                                                 </TableCell>
                                                 <TableCell className="text-xs sm:text-sm max-w-[150px] truncate">{donation.campaign_title || 'General'}</TableCell>
@@ -338,7 +366,7 @@ export function DonationsManager() {
                                         ))}
                                         {donations.length === 0 && (
                                             <TableRow>
-                                                <TableCell colSpan={6} className="h-64 text-center">
+                                                <TableCell colSpan={7} className="h-64 text-center">
                                                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                                         <DollarSign className="w-10 h-10 opacity-20" />
                                                         <p className="font-bold">No donations found</p>

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { Loader2, UsersRound, Plus, Pencil, Trash2, X, Save, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -49,6 +52,8 @@ export function BeneficiariesManager() {
     useEffect(() => {
         fetchBeneficiaries();
     }, [filters]);
+
+    const bulk = useBulkSelection(beneficiaries);
 
     const fetchBeneficiaries = async () => {
         if (!accessToken) return;
@@ -291,6 +296,15 @@ export function BeneficiariesManager() {
                 className="mb-8"
             />
 
+            <BulkActionsBar
+                resource="beneficiaries"
+                label="beneficiary"
+                selectedIds={bulk.selectedIds}
+                totalCount={beneficiaries.length}
+                onClear={bulk.clear}
+                onDone={fetchBeneficiaries}
+            />
+
             <div className="float-card p-0 overflow-hidden bg-card rounded-[2.5rem] shadow-2xl">
                 <div className="p-4 sm:p-5 md:p-6">
                     {loading ? (
@@ -301,7 +315,14 @@ export function BeneficiariesManager() {
                                 <Table>
                                     <TableHeader className="bg-muted/50">
                                         <TableRow className="border-none hover:bg-transparent">
-                                            <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-xs sm:text-sm whitespace-nowrap">Pseudo ID</TableHead>
+                                            <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 w-10">
+                                                <Checkbox
+                                                    checked={bulk.allSelected ? true : bulk.someSelected ? "indeterminate" : false}
+                                                    onCheckedChange={bulk.toggleAll}
+                                                    aria-label="Select all beneficiarys"
+                                                />
+                                            </TableHead>
+                                            <TableHead className="py-4 sm:py-6 font-bold text-xs sm:text-sm whitespace-nowrap">Pseudo ID</TableHead>
                                             <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Full Name</TableHead>
                                             <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap">Gender</TableHead>
                                             <TableHead className="font-bold text-xs sm:text-sm whitespace-nowrap hidden md:table-cell">Contact</TableHead>
@@ -310,8 +331,15 @@ export function BeneficiariesManager() {
                                     </TableHeader>
                                     <TableBody>
                                         {beneficiaries.map((beneficiary) => (
-                                            <TableRow key={beneficiary.id} className="hover:bg-muted/30 border-border/40 transition-colors">
-                                                <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8 font-mono text-[10px] sm:text-xs">{beneficiary.pseudo_id}</TableCell>
+                                            <TableRow key={beneficiary.id} data-state={bulk.isSelected(beneficiary.id) ? "selected" : undefined} className="hover:bg-muted/30 border-border/40 transition-colors data-[state=selected]:bg-primary/5">
+                                                <TableCell className="pl-4 sm:pl-8 w-10">
+                                                    <Checkbox
+                                                        checked={bulk.isSelected(beneficiary.id)}
+                                                        onCheckedChange={() => bulk.toggle(beneficiary.id)}
+                                                        aria-label="Select beneficiary"
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="py-4 sm:py-6 font-mono text-[10px] sm:text-xs">{beneficiary.pseudo_id}</TableCell>
                                                 <TableCell className="font-bold text-xs sm:text-sm">
                                                     <div className="flex items-center gap-2 sm:gap-3">
                                                         <img
@@ -345,7 +373,7 @@ export function BeneficiariesManager() {
                                         ))}
                                         {beneficiaries.length === 0 && (
                                             <TableRow>
-                                                <TableCell colSpan={5} className="h-64 text-center">
+                                                <TableCell colSpan={6} className="h-64 text-center">
                                                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                                         <UsersRound className="w-10 h-10 opacity-20" />
                                                         <p className="font-bold">No beneficiaries found</p>

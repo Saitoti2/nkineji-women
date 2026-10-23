@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, UserPlus, Shield, Key } from "lucide-react";
@@ -51,6 +54,8 @@ export function UsersManager() {
     useEffect(() => {
         fetchData();
     }, [filters]);
+
+    const bulk = useBulkSelection(users);
 
     const fetchData = async () => {
         if (!accessToken) return;
@@ -300,6 +305,16 @@ export function UsersManager() {
                 </div>
 
                 <div className="lg:col-span-2">
+                    <BulkActionsBar
+                        resource="users"
+                        label="user"
+                        selectedIds={bulk.selectedIds}
+                        totalCount={users.length}
+                        onClear={bulk.clear}
+                        onDone={fetchData}
+                        allowDeleteAll={false}
+                    />
+
                     <Card className="border-none shadow-2xl bg-card rounded-[2.5rem] overflow-hidden">
                         <CardContent className="p-0">
                             {loading ? (
@@ -309,7 +324,14 @@ export function UsersManager() {
                                     <Table>
                                         <TableHeader className="bg-muted/50">
                                             <TableRow className="border-none hover:bg-transparent">
-                                                <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 font-bold text-xs sm:text-sm">User</TableHead>
+                                                <TableHead className="py-4 sm:py-6 pl-4 sm:pl-8 w-10">
+                                                <Checkbox
+                                                    checked={bulk.allSelected ? true : bulk.someSelected ? "indeterminate" : false}
+                                                    onCheckedChange={bulk.toggleAll}
+                                                    aria-label="Select all users"
+                                                />
+                                            </TableHead>
+                                            <TableHead className="py-4 sm:py-6 font-bold text-xs sm:text-sm">User</TableHead>
                                                 <TableHead className="font-bold text-xs sm:text-sm hidden md:table-cell">Role</TableHead>
                                                 <TableHead className="font-bold text-xs sm:text-sm">Status</TableHead>
                                                 <TableHead className="text-right pr-4 sm:pr-8 font-bold text-xs sm:text-sm">Manage</TableHead>
@@ -317,7 +339,14 @@ export function UsersManager() {
                                         </TableHeader>
                                         <TableBody>
                                             {users.map((user) => (
-                                                <TableRow key={user.id} className="group hover:bg-muted/30 border-border/40 transition-colors">
+                                                <TableRow key={user.id} data-state={bulk.isSelected(user.id) ? "selected" : undefined} className="group hover:bg-muted/30 border-border/40 transition-colors data-[state=selected]:bg-primary/5">
+                                                <TableCell className="pl-4 sm:pl-8 w-10">
+                                                    <Checkbox
+                                                        checked={bulk.isSelected(user.id)}
+                                                        onCheckedChange={() => bulk.toggle(user.id)}
+                                                        aria-label="Select user"
+                                                    />
+                                                </TableCell>
                                                     <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8">
                                                         <div>
                                                             <p className="font-bold text-xs sm:text-sm">{user.name}</p>
