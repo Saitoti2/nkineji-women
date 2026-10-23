@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
 import { Heart, Reply, MoreHorizontal, Send, Trash2, Edit2, X } from "lucide-react";
 import { cn, getImageUrl } from "@/lib/utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -121,14 +122,12 @@ function IdentityBanner({
 }) {
     return (
         <div className="flex items-center gap-2 px-5 pt-3 pb-1">
-            <div className="w-6 h-6 rounded-full overflow-hidden border border-border/40 shrink-0">
-                <img
-                    src={identity.avatar || "/placeholder-avatar.jpg"}
-                    alt={identity.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder-avatar.jpg"; }}
-                />
-            </div>
+            <UserAvatar
+                src={identity.avatar}
+                name={identity.name}
+                className="w-6 h-6 border border-border/40 shrink-0"
+                fallbackClassName="text-[9px]"
+            />
             <span className="text-xs text-muted-foreground">
                 Commenting as <span className="font-semibold text-foreground">{identity.name}</span>
             </span>
@@ -413,20 +412,13 @@ export function CommentSection({ storyId }: { storyId: string }) {
 
                 <div className="relative flex items-center gap-2">
                     {/* Avatar preview next to input */}
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-border/40 shrink-0 bg-muted">
-                        <img
-                            src={
-                                user?.avatar ||
-                                visitorIdentity?.avatar ||
-                                "/placeholder-avatar.jpg"
-                            }
-                            alt="You"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder-avatar.jpg";
-                            }}
-                        />
-                    </div>
+                    <UserAvatar
+                        src={user?.avatar || visitorIdentity?.avatar}
+                        name={user?.name || visitorIdentity?.name}
+                        email={user?.email}
+                        className="w-8 h-8 border border-border/40 shrink-0"
+                        fallbackClassName="text-[10px]"
+                    />
 
                     <div className="relative flex-1">
                         <input
@@ -509,16 +501,12 @@ function CommentItem({
         <div className={cn("space-y-4", isReply && "ml-8 md:ml-12 border-l-2 border-border/50 pl-4")}>
             <div className="flex gap-3 md:gap-4 group">
                 {/* Avatar */}
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex-shrink-0 border border-border/40 bg-muted">
-                    <img
-                        src={comment.user_avatar || "/placeholder-avatar.jpg"}
-                        className="w-full h-full object-cover"
-                        alt={comment.user_name}
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder-avatar.jpg";
-                        }}
-                    />
-                </div>
+                <UserAvatar
+                    src={comment.user_avatar}
+                    name={comment.user_name}
+                    className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 border border-border/40"
+                    fallbackClassName="text-xs"
+                />
 
                 <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
