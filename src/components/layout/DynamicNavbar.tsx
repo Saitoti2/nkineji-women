@@ -10,7 +10,7 @@ import { useDonationStore } from "@/stores/donationStore";
 import { usePWA } from "@/hooks/usePWA";
 import { LogIn, Download, LogOut, LayoutDashboard, User } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -380,12 +380,13 @@ export function DynamicNavbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 outline-none group">
-                      <Avatar className="w-8 h-8 border border-primary/20 transition-all group-hover:border-primary/50">
-                        <AvatarImage src={user?.avatar} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                          {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar
+                        src={user?.avatar}
+                        name={user?.name}
+                        email={user?.email}
+                        className="w-8 h-8 border border-primary/20 transition-all group-hover:border-primary/50"
+                        fallbackClassName="text-xs"
+                      />
                       <span className="hidden md:inline font-semibold text-sm mr-1">Profile</span>
                     </button>
                   </DropdownMenuTrigger>

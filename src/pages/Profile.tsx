@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { User, Mail, Shield, Clock, Camera, Settings, Heart, Calendar, ArrowRight } from "lucide-react";
@@ -154,12 +154,14 @@ export default function Profile() {
                         <Card className="border-none shadow-float rounded-[2.5rem] overflow-hidden bg-background">
                             <CardContent className="p-8 text-center space-y-6">
                                 <div className="relative inline-block mx-auto">
-                                    <Avatar className="w-32 h-32 border-4 border-primary/20 shadow-lg">
-                                        <AvatarImage src={avatarPreview || getImageUrl(user.avatar)} />
-                                        <AvatarFallback className="bg-primary/10 text-primary text-4xl font-display">
-                                            {user.name?.[0] || user.email[0].toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
+                                    <UserAvatar
+                                        src={user.avatar}
+                                        previewSrc={avatarPreview}
+                                        name={user.name}
+                                        email={user.email}
+                                        className="w-32 h-32 border-4 border-primary/20 shadow-lg"
+                                        fallbackClassName="text-4xl font-display"
+                                    />
                                     <input
                                         type="file"
                                         id="avatar-upload"
