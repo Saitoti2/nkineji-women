@@ -5,6 +5,7 @@ import { logger } from '../utils/logger.js';
 import { query } from '../db/connection.js';
 import { PesapalService, mapPesapalOutcome } from './pesapalService.js';
 import { getFrontendBaseUrl } from '../utils/publicUrls.js';
+import { currencyService } from './currencyService.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2025-02-24.acacia',
@@ -170,15 +171,20 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
 
         const callbackUrl = `${getFrontendBaseUrl()}/donations/success?donationId=${donation.id}`;
 
-        // PesaPal (Kenya) processes payments in KES. Convert USD → KES if needed.
-        const USD_TO_KES_RATE = 129.5; // average market rate
+        // PesaPal (Kenya) processes payments in KES. Convert USD → KES if needed,
+        // using the same live rate the frontend quoted the donor from. A fixed
+        // constant here would drift from the figure the donor was shown.
         let pesapalAmount = Number(totalAmount);
         let pesapalCurrency = donation.currency || 'KES';
 
         if (pesapalCurrency === 'USD') {
-          pesapalAmount = Math.round(totalAmount * USD_TO_KES_RATE * 100) / 100;
+          pesapalAmount = await currencyService.convert(totalAmount, 'USD', 'KES');
           pesapalCurrency = 'KES';
-          logger.info(`Converted $${totalAmount} USD → KES ${pesapalAmount} for PesaPal`);
+          logger.info('Converted donation to KES for PesaPal', {
+            usd: totalAmount,
+            kes: pesapalAmount,
+            ratesAsOf: currencyService.asOf,
+          });
         } else {
           // If already in KES, just ensure it's rounded correctly to 2 decimal places
           pesapalAmount = Math.round(pesapalAmount * 100) / 100;

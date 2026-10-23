@@ -1,6 +1,6 @@
-const CACHE_NAME = 'mara-bloom-v3';
+// Bumped so the previous cache — which held stale HTML — is dropped on activate.
+const CACHE_NAME = 'mara-bloom-v4';
 
-// Service worker will cache assets as they are requested
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
@@ -20,29 +20,84 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET') return;
+/**
+ * Build output is content-hashed (/assets/index-AbC123.js), so those files are
+ * immutable and safe to serve from cache. index.html is not: it names the
+ * current hashes. Serving a cached copy after a deploy points the browser at
+ * asset files that no longer exist, which 403/404 and leave a blank page with
+ * nothing but "Failed to load resource" in the console.
+ *
+ * So: HTML is always network-first, hashed assets are cache-first.
+ */
+const isHashedAsset = (url) => /\/assets\/.+-[A-Za-z0-9_-]{8,}\.(js|css|woff2?|png|jpe?g|svg|webp)$/.test(url.pathname);
 
-    // Skip cross-origin requests unless they are for our assets or APIs we want to cache
-    const url = new URL(event.request.url);
+const isDocumentRequest = (request, url) =>
+    request.mode === 'navigate'
+    || request.destination === 'document'
+    || url.pathname === '/'
+    || url.pathname.endsWith('.html');
+
+self.addEventListener('fetch', (event) => {
+    const { request } = event;
+    if (request.method !== 'GET') return;
+
+    const url = new URL(request.url);
     if (url.origin !== self.location.origin) return;
 
-    event.respondWith(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.match(event.request).then((cachedResponse) => {
-                const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        cache.put(event.request, networkResponse.clone());
+    // Never cache the API; responses are user-specific and change constantly.
+    if (url.pathname.startsWith('/api/')) return;
+
+    if (isDocumentRequest(request, url)) {
+        // Network-first: fall back to cache only when genuinely offline.
+        event.respondWith(
+            fetch(request)
+                .then((networkResponse) => {
+                    if (networkResponse && networkResponse.ok) {
+                        const copy = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
                     }
                     return networkResponse;
-                }).catch((error) => {
-                    if (cachedResponse) return cachedResponse;
-                    throw error;
-                });
+                })
+                .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
+        );
+        return;
+    }
 
-                // Stale-while-revalidate: return cache immediately, update in background
+    if (isHashedAsset(url)) {
+        // Cache-first: the hash in the filename makes the content immutable.
+        event.respondWith(
+            caches.match(request).then((cached) => {
+                if (cached) return cached;
+                return fetch(request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.ok) {
+                        const copy = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                    }
+                    return networkResponse;
+                });
+            })
+        );
+        return;
+    }
+
+    // Everything else (icons, manifest, images): stale-while-revalidate.
+    event.respondWith(
+        caches.open(CACHE_NAME).then((cache) =>
+            cache.match(request).then((cachedResponse) => {
+                const fetchPromise = fetch(request)
+                    .then((networkResponse) => {
+                        if (networkResponse && networkResponse.ok) {
+                            cache.put(request, networkResponse.clone());
+                        }
+                        return networkResponse;
+                    })
+                    .catch((error) => {
+                        if (cachedResponse) return cachedResponse;
+                        throw error;
+                    });
+
                 return cachedResponse || fetchPromise;
-            });
-        })
+            })
+        )
     );
 });

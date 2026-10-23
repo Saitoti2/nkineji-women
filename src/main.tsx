@@ -1,6 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { installAuthFetch } from "./lib/authFetch";
+
+// Must run before any component fetches, so an expired access token is
+// refreshed in place instead of every admin request failing with a 401.
+installAuthFetch();
 
 createRoot(document.getElementById("root")!).render(<App />);
 

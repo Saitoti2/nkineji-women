@@ -24,6 +24,7 @@ import { impactStoryRouter } from './api/routes/impactStories.js';
 import { impactCommentRouter } from './api/routes/impactComments.js';
 import { uploadRouter } from './api/routes/upload.js';
 import { settingsRouter } from './api/routes/settings.js';
+import { currencyRouter } from './api/routes/currency.js';
 import { userRouter } from './api/routes/users.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -208,6 +209,7 @@ app.get(`${API_PREFIX}/debug-test`, async (req, res) => {
 console.log('Registering upload router at', `${API_PREFIX}/upload`);
 app.use(`${API_PREFIX}/upload`, uploadRouter);
 app.use(`${API_PREFIX}/settings`, settingsRouter);
+app.use(`${API_PREFIX}/currency`, currencyRouter);
 app.use(`${API_PREFIX}/users`, userRouter);
 
 // 404 Handler

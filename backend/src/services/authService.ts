@@ -213,16 +213,43 @@ export const refresh = async (refreshToken: string): Promise<{ accessToken: stri
   try {
     const decoded = jwt.verify(refreshToken, secret) as AuthUser;
 
-    // Verify refresh token in database (revocation check)
-    const tokenHash = await bcrypt.hash(refreshToken, 10);
-    const tokenResult = await query(
-      `SELECT * FROM refresh_tokens 
-       WHERE user_id = $1 AND token_hash = $2 
-       AND expires_at > NOW() AND revoked_at IS NULL`,
-      [decoded.id, tokenHash]
+    // Verify the token against the stored hashes (revocation check).
+    //
+    // These are bcrypt hashes, which embed a random salt, so re-hashing the
+    // presented token produces a different string every time and can never be
+    // matched by SQL equality. Each candidate row has to be compared with
+    // bcrypt.compare instead.
+    // Drop dead rows first: nothing prunes this table, so without it the
+    // candidate window below fills with expired entries and a valid token can
+    // fall outside it.
+    await query(
+      `DELETE FROM refresh_tokens
+       WHERE user_id = $1 AND (expires_at <= NOW() OR revoked_at IS NOT NULL)`,
+      [decoded.id]
     );
 
-    if (tokenResult.rows.length === 0) {
+    // bcrypt.compare is deliberately slow, so the candidate set is bounded.
+    // The token in use is almost always the newest, matching on the first
+    // comparison; the full scan only happens for a token that will be rejected.
+    const tokenResult = await query<{ id: string; token_hash: string }>(
+      `SELECT id, token_hash FROM refresh_tokens
+       WHERE user_id = $1
+         AND expires_at > NOW()
+         AND revoked_at IS NULL
+       ORDER BY created_at DESC
+       LIMIT 20`,
+      [decoded.id]
+    );
+
+    let matched = false;
+    for (const row of tokenResult.rows) {
+      if (await bcrypt.compare(refreshToken, row.token_hash)) {
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
       throw new ApiError('Invalid or revoked refresh token', 401);
     }
 
