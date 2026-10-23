@@ -9,6 +9,9 @@ import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Eye, ImageIcon, Film, Upload, Activity, GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl, getAvatarUrl, handleAvatarError } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { compressImage, getInstantPreview } from "@/lib/image-utils";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useAuthStore } from '@/stores/authStore';
@@ -77,6 +80,8 @@ export function ImpactStoriesManager() {
         fetchStories();
         fetchCampaigns();
     }, [filters]);
+
+    const bulk = useBulkSelection(stories);
 
     const fetchStories = async () => {
         if (!accessToken) return;
@@ -658,15 +663,31 @@ export function ImpactStoriesManager() {
                 </div>
 
                 <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                    <BulkActionsBar
+                        resource="impact-stories"
+                        label="story"
+                        selectedIds={bulk.selectedIds}
+                        totalCount={stories.length}
+                        onClear={bulk.clear}
+                        onDone={fetchStories}
+                    />
+
                     {loading ? (
                         <div className="flex justify-center p-20"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
                     ) : (
                         <div className="grid grid-cols-1 gap-4 sm:gap-6">
                             {stories.map(story => (
-                                <Card key={story.id} className="border-none shadow-lg bg-card rounded-2xl sm:rounded-[2rem] hover:shadow-xl transition-shadow group overflow-hidden">
+                                <Card key={story.id} className={cn("border-none shadow-lg bg-card rounded-2xl sm:rounded-[2rem] hover:shadow-xl transition-shadow group overflow-hidden", bulk.isSelected(story.id) && "ring-2 ring-primary")}>
                                     <CardContent className="p-0">
                                         <div className="flex flex-col sm:flex-row h-full">
                                             <div className="w-full sm:w-40 lg:w-48 h-40 sm:h-auto relative">
+                                                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 rounded-md bg-background/90 p-1 shadow-sm">
+                                                    <Checkbox
+                                                        checked={bulk.isSelected(story.id)}
+                                                        onCheckedChange={() => bulk.toggle(story.id)}
+                                                        aria-label="Select story"
+                                                    />
+                                                </div>
                                                 <img
                                                     src={getAvatarUrl(story.profile_image_url)}
                                                     onError={handleAvatarError}

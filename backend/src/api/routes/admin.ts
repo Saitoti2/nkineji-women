@@ -23,8 +23,22 @@ adminRouter.get('/dashboard/stats', async (req, res, next) => {
       query('SELECT COUNT(*) as count FROM campaigns WHERE is_deleted = FALSE'),
       query('SELECT COUNT(*) as count FROM donations WHERE is_deleted = FALSE AND status = $1', ['succeeded']),
       query('SELECT COUNT(*) as count FROM beneficiaries WHERE is_deleted = FALSE'),
-      query('SELECT COALESCE(SUM(amount), 0) as total FROM donations WHERE status = $1 AND is_deleted = FALSE', ['succeeded']),
+      // Grouped by currency: adding KES to USD gives a figure that means
+      // nothing, and the dashboard was labelling the sum with a "$".
+      query(
+        `SELECT currency, COALESCE(SUM(amount), 0) AS total
+         FROM donations
+         WHERE status = $1 AND is_deleted = FALSE
+         GROUP BY currency
+         ORDER BY total DESC`,
+        ['succeeded']
+      ),
     ]);
+
+    const raisedByCurrency = totalRaisedResult.rows.map((row: any) => ({
+      currency: row.currency || 'USD',
+      total: parseFloat(row.total || '0'),
+    }));
 
     res.json({
       success: true,
@@ -32,7 +46,10 @@ adminRouter.get('/dashboard/stats', async (req, res, next) => {
         totalCampaigns: parseInt(campaignsResult.rows[0]?.count || '0'),
         totalDonations: parseInt(donationsResult.rows[0]?.count || '0'),
         totalBeneficiaries: parseInt(beneficiariesResult.rows[0]?.count || '0'),
-        totalRaised: parseFloat(totalRaisedResult.rows[0]?.total || '0'),
+        raisedByCurrency,
+        // Retained for older clients; only meaningful when one currency is in use.
+        totalRaised: raisedByCurrency.reduce((sum, r) => sum + r.total, 0),
+        totalRaisedCurrency: raisedByCurrency.length === 1 ? raisedByCurrency[0].currency : null,
       },
     });
   } catch (error) {
@@ -417,6 +434,77 @@ adminRouter.put('/users/:id', authorize(['super_admin', 'chief_admin']), async (
 });
 
 // Get Roles
+/**
+ * Bulk soft-delete for the admin tables.
+ *
+ * One endpoint rather than six, because every one of these tables carries an
+ * is_deleted flag and the operation is identical. The resource name is matched
+ * against a fixed map, never interpolated, so a caller cannot reach a table
+ * that is not listed here.
+ */
+const BULK_DELETE_TABLES: Record<string, string> = {
+  campaigns: 'campaigns',
+  donations: 'donations',
+  beneficiaries: 'beneficiaries',
+  'impact-stories': 'impact_stories',
+  essentials: 'campaign_items',
+  users: 'users',
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+adminRouter.post('/bulk-delete', async (req, res, next) => {
+  try {
+    const { resource, ids, all } = req.body ?? {};
+
+    const table = BULK_DELETE_TABLES[String(resource)];
+    if (!table) {
+      throw new ApiError(`Unknown resource: ${resource}`, 400);
+    }
+
+    // Deleting every user would lock everyone out, including the caller.
+    if (table === 'users' && all) {
+      throw new ApiError('Deleting all users is not permitted', 400);
+    }
+
+    if (all) {
+      const result = await query(
+        `UPDATE ${table} SET is_deleted = TRUE, updated_at = NOW()
+         WHERE is_deleted = FALSE
+         RETURNING id`
+      );
+      logger.warn('Bulk delete: all rows', { table, count: result.rows.length, by: req.user?.id });
+      return res.json({ success: true, data: { deleted: result.rows.length } });
+    }
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      throw new ApiError('ids must be a non-empty array', 400);
+    }
+
+    const validIds = ids.filter((id: unknown) => typeof id === 'string' && UUID_RE.test(id));
+    if (validIds.length !== ids.length) {
+      throw new ApiError('ids must all be valid UUIDs', 400);
+    }
+
+    // An admin removing their own account would end their own session.
+    if (table === 'users' && req.user && validIds.includes(req.user.id)) {
+      throw new ApiError('You cannot delete your own account', 400);
+    }
+
+    const result = await query(
+      `UPDATE ${table} SET is_deleted = TRUE, updated_at = NOW()
+       WHERE id = ANY($1::uuid[]) AND is_deleted = FALSE
+       RETURNING id`,
+      [validIds]
+    );
+
+    logger.info('Bulk delete', { table, requested: validIds.length, deleted: result.rows.length, by: req.user?.id });
+    res.json({ success: true, data: { deleted: result.rows.length } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 adminRouter.get('/roles', async (req, res, next) => {
   try {
     const result = await query('SELECT * FROM roles ORDER BY name');

@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, Package, Upload, GripVertical, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +50,8 @@ export function EssentialsManager() {
     useEffect(() => {
         fetchItems();
     }, [filters]);
+
+    const bulk = useBulkSelection(items);
 
     const fetchItems = async () => {
         if (!accessToken) return;
@@ -413,6 +418,15 @@ export function EssentialsManager() {
                 </div>
 
                 <div className="lg:col-span-2">
+                    <BulkActionsBar
+                        resource="essentials"
+                        label="item"
+                        selectedIds={bulk.selectedIds}
+                        totalCount={items.length}
+                        onClear={bulk.clear}
+                        onDone={fetchItems}
+                    />
+
                     <Card className="border-none shadow-2xl bg-card rounded-[2.5rem] overflow-hidden">
                         <CardContent className="p-0">
                             {loading ? (
@@ -423,7 +437,14 @@ export function EssentialsManager() {
                                         <Table>
                                             <TableHeader className="bg-muted/50">
                                                 <TableRow className="border-none hover:bg-transparent">
-                                                    <TableHead className="w-[50px] pl-4 sm:pl-8"></TableHead>
+                                                    <TableHead className="w-10 pl-4 sm:pl-8">
+                                                        <Checkbox
+                                                            checked={bulk.allSelected ? true : bulk.someSelected ? "indeterminate" : false}
+                                                            onCheckedChange={bulk.toggleAll}
+                                                            aria-label="Select all items"
+                                                        />
+                                                    </TableHead>
+                                                    <TableHead className="w-[50px]"></TableHead>
                                                     <TableHead className="py-4 sm:py-6 font-bold text-xs sm:text-sm">Item</TableHead>
                                                     <TableHead className="font-bold text-xs sm:text-sm">Price</TableHead>
                                                     <TableHead className="font-bold text-xs sm:text-sm">Status</TableHead>
@@ -448,7 +469,14 @@ export function EssentialsManager() {
                                                                     )}
                                                                     style={provided.draggableProps.style}
                                                                 >
-                                                                    <TableCell className="pl-4 sm:pl-8">
+                                                                    <TableCell className="w-10 pl-4 sm:pl-8">
+                                                                        <Checkbox
+                                                                            checked={bulk.isSelected(item.id)}
+                                                                            onCheckedChange={() => bulk.toggle(item.id)}
+                                                                            aria-label="Select item"
+                                                                        />
+                                                                    </TableCell>
+                                                                    <TableCell>
                                                                         <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1 sm:p-2 rounded hover:bg-muted/50 w-fit">
                                                                             <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50" />
                                                                         </div>
@@ -494,7 +522,7 @@ export function EssentialsManager() {
                                                     {provided.placeholder}
                                                     {items.length === 0 && (
                                                         <TableRow>
-                                                            <TableCell colSpan={5} className="h-48 sm:h-64 text-center">
+                                                            <TableCell colSpan={6} className="h-48 sm:h-64 text-center">
                                                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                                                     <Package className="w-8 h-8 sm:w-10 sm:h-10 opacity-20" />
                                                                     <p className="font-bold text-sm sm:text-base">Inventory is empty</p>

@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/admin/BulkActionsBar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Loader2, Trash2, Edit, Save, X, Megaphone, Upload, GripVertical, Activity } from "lucide-react";
@@ -57,6 +60,8 @@ export function CampaignsManager() {
     useEffect(() => {
         fetchCampaigns();
     }, [filters]);
+
+    const bulk = useBulkSelection(campaigns);
 
     const fetchCampaigns = async () => {
         if (!accessToken) return;
@@ -505,6 +510,15 @@ export function CampaignsManager() {
                 </div>
 
                 <div className="lg:col-span-2">
+                    <BulkActionsBar
+                        resource="campaigns"
+                        label="campaign"
+                        selectedIds={bulk.selectedIds}
+                        totalCount={campaigns.length}
+                        onClear={bulk.clear}
+                        onDone={fetchCampaigns}
+                    />
+
                     <Card className="border-none shadow-2xl bg-card rounded-[2.5rem] overflow-hidden">
                         <CardContent className="p-0">
                             {loading ? (
@@ -515,7 +529,14 @@ export function CampaignsManager() {
                                         <Table>
                                             <TableHeader className="bg-muted/50">
                                                 <TableRow className="border-none hover:bg-transparent">
-                                                    <TableHead className="w-[50px] pl-4 sm:pl-8"></TableHead>
+                                                    <TableHead className="w-10 pl-4 sm:pl-8">
+                                                        <Checkbox
+                                                            checked={bulk.allSelected ? true : bulk.someSelected ? "indeterminate" : false}
+                                                            onCheckedChange={bulk.toggleAll}
+                                                            aria-label="Select all campaigns"
+                                                        />
+                                                    </TableHead>
+                                                    <TableHead className="w-[50px]"></TableHead>
                                                     <TableHead className="py-4 sm:py-6 font-bold text-xs sm:text-sm">Campaign</TableHead>
                                                     <TableHead className="font-bold text-xs sm:text-sm hidden md:table-cell">Progress</TableHead>
                                                     <TableHead className="font-bold text-xs sm:text-sm hidden lg:table-cell">Dates</TableHead>
@@ -541,7 +562,14 @@ export function CampaignsManager() {
                                                                     )}
                                                                     style={provided.draggableProps.style}
                                                                 >
-                                                                    <TableCell className="pl-4 sm:pl-8">
+                                                                    <TableCell className="w-10 pl-4 sm:pl-8">
+                                                                        <Checkbox
+                                                                            checked={bulk.isSelected(campaign.id)}
+                                                                            onCheckedChange={() => bulk.toggle(campaign.id)}
+                                                                            aria-label="Select campaign"
+                                                                        />
+                                                                    </TableCell>
+                                                                    <TableCell>
                                                                         <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1 sm:p-2 rounded hover:bg-muted/50 w-fit">
                                                                             <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50" />
                                                                         </div>
@@ -623,7 +651,7 @@ export function CampaignsManager() {
                                                     {provided.placeholder}
                                                     {campaigns.length === 0 && (
                                                         <TableRow>
-                                                            <TableCell colSpan={6} className="h-48 sm:h-64 text-center">
+                                                            <TableCell colSpan={7} className="h-48 sm:h-64 text-center">
                                                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                                                     <Megaphone className="w-8 h-8 sm:w-10 sm:h-10 opacity-20" />
                                                                     <p className="font-bold text-sm sm:text-base">No campaigns found</p>
