@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { authenticate, requireAdmin } from '../../middleware/authenticate.js';
-import { createDonation, getDonation, getDonations, deleteDonation, handleStripeWebhook, handleMpesaWebhook, handlePesapalIPN } from '../../services/donationService.js';
+import { createDonation, getDonation, getDonations, deleteDonation, handleStripeWebhook, handleMpesaWebhook, handlePesapalIPN, getPublicDonationStatus } from '../../services/donationService.js';
 import { PesapalService } from '../../services/pesapalService.js';
 import { getPesapalIpnUrl } from '../../utils/publicUrls.js';
 import { validateRequest } from '../../middleware/validateRequest.js';
@@ -70,6 +70,18 @@ donationsRouter.post('/debug/register-ipn', authenticate, requireAdmin, async (r
   } catch (error: any) {
     console.error('DEBUG REGISTER IPN ERROR:', error);
     res.status(500).json({ success: false, message: error.message, details: error.response?.data });
+  }
+});
+
+// GET /api/v1/donations/:id/status - public: the donor returning from PesaPal
+// has no session, and the id is an unguessable UUID they were just given.
+// Declared before /:id so it is not shadowed by it.
+donationsRouter.get('/:id/status', async (req, res, next) => {
+  try {
+    const status = await getPublicDonationStatus(req.params.id as string);
+    res.json({ success: true, data: status });
+  } catch (error) {
+    next(error);
   }
 });
 
