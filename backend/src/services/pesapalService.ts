@@ -34,6 +34,19 @@ export interface IPNRegistrationResponse {
     error?: unknown;
 }
 
+/**
+ * PesaPal bills a subscription only when account_number is present;
+ * subscription_details on its own is not enough. The donor still has to accept
+ * the enrolment on PesaPal's own page, and can cancel it there at any time.
+ */
+export interface SubscriptionDetails {
+    /** dd-MM-yyyy */
+    start_date: string;
+    /** dd-MM-yyyy */
+    end_date: string;
+    frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+}
+
 interface OrderRequest {
     id: string;
     currency: string;
@@ -41,6 +54,9 @@ interface OrderRequest {
     description: string;
     callback_url: string;
     notification_id: string;
+    /** Identifies the payer's account; required for recurring billing. */
+    account_number?: string;
+    subscription_details?: SubscriptionDetails;
     billing_address: {
         email_address: string;
         phone_number?: string;
@@ -49,6 +65,13 @@ interface OrderRequest {
         last_name?: string;
     };
 }
+
+/** PesaPal expects dd-MM-yyyy, not ISO. */
+export const formatPesapalDate = (date: Date): string => {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    return `${dd}-${mm}-${date.getFullYear()}`;
+};
 
 interface OrderResponse {
     order_tracking_id: string;
