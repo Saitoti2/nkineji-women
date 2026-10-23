@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from '@/stores/authStore';
 import { AdvancedFilters } from './AdvancedFilters';
+import { getAvatarUrl, handleAvatarError } from '@/lib/utils';
 
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
@@ -17,6 +18,8 @@ interface Beneficiary {
     id: string;
     pseudo_id: string;
     full_name_encrypted?: string;
+    name?: string;
+    profile_image_url?: string;
     gender: string;
     date_of_birth?: string;
     contact_info_encrypted?: string;
@@ -309,7 +312,17 @@ export function BeneficiariesManager() {
                                         {beneficiaries.map((beneficiary) => (
                                             <TableRow key={beneficiary.id} className="hover:bg-muted/30 border-border/40 transition-colors">
                                                 <TableCell className="py-4 sm:py-6 pl-4 sm:pl-8 font-mono text-[10px] sm:text-xs">{beneficiary.pseudo_id}</TableCell>
-                                                <TableCell className="font-bold text-xs sm:text-sm max-w-[150px] truncate">{beneficiary.full_name_encrypted || 'Anonymous'}</TableCell>
+                                                <TableCell className="font-bold text-xs sm:text-sm">
+                                                    <div className="flex items-center gap-2 sm:gap-3">
+                                                        <img
+                                                            src={getAvatarUrl(beneficiary.profile_image_url)}
+                                                            onError={handleAvatarError}
+                                                            alt=""
+                                                            className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover flex-shrink-0 border border-border/50 bg-muted"
+                                                        />
+                                                        <span className="max-w-[150px] truncate">{beneficiary.name || beneficiary.full_name_encrypted || 'Anonymous'}</span>
+                                                    </div>
+                                                </TableCell>
                                                 <TableCell>
                                                     <Badge variant="secondary" className="capitalize text-xs">{beneficiary.gender}</Badge>
                                                 </TableCell>

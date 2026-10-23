@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { X, Heart, MessageCircle, Share2, MapPin, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl, getAvatarUrl, handleAvatarError } from "@/lib/utils";
 import { CommentSection } from "./CommentSection";
 import { useAuthStore } from "@/stores/authStore";
 import { ShareCard } from "@/components/ui/ShareCard";
@@ -175,7 +175,7 @@ export function StoryViewerModal({ isOpen, onClose, story }: any) {
                             <div className="p-6 md:p-6 space-y-4 md:space-y-6 pt-8 md:pt-6">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-accent/20 flex-shrink-0">
-                                        <img src={getImageUrl(story.profile_image_url)} className="w-full h-full object-cover" />
+                                        <img src={getAvatarUrl(story.profile_image_url)} onError={handleAvatarError} className="w-full h-full object-cover" />
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-lg md:text-lg">{story.beneficiary_name}</h3>

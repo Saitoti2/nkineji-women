@@ -13,9 +13,13 @@ interface CurrencyCache {
   timestamp: number;
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 class CurrencyService {
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
-  private readonly API_URL = 'https://api.exchangerate-api.com/v4/latest/USD'; // USD as base currency
+  // Our own backend, not a third-party API: the donor must be quoted from the
+  // same rate PesaPal will be charged at, and the server owns that rate.
+  private readonly API_URL = `${API_BASE}/currency/rates`;
   private cache: CurrencyCache | null = null;
   private fetchPromise: Promise<ExchangeRates> | null = null;
 
@@ -36,8 +40,13 @@ class CurrencyService {
           throw new Error(`Exchange rate API error: ${response.status}`);
         }
 
-        const data = await response.json();
-        const rates: ExchangeRates = data.rates || {};
+        const payload = await response.json();
+        // Backend returns { success: true, data: { USD: 1, KES: 129.84, ... } }
+        const rates: ExchangeRates = payload?.data || payload?.rates || {};
+
+        if (!rates || Object.keys(rates).length === 0) {
+          throw new Error('Exchange rate response contained no rates');
+        }
 
         // Cache the rates
         this.cache = {
@@ -89,11 +98,13 @@ class CurrencyService {
    * Rates are from USD base (1 USD = X other currency)
    */
   private getDefaultRates(): ExchangeRates {
+    // Last resort only: used when the API is unreachable and nothing is
+    // cached. Approximate, so a quote from these is indicative, not exact.
     return {
-      USD: 1.0,    // Base currency
-      EUR: 0.92,   // 1 USD = 0.92 EUR
-      GBP: 0.79,   // 1 USD = 0.79 GBP
-      KES: 128.0,  // 1 USD = 128 KES (approximate)
+      USD: 1.0,
+      EUR: 0.89,
+      GBP: 0.75,
+      KES: 129.84,
     };
   }
 
