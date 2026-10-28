@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { ApiError } from '../middleware/errorHandler.js';
 import { logger } from '../utils/logger.js';
 import { query } from '../db/connection.js';
-import { PesapalService, mapPesapalOutcome } from './pesapalService.js';
+import { PesapalService, mapPesapalOutcome, formatPesapalDate, type SubscriptionDetails } from './pesapalService.js';
 import { getFrontendBaseUrl } from '../utils/publicUrls.js';
 import { currencyService } from './currencyService.js';
 
@@ -99,8 +99,8 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
     const result = await client.query<Donation>(
       `INSERT INTO donations (
         donor_id, amount, currency, payment_method, 
-        campaign_id, status, metadata
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        campaign_id, status, metadata, is_recurring
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *`,
       [
         donorId || null,
@@ -110,6 +110,7 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
         data.campaignId || null,
         data.status || 'pending',
         JSON.stringify(data.metadata || {}),
+        Boolean(data.isRecurring),
       ]
     );
 
@@ -195,6 +196,32 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
           ? `Support for ${campaignTitle}`
           : (data.campaignTitle || 'Nkineji Women Initiative Donation');
 
+        // A monthly gift should keep running until the donor cancels, which
+        // they can do from PesaPal at any time. PesaPal insists on an end date
+        // though, so this is a long horizon rather than a real deadline —
+        // ending it after a year would silently stop a donor's giving.
+        const RECURRING_YEARS = 5;
+
+        let subscriptionDetails: SubscriptionDetails | undefined;
+        let accountNumber: string | undefined;
+
+        if (data.isRecurring) {
+          const start = new Date();
+          const end = new Date(start);
+          end.setFullYear(end.getFullYear() + RECURRING_YEARS);
+
+          subscriptionDetails = {
+            start_date: formatPesapalDate(start),
+            end_date: formatPesapalDate(end),
+            frequency: 'MONTHLY',
+          };
+
+          // Identifies the payer to PesaPal across charges, and is what
+          // actually switches billing into subscription mode. Falls back to the
+          // donation id so an anonymous recurring gift still enrols.
+          accountNumber = data.donorEmail || donation.id;
+        }
+
         const orderData = {
           id: donation.id,
           currency: pesapalCurrency,
@@ -202,6 +229,8 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
           description: description.substring(0, 100), // PesaPal limit
           callback_url: callbackUrl,
           notification_id: ipnId,
+          ...(accountNumber ? { account_number: accountNumber } : {}),
+          ...(subscriptionDetails ? { subscription_details: subscriptionDetails } : {}),
           billing_address: {
             email_address: data.donorEmail || 'anonymous@example.com',
             phone_number: data.donorPhone,
@@ -209,6 +238,15 @@ export const createDonation = async (data: any, userId?: string): Promise<Donati
             last_name: data.donorName?.split(' ').slice(1).join(' ') || 'Anonymous',
           }
         };
+
+        if (data.isRecurring) {
+          logger.info('Requesting PesaPal subscription', {
+            donationId: donation.id,
+            frequency: subscriptionDetails?.frequency,
+            start: subscriptionDetails?.start_date,
+            end: subscriptionDetails?.end_date,
+          });
+        }
 
         const pesapalResponse = await PesapalService.submitOrder(orderData);
         clientSecret = pesapalResponse.redirect_url; // Redirect the user here
@@ -501,6 +539,65 @@ export const handleMpesaWebhook = async (req: Request): Promise<void> => {
     throw new ApiError('Failed to process webhook', 500);
   }
 };
+/**
+ * Re-reads a donation's status from PesaPal and syncs it.
+ *
+ * The IPN is the normal path, but it can be delayed or missed, and the donor
+ * is looking at the success page right now. This gives that page something
+ * authoritative to show instead of assuming the payment worked.
+ *
+ * Returns only what the donor already knows about their own gift.
+ */
+export const getPublicDonationStatus = async (donationId: string) => {
+  const result = await query<{
+    id: string; status: string; amount: string; currency: string;
+    payment_provider_id: string | null; payment_method: string; is_recurring: boolean;
+  }>(
+    `SELECT id, status, amount, currency, payment_provider_id, payment_method, is_recurring
+     FROM donations WHERE id = $1 AND is_deleted = FALSE`,
+    [donationId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new ApiError('Donation not found', 404);
+  }
+
+  const donation = result.rows[0];
+  let status = donation.status;
+
+  // Only PesaPal can resolve a pending payment, and only if we have its id.
+  if (status === 'pending' && donation.payment_method === 'pesapal' && donation.payment_provider_id) {
+    try {
+      const statusResponse = await PesapalService.getTransactionStatus(donation.payment_provider_id);
+      const outcome = mapPesapalOutcome(statusResponse);
+
+      const next =
+        outcome === 'completed' ? 'succeeded'
+          : outcome === 'failed' ? 'failed'
+            : outcome === 'reversed' ? 'refunded'
+              : null;
+
+      // Reached only when status is still 'pending', so any final outcome is a change.
+      if (next) {
+        await updateDonationStatus(donation.id, next);
+        status = next;
+        logger.info('Donation status resolved on return from PesaPal', { donationId, status });
+      }
+    } catch (error) {
+      // A provider hiccup should not break the page; the IPN still applies.
+      logger.warn('Could not refresh donation status from PesaPal', { donationId, error: (error as Error).message });
+    }
+  }
+
+  return {
+    id: donation.id,
+    status,
+    amount: Number(donation.amount),
+    currency: donation.currency,
+    isRecurring: donation.is_recurring,
+  };
+};
+
 export interface PesapalIPNResult {
   handled: boolean;
   donationId?: string;
